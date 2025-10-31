@@ -81,6 +81,7 @@ results.show()
 - Precision and Recall
 - F1 Score
 - Inference Time (Speed)
+<img width="948" height="500" alt="Evaluation_metrics" src="https://github.com/user-attachments/assets/43da7c3a-2d09-4a07-aa23-ef61f86d8b0c" />
 
 
 
