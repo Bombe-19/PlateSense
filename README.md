@@ -85,7 +85,7 @@ results.show()
 
 ## Image Testing with YOLO trained model
 <p align="center">
-  <img src="/images1/check_1.png" width="300" />
-  <img src="/images1/check_4.png" width="300" />
-  <img src="/images1/check_5.png" width="300" />
+  <img src="/images1/check_1.png" width="200" />
+  <img src="/images1/check_4.png" width="200" />
+  <img src="/images1/check_5.png" width="200" />
 </p>
