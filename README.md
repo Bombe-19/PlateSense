@@ -83,7 +83,9 @@ results.show()
 - Inference Time (Speed)
 <img width="948" height="500" alt="Evaluation_metrics" src="https://github.com/user-attachments/assets/43da7c3a-2d09-4a07-aa23-ef61f86d8b0c" />
 
-
-
-
-
+## Image Testing with YOLO trained model
+<p align="center">
+  <img src="/images1/check_1.png" width="300" />
+  <img src="/images1/check_4.png" width="300" />
+  <img src="/images1/check_5.png" width="300" />
+</p>
