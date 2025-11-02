@@ -47,28 +47,6 @@ Evaluation (mAP, Precision, Recall)
      ↓
 Visualization & Deployment (Optional)
 ```
-## Model Training Steps
-- Step 1: Install Dependencies
-```bash
-pip install ultralytics opencv-python matplotlib numpy
-```
-- Step 2:Import YOLOv8
-```bash
-from ultralytics import YOLO
-```
-- Step 3: Load Pretrained Model
-```bash
-model = YOLO("yolov8n.pt")
-```
-- Step 4: Train on Custom Dataset
-```bash
-model.train(data="data.yaml", epochs=50, imgsz=640)(for sample)
-```
-- Step 5: Make Predictions
-```bash
-results = model.predict(source="test_image.jpg", conf=0.5)
-results.show()
-```
 ## Working Principle of YOLOv8
 - **Input Image** – The image is divided into grids.
 - **Feature Extraction** – The CNN backbone identifies features.
@@ -76,16 +54,101 @@ results.show()
 - **Non-Maximum Suppression (NMS)** – Removes overlapping bounding boxes.
 - **Output** – Displays food items with labels and confidence scores.
 
-## Evaluation Metrics
-- Mean Average Precision (mAP)
-- Precision and Recall
-- F1 Score
-- Inference Time (Speed)
-<img width="948" height="500" alt="Evaluation_metrics" src="https://github.com/user-attachments/assets/43da7c3a-2d09-4a07-aa23-ef61f86d8b0c" />
+## How to Run this project 
+- **Clone the Repository**
+  ```bash
+  git clone https://github.com/your-username/PlateSense.git
+  cd PlateSense
+  ```
+- **Install Dependencies**
+   ```bash
+   pip install ultralytics opencv-python matplotlib numpy pandas
+   ```
+- **Prepare the Dataset**
+   - Organize your dataset
+      ```bash
+      dataset/
+      ├── images/
+      │   ├── train/
+      │   └── val/
+      └── labels/
+       ├── train/
+       └── val/
+      ```
+> If you already have the folder structure like this, you can continue training the model.
+
+> For YOLO models, the data must follow a specific format — one folder for images and another for labels.
+
+> If your dataset is not in this format, annotate the images using LabelImg or Roboflow.
+Start by labeling around 25 images per class, then export the dataset in YOLOv8 format.
+
+> Roboflow will automatically generate the correct folder structure and provide the data.yaml file with all the necessary details for training.
+
+   - update data.yaml
+        - file tells the YOLO model where your dataset is located and what classes it should detect. Without this file, YOLO won’t know:
+        - Where the training and validation images are stored
+        - How many object classes exist
+        - What the names of those classes are
+> data.yaml accurate ensures YOLOv8 correctly loads your data and trains on the right classes without errors.
+
+> update the file whenever change in the dataset path, add or remove classes, rename the folders
+
+ - **Train the Model**
+   ```bash
+   from ultralytics import YOLO
+   model = YOLO("yolov8n.pt")  # or yolov8s.pt for better accuracy
+   model.train(data="data.yaml", epochs=50, imgsz=640)
+   ```
+> if this gives less accuracy try with increasing the epoches to 100 or 150 and some augmentation
+
+ - **Test the model**
+   ```bash
+   results = model.predict(source="test_image.jpg", conf=0.5)
+   results.show()
+   ```
+<p align="center">
+  <img src="/images1/check_1.png" width="300" />
+</p>
+
+ - Evaluation Metrics
+   - Mean Average Precision (mAP)
+   - Precision and Recall
+   - F1 Score
+   - Inference Time (Speed)
+   <img width="948" height="500" alt="Evaluation_metrics" src="https://github.com/user-attachments/assets/43da7c3a-2d09-4a07-aa23-ef61f86d8b0c" />
+
+ - Saving the model
+   - After training, YOLO automatically saves the model weights in:
+    ```bash
+    runs/detect/train/weights/
+    ```
+    - best.pt → Best-performing model
+    - last.pt → Last trained checkpoint
+    ```bash
+    model.save("models/food_detection_best.pt")
+    model = save("models/food_detection_last.pt")
+    ```
+ - Fine tune the model
+   ```bash
+   from ultralytics import YOLO
+   model = YOLO("runs/detect/train/weights/best.pt")  # Load your trained weights
+   model.train(data="dataset/data.yaml", epochs=20, imgsz=640)
+   ```
+> The model path is the best performing model with pretrained bounding box and labels use this as model and annotate with new/unlabeled images
+
+> If there are more images try annotating with small number of images with correct bounding boxes and labels and with the trained model fine-tune the new unlabeled images 
+
+## Active Learning 
+- Active Learning for Continuous Improvement
+- After training, review predictions on new food images.
+- Identify incorrect detections or missing items.
+- Re-label those images in Roboflow or LabelImg.
+- Add them back into the training dataset.
+- Fine-tune your model again using the previously saved best.pt weights.
+- This iterative process helps your model get smarter with every training round.
 
 ## Image Testing with YOLO trained model
 <p align="center">
-  <img src="/images1/check_1.png" width="200" />
-  <img src="/images1/check_4.png" width="200" />
-  <img src="/images1/check_5.png" width="200" />
+  <img src="/images1/check_4.png" width="300" />
+  <img src="/images1/check_5.png" width="300" />
 </p>
