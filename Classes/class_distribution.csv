@@ -1,0 +1,16 @@
+Class_ID,Class_Name,Train_Count,Valid_Count,Test_Count,Total_Count
+0,bread,1,0,0,1
+1,carmel,13,3,1,17
+2,chicken_curry,18,4,1,23
+3,cupcakes,22,9,4,35
+4,french_fries,20,10,0,30
+5,fried_rice,18,5,2,25
+6,ice_cream,25,6,2,33
+7,omlette,15,7,3,25
+8,pancakes,17,5,5,27
+9,pizza,21,3,4,28
+10,rice,3,2,0,5
+11,sause,3,1,1,5
+12,steak,19,6,1,26
+13,waffles,21,1,4,26
+TOTAL,14 classes,216,62,28,306
