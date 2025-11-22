@@ -136,7 +136,10 @@ Start by labeling around 25 images per class, then export the dataset in YOLOv8 
    ```
 > The model path is the best performing model with pretrained bounding box and labels use this as model and annotate with new/unlabeled images
 
-> If there are more images try annotating with small number of images with correct bounding boxes and labels and with the trained model fine-tune the new unlabeled images 
+> If there are more images try annotating with small number of images with correct bounding boxes and labels and with the trained model fine-tune the new unlabeled images
+
+## Class summary/Distribution 
+  <img src="/images1/Class_summary.png" width="500" height="500" />
 
 ## Active Learning 
 - Active Learning for Continuous Improvement
@@ -152,3 +155,6 @@ Start by labeling around 25 images per class, then export the dataset in YOLOv8 
   <img src="/images1/check_4.png" width="300" />
   <img src="/images1/check_5.png" width="300" />
 </p>
+
+## Real-time detection 
+
