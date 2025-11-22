@@ -157,4 +157,17 @@ Start by labeling around 25 images per class, then export the dataset in YOLOv8 
 </p>
 
 ## Real-time detection 
+This project includes live food item detection using a trained YOLO model and your device’s webcam. The system identifies and highlights various food items in real time, displaying bounding boxes and labels directly on the video stream. It’s fast, interactive, and built for practical use in kitchen automation, food logging, or smart dining applications.
 
+## Key Features:
+ - Instant Detection: Real-time object detection powered by YOLO.
+ - Webcam Integration: Detect food items directly from a live camera feed.
+ - Adjustable Confidence: Modify detection threshold on the fly (+ / - keys).
+ - Capture Frames: Save screenshots of detected frames with a single key press (s).
+ - Efficient Model: Lightweight, high-performance YOLO network for quick inference.
+ - Simple Controls: q to quit, intuitive UI overlay with detection count and confidence level.
+
+## Sample image of live time detection
+<p align="center">
+  <img src="/images1/check_r1.jpg" width="500" />
+</p>
