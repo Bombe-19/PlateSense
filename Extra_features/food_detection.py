@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 import cv2
 
-def realtime_food_detection(model_path='food_detection_model/food_detector_best.pt', conf_threshold=0.5):
+def realtime_food_detection(model_path='your (best) model path', conf_threshold=0.5):
     """
     Real-time food detection from webcam
     
@@ -97,10 +97,11 @@ if __name__ == "__main__":
     import argparse
     
     parser = argparse.ArgumentParser(description='Real-time food detection')
-    parser.add_argument('--model', default='food_detection_model/food_detector_best.pt', help='Model path')
+    parser.add_argument('--model', default='your (best) model path', help='Model path')
     parser.add_argument('--conf', type=float, default=0.5, help='Confidence threshold')
     parser.add_argument('--camera', type=int, default=0, help='Camera index')
     
     args = parser.parse_args()
     
+
     realtime_food_detection(args.model, args.conf)
