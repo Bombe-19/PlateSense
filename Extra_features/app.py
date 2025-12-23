@@ -8,7 +8,7 @@ import uuid
 import time
 
 
-MODEL_PATH = "class1/best.pt"
+MODEL_PATH = "your model path"
 TEMP_DIR = "temp"
 CONF_THRESHOLD = 0.2
 IOU_THRESHOLD = 0.5
@@ -148,3 +148,4 @@ with gr.Blocks(title="Food Detection System") as demo:
 # Launch App
 if __name__ == "__main__":
     demo.launch(server_name="0.0.0.0", server_port=7860)
+
