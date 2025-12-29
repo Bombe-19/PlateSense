@@ -1,4 +1,7 @@
 # PlateSense
+
+> This section describes the model training process and the procedures involved in utilizing the trained model.
+
 This project is an application of machine learning to the task of identifying and recognizing which food items are present on a plate. We put together a system that looks at food images and which in turn is able to very accurately identify, classify and label each item.
 ## Objective
 - The main goal of this project is to:
@@ -171,3 +174,112 @@ This project includes live food item detection using a trained YOLO model and yo
 <p align="center">
   <img src="/images1/check_r1.jpg" width="500" />
 </p>
+
+> This section focuses on estimating the volume and weight of food items using the trained model (volumetric analysis).
+
+## Volumetric analysis
+Accurate estimation of food portion size is a critical problem in nutrition analysis, dietary monitoring, and healthcare applications. Platesense presents a computer vision–based system for automatic food detection, volume estimation, and weight calculation from a single image. Platesense integrates YOLOv8-based object detection, geometric volume estimation, and density-based weight computation, deployed through an interactive Gradio web interface.
+
+Platesense aims to:
+- Detect food items from an image
+- Estimate their physical volume (ml)
+- Compute approximate weight (grams)
+- Provide results in visual, JSON, and CSV formats
+
+## Workflow for Volumetric analysis
+- User uploads a food image
+- Food items are detected using a YOLOv8 model
+- Plate diameter is used as a real-world reference
+- Object area is converted into real-world dimensions
+- Volume is estimated using geometric approximation
+- Weight is calculated using predefined food density
+- Results are displayed and exported
+
+## Technologies used
+| Component             | Technology           |
+| --------------------- | -------------------- |
+| Programming Language  | Python               |
+| Object Detection      | Ultralytics YOLOv8   |
+| Image Processing      | OpenCV               |
+| UI Framework          | Gradio               |
+| Deep Learning         | PyTorch              |
+| Volume Estimation     | Geometric modeling   |
+| Deployment            | Local / Server-based |
+
+## Volumetric analysis file structure
+```bash
+├── app2.py
+├── volumetric_food_analysis.py
+├── Place your best.pt
+├── requirements.txt
+```
+### File Descriptions
+- **app.py** – Main application with Gradio UI
+- **volumetric_food_analysis.py** – Core logic for detection, volume, and weight estimation
+- **best.pt** – Trained YOLOv8 food detection model
+- **requirements.txt** – Required Python dependencies
+> This code will be in extra features folder(volumetric analysis)
+
+## User Interface:
+Platesense offers an interactive user interface built with Gradio, which enables users to upload food images, specify the YOLO model path, adjust the plate diameter for real-world scaling, and view visualized detection results. In addition to real-time visual feedback, the interface supports downloadable outputs, enabling users to obtain structured results in JSON and CSV formats for further analysis and record-keeping.
+
+## Output Formats:
+The system generates multiple output formats to support visualization and analysis, including an annotated image displaying detected food items with bounding boxes, a textual summary reporting the total number of detected items along with the estimated total volume (ml) and total weight (g), and a CSV output providing tabular data for further analysis. The CSV file includes detailed attributes such as food name, estimated volume, weight, area, height, and confidence score for each detected item.
+### Json format
+```bash
+"summary": {
+"total_items_detected": 1 ,
+"total_volume_ml": 638.99 ,
+"total_volume_liters": 0.639 ,
+"total_weight_grams": 543.15 ,
+"total_weight_kg": 0.543 ,
+"items_with_components": 0
+} ,
+"food_items": [
+{
+"item_id": 1 ,
+"name": "waffles" ,
+"confidence": 0.8909 ,
+"bounding_box": {
+} ,
+"volume": {
+"volume_ml": 638.99 ,
+"weight_grams": 543.15 ,
+"weight_kg": 0.543 ,
+"area_cm2": 316.2 ,
+"estimated_height_cm": 2.89 ,
+"density_g_per_ml": 0.85 ,
+"dimensions_cm": {
+}
+} ,
+"components": null
+}
+]
+```
+> This is sample json format of image detected
+
+## How to Run Volumetric analysis
+- **Clone the Repository**
+  ```bash
+  git clone https://github.com/your-username/PlateSense.git
+  cd PlateSense
+  ```
+  > go the extra_features/Volumetric_analysis
+
+- **Installation**
+   ```bash
+   pip install -r requirements.txt
+   ```
+   > Check whether YOLOv8 model (best.pt) is placed in the project directory.
+
+- **Running the application**
+   ```bash
+   python app.py
+   ```
+   > The application launches at: http://0.0.0.0:7860
+
+## Sample Outputs 
+
+
+
+
