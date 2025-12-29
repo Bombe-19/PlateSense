@@ -279,6 +279,10 @@ The system generates multiple output formats to support visualization and analys
    > The application launches at: http://0.0.0.0:7860
 
 ## Sample Outputs 
+<p align="center">
+  <img src="/images1/gardio_!.png" width="500" />
+  <img src="/images1/gardio_2.png" width="500" />
+</p>
 
 
 
