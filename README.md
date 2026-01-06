@@ -63,6 +63,50 @@ Visualization & Deployment (Optional)
   git clone https://github.com/your-username/PlateSense.git
   cd PlateSense
   ```
+- **Setup Google colab**
+   - Open **Google Colab**\
+       <https://colab.research.google.com>
+   - Sign in with your **Google account**
+   - In Colab menu, click on file then **Upload notebook**
+   - Select the `.ipynb` file
+   > After navigate to code/Platesense(1).ipynb file download it and upload the file
+
+- **Enable GPU (Mandatory)**
+   Training YOLO models **requires GPU acceleration**.
+   - In Colab menu, click:
+   - `Runtime → Change runtime type  `
+   - Set:
+       -   **Hardware Accelerator** → `GPU`
+   - Click **Save**
+
+- **Verify GPU**
+   - Check with the following cell:
+     ```bash
+     `!nvidia-smi `
+     ```
+   > If GPU details appear, setup is correct.
+
+- **Mount Google drive**
+   ```bash
+   from google.colab import drive
+   drive.mount('/content/drive')
+   ```
+   > Mounting Google Drive ensures data persistence in Google Colab. Files uploaded directly to the runtime are temporary and are deleted when the session resets, whereas Drive mounting allows datasets,          models, and outputs to be stored securely and reused across sessions.
+   
+   > Uploading large datasets to the cloud consumes significant storage and time; to avoid this, use limited or sampled data during experimentation and scale up only when necessary.
+
+- **Upload the dataset**
+   - Upload your dataset to Google Drive first
+   - In Colab, access it:
+     ```bash
+      dataset_path = '/content/drive/MyDrive/Data_1_
+      #add more paths like this
+     ```
+     > Define the correct path in the Platesense(1).ipynb file with your file name
+> After this process navigate to code/PlateSense(1).ipynb make the changes in the code and define the path properly and run cell by cell, to get better understanding
+
+> Note: The images should be present in the drive so that the code works only running the project `data.yaml` gives an error 
+## How model is Trained
 - **Install Dependencies**
    ```bash
    pip install ultralytics opencv-python matplotlib numpy pandas
