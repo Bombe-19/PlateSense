@@ -310,6 +310,12 @@ The system generates multiple output formats to support visualization and analys
   ```
   > go the extra_features/Volumetric_analysis
 
+ - **Activate venv**
+   ```bash
+   python -m venv .venv
+   venv/scripts/activate
+   ```
+
 - **Installation**
    ```bash
    pip install -r requirements.txt
