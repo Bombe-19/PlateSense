@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 82
+names: ['Dosa', 'Idly', 'aloo_capsicum', 'aloo_methi', 'aloo_tikki', 'andhra_chicken', 'appam', 'avial', 'barfi', 'basundi', 'bhatura', 'bhindi_fry', 'bhurji', 'bread_omlette', 'butter_chicken', 'buttermilk', 'chai', 'chana_masala', 'chicken_65', 'chicken_chettinad', 'chicken_tandoori', 'chicken_tikka', 'chicken_tikka_masala', 'coconut_chutney', 'coffee', 'curd_rice', 'dal_makhani', 'dal_takda', 'egg_curry', 'fish_curry', 'fish_fry', 'french_toast', 'gobi_masala', 'green_mayo', 'idiyappam', 'jalebi', 'jeera_rice', 'kachori', 'kadai_panner', 'kadala_curry', 'karela_fry', 'kashmiri_pulao', 'khichdi', 'kootu', 'kulcha', 'laddu', 'lemon_rice', 'malai_kofta', 'matar_panner', 'mayonnaise', 'medu_vada', 'mutton_curry', 'mutton_sukka', 'mysore_pak', 'pakoda', 'palak_panner', 'pani_puri', 'panner_65', 'parotta', 'pav_bhaji', 'payasam', 'pickle', 'poha', 'pongal', 'prawn_fry', 'prawn_masala', 'puttu', 'rajma_chawal', 'ras_malai', 'rasam', 'rasgulla', 'red_sauce', 'sabzi', 'salna', 'sambar', 'samosa', 'sandwich', 'tamarind_rice', 'tomato_rice', 'upma', 'uttapam', 'vada_pav']
+
+roboflow:
+  workspace: labelling-zfvpc
+  project: object_detection-ldcwe
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/labelling-zfvpc/object_detection-ldcwe/dataset/1

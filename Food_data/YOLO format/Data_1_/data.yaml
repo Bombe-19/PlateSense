@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 14
+names: ['bread', 'carmel', 'chicken_curry', 'cupcakes', 'french_fries', 'fried_rice', 'ice_cream', 'omlette', 'pancakes', 'pizza', 'rice', 'sause', 'steak', 'waffles']
+
+roboflow:
+  workspace: labelling-zfvpc
+  project: food_detetction-qvwkb
+  version: 2
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/labelling-zfvpc/food_detetction-qvwkb/dataset/2

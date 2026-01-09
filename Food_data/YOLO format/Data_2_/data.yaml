@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 14
+names: ['adhirasam', 'aloo_gobi', 'boondi', 'briyani', 'chapathi', 'gulab_jamun', 'kuzhi_paniyaram', 'lassi', 'naan', 'paneer_butter_masala', 'phirni', 'rabdi', 'red_chutney', 'rita']
+
+roboflow:
+  workspace: labelling-zfvpc
+  project: food_detection_v2-1ycew
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/labelling-zfvpc/food_detection_v2-1ycew/dataset/1
