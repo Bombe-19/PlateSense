@@ -1,0 +1,191 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@layer base {
+  :root {
+    --background: 250 30% 97%;
+    --foreground: 240 20% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 20% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 20% 15%;
+
+    --primary: 145 63% 42%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 260 40% 94%;
+    --secondary-foreground: 260 30% 30%;
+
+    --muted: 250 20% 94%;
+    --muted-foreground: 240 10% 50%;
+
+    --accent: 260 50% 65%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 250 20% 90%;
+    --input: 250 20% 90%;
+    --ring: 145 63% 42%;
+
+    --radius: 1.25rem;
+
+    /* Custom tokens */
+    --gradient-page: linear-gradient(135deg, #D4909D 0%, #A88BA8 40%, #7BA8B8 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(260 40% 95%) 0%, hsl(250 30% 97%) 100%);
+    --gradient-cta: linear-gradient(135deg, hsl(260 45% 92%) 0%, hsl(250 40% 88%) 100%);
+
+    --glass-bg: hsla(0, 0%, 100%, 0.5);
+    --glass-border: hsla(0, 0%, 100%, 0.3);
+    --glass-shadow: 0 8px 32px hsla(260, 30%, 50%, 0.05);
+
+    --shadow-card: 0 4px 24px hsla(260, 30%, 50%, 0.06);
+    --shadow-card-hover: 0 8px 40px hsla(260, 30%, 50%, 0.12);
+    --shadow-elevated: 0 12px 48px hsla(260, 30%, 50%, 0.1);
+
+    --metric-green: 145 63% 42%;
+    --metric-violet: 260 50% 65%;
+    --metric-blue: 220 70% 55%;
+    --metric-orange: 30 90% 55%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html, body {
+    height: 100%;
+    width: 100%;
+  }
+
+  html {
+    background-image: url('/background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+  }
+
+  body {
+    @apply text-foreground font-sans antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: transparent;
+    margin: 0;
+    padding: 0;
+  }
+
+  #root {
+    height: 100%;
+    width: 100%;
+  }
+}
+
+@layer components {
+  .glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    border-radius: var(--radius);
+    transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+  }
+
+  .glass-card:hover {
+    box-shadow: 0 12px 48px hsla(260, 30%, 50%, 0.08);
+    border-color: hsla(0, 0%, 100%, 0.5);
+    transform: translateY(-2px);
+  }
+
+  .card-elevated {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    border-radius: var(--radius);
+    transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+  }
+
+  .card-elevated:hover {
+    box-shadow: 0 12px 48px hsla(260, 30%, 50%, 0.08);
+    border-color: hsla(0, 0%, 100%, 0.5);
+    transform: translateY(-2px);
+  }
+
+  .page-gradient {
+    background: transparent;
+    min-height: 100vh;
+  }
+
+  .gradient-cta {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    margin: 1.5rem 0;
+    padding: 2.5rem 0;
+  }
+
+  .metric-badge {
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium;
+  }
+
+  .metric-green {
+    background: hsl(var(--metric-green) / 0.1);
+    color: hsl(var(--metric-green));
+  }
+
+  .metric-violet {
+    background: hsl(var(--metric-violet) / 0.1);
+    color: hsl(var(--metric-violet));
+  }
+
+  .metric-blue {
+    background: hsl(var(--metric-blue) / 0.1);
+    color: hsl(var(--metric-blue));
+  }
+
+  .metric-orange {
+    background: hsl(var(--metric-orange) / 0.1);
+    color: hsl(var(--metric-orange));
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  textarea,
+  select {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+  }
+
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="password"]:focus,
+  input[type="search"]:focus,
+  textarea:focus,
+  select:focus {
+    border-color: hsla(0, 0%, 100%, 0.5);
+    background: hsla(0, 0%, 100%, 0.6);
+    outline: none;
+    box-shadow: 0 0 0 3px hsla(145, 63%, 42%, 0.08);
+  }
+}
