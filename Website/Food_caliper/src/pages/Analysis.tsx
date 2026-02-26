@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Upload, Download, Search, FlaskConical, Ruler, Scale, Target, BarChart3, Layers } from "lucide-react";
+import { Upload, Download, Search, FlaskConical, Ruler, Scale, Target, BarChart3, Layers, Home, Microscope, BarChart4, Settings, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import Navbar from "@/components/Navbar";
 import ScanAnimation from "@/components/ScanAnimation";
 import AnimatedCounter from "@/components/AnimatedCounter";
+import Dock from "@/components/Dock";
 import heroFood from "@/assets/hero-food.jpg";
 import { apiClient } from "@/services/apiClient";
 
@@ -32,6 +34,7 @@ interface AnalysisResult {
 const COLORS = ["hsl(145, 63%, 42%)", "hsl(260, 50%, 65%)", "hsl(220, 70%, 55%)", "hsl(30, 90%, 55%)"];
 
 const Analysis = () => {
+  const navigate = useNavigate();
   const [imageFile, setImageFile] = useState<string | null>(null);
   const [imageFileObject, setImageFileObject] = useState<File | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -344,6 +347,44 @@ const Analysis = () => {
             </motion.div>
           </div>
         )}
+      </div>
+
+      {/* Navigation Dock */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pointer-events-none">
+        <div className="pointer-events-auto">
+          <Dock 
+            items={[
+              { 
+                icon: <Home size={20} />, 
+                label: 'Home', 
+                onClick: () => navigate('/') 
+              },
+              { 
+                icon: <Microscope size={20} />, 
+                label: 'Analyze', 
+                onClick: () => navigate('/analysis') 
+              },
+              { 
+                icon: <BarChart4 size={20} />, 
+                label: 'Dashboard', 
+                onClick: () => navigate('/dashboard') 
+              },
+              { 
+                icon: <Settings size={20} />, 
+                label: 'Settings', 
+                onClick: () => navigate('/login') 
+              },
+              { 
+                icon: <User size={20} />, 
+                label: 'Profile', 
+                onClick: () => navigate('/login') 
+              },
+            ]}
+            panelHeight={68}
+            baseItemSize={50}
+            magnification={70}
+          />
+        </div>
       </div>
     </div>
   );

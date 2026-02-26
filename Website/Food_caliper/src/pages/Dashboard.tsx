@@ -1,8 +1,10 @@
 import { motion } from "framer-motion";
-import { Search, Layers, Ruler, Scale, Target, Eye, TrendingUp } from "lucide-react";
+import { Search, Layers, Ruler, Scale, Target, Eye, TrendingUp, Home, Microscope, BarChart4, Settings, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import Navbar from "@/components/Navbar";
 import AnimatedCounter from "@/components/AnimatedCounter";
+import Dock from "@/components/Dock";
 import { mockAnalysis, mockWeeklyData, mockRecentAnalyses } from "@/lib/mockData";
 import { Link } from "react-router-dom";
 
@@ -16,6 +18,7 @@ const categoryData = [
 ];
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const latest = mockAnalysis;
 
   return (
@@ -182,6 +185,44 @@ const Dashboard = () => {
             </table>
           </div>
         </motion.div>
+      </div>
+
+      {/* Navigation Dock */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pointer-events-none">
+        <div className="pointer-events-auto">
+          <Dock 
+            items={[
+              { 
+                icon: <Home size={20} />, 
+                label: 'Home', 
+                onClick: () => navigate('/') 
+              },
+              { 
+                icon: <Microscope size={20} />, 
+                label: 'Analyze', 
+                onClick: () => navigate('/analysis') 
+              },
+              { 
+                icon: <BarChart4 size={20} />, 
+                label: 'Dashboard', 
+                onClick: () => navigate('/dashboard') 
+              },
+              { 
+                icon: <Settings size={20} />, 
+                label: 'Settings', 
+                onClick: () => navigate('/login') 
+              },
+              { 
+                icon: <User size={20} />, 
+                label: 'Profile', 
+                onClick: () => navigate('/login') 
+              },
+            ]}
+            panelHeight={68}
+            baseItemSize={50}
+            magnification={70}
+          />
+        </div>
       </div>
     </div>
   );

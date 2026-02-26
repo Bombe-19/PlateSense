@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Mail, Lock, ArrowRight, AlertCircle, CheckCircle } from "lucide-react";
+import { Mail, Lock, ArrowRight, AlertCircle, CheckCircle, Home, Microscope, BarChart4, Settings, User } from "lucide-react";
 import logo from "@/assets/logo.png";
+import Dock from "@/components/Dock";
 import { apiClient } from "@/services/apiClient";
 
 const Login = () => {
@@ -252,6 +253,44 @@ const Login = () => {
           </button>
         </p>
       </motion.div>
+
+      {/* Navigation Dock */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pointer-events-none">
+        <div className="pointer-events-auto">
+          <Dock 
+            items={[
+              { 
+                icon: <Home size={20} />, 
+                label: 'Home', 
+                onClick: () => navigate('/') 
+              },
+              { 
+                icon: <Microscope size={20} />, 
+                label: 'Analyze', 
+                onClick: () => navigate('/analysis') 
+              },
+              { 
+                icon: <BarChart4 size={20} />, 
+                label: 'Dashboard', 
+                onClick: () => navigate('/dashboard') 
+              },
+              { 
+                icon: <Settings size={20} />, 
+                label: 'Settings', 
+                onClick: () => navigate('/login') 
+              },
+              { 
+                icon: <User size={20} />, 
+                label: 'Profile', 
+                onClick: () => navigate('/login') 
+              },
+            ]}
+            panelHeight={68}
+            baseItemSize={50}
+            magnification={70}
+          />
+        </div>
+      </div>
     </div>
   );
 };

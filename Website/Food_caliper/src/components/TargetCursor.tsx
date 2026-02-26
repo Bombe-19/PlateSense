@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useMemo } from 'react';
+import { useEffect, useRef, useCallback, useMemo, useState } from 'react';
 import { gsap } from 'gsap';
 import './TargetCursor.css';
 
@@ -13,6 +13,7 @@ const TargetCursor = ({
   const cornersRef = useRef(null);
   const spinTl = useRef(null);
   const dotRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   const isActiveRef = useRef(false);
   const targetCornerPositionsRef = useRef(null);
@@ -177,6 +178,12 @@ const TargetCursor = ({
         resumeTimeout = null;
       }
 
+      // Show custom cursor
+      setIsVisible(true);
+      if (hideDefaultCursor) {
+        document.body.style.cursor = 'none';
+      }
+
       activeTarget = target;
       const corners = Array.from(cornersRef.current) as HTMLElement[];
       corners.forEach(corner => gsap.killTweensOf(corner));
@@ -222,6 +229,10 @@ const TargetCursor = ({
         targetCornerPositionsRef.current = null;
         gsap.set(activeStrengthRef, { current: 0, overwrite: true });
         activeTarget = null;
+
+        // Hide custom cursor when leaving target
+        setIsVisible(false);
+        document.body.style.cursor = 'auto';
 
         if (cornersRef.current) {
           const corners = Array.from(cornersRef.current) as HTMLElement[];
@@ -316,7 +327,7 @@ const TargetCursor = ({
   }
 
   return (
-    <div ref={cursorRef} className="target-cursor-wrapper">
+    <div ref={cursorRef} className={`target-cursor-wrapper ${isVisible ? 'visible' : ''}`}>
       <div ref={dotRef} className="target-cursor-dot" />
       <div className="target-cursor-corner corner-tl" />
       <div className="target-cursor-corner corner-tr" />

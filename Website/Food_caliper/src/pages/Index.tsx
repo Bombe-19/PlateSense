@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Ruler, Scale, Brain, BarChart3, Zap, Target, Upload, ArrowRight, Home, Microscope, BarChart4, Settings } from "lucide-react";
+import { Ruler, Scale, Brain, BarChart3, Zap, Target, Upload, ArrowRight, Home, Microscope, BarChart4, Settings, User } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import ScanAnimation from "@/components/ScanAnimation";
 import AnimatedCounter from "@/components/AnimatedCounter";
@@ -52,6 +52,11 @@ const Index = () => {
     { 
       icon: <Settings size={20} />, 
       label: 'Settings', 
+      onClick: () => navigate('/login') 
+    },
+    { 
+      icon: <User size={20} />, 
+      label: 'Profile', 
       onClick: () => navigate('/login') 
     },
   ];
