@@ -1,9 +1,52 @@
-import { Link, useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
+import { LogOut, User } from "lucide-react";
 import logo from "@/assets/logo.png";
+import { apiClient } from "@/services/apiClient";
 
 const Navbar = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchUserProfile();
+    }
+  }, [isAuthenticated]);
+
+  const fetchUserProfile = async () => {
+    try {
+      const userId = apiClient.getUserId();
+      if (userId) {
+        const profile = await apiClient.getUserProfile(userId);
+        setUser(profile);
+      }
+    } catch (error) {
+      console.error("Failed to fetch user profile:", error);
+    }
+  };
+
+  const handleLogout = () => {
+    apiClient.logout();
+    setUser(null);
+    setShowDropdown(false);
+    navigate("/");
+  };
+
+  const getInitials = (user: any) => {
+    if (!user) return "U";
+    const name = user.full_name || user.username;
+    return name
+      ?.split(" ")
+      .map((n: string) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) || "U";
+  };
 
   const navLinks = [
     { to: "/dashboard", label: "Dashboard" },
@@ -41,10 +84,47 @@ const Navbar = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
                 </Link>
               ))}
             </nav>
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary">
-                U
-              </div>
+            <div className="relative">
+              <button
+                onClick={() => setShowDropdown(!showDropdown)}
+                className="cursor-target h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary hover:bg-primary/20 transition-colors"
+              >
+                {getInitials(user)}
+              </button>
+              <AnimatePresence>
+                {showDropdown && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 mt-2 w-56 rounded-xl glass-card border border-border p-2 shadow-lg z-50"
+                  >
+                    {user && (
+                      <>
+                        <div className="px-3 py-2 border-b border-border/50 mb-2">
+                          <p className="font-semibold text-foreground">{user.full_name || user.username}</p>
+                          <p className="text-xs text-muted-foreground">{user.email}</p>
+                        </div>
+                        <button
+                          onClick={() => navigate(`/profile`)}
+                          className="cursor-target w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted transition-colors text-sm text-foreground mb-1"
+                        >
+                          <User className="h-4 w-4" />
+                          View Profile
+                        </button>
+                        <button
+                          onClick={handleLogout}
+                          className="cursor-target w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-red-500/10 transition-colors text-sm text-red-500"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          Logout
+                        </button>
+                      </>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </>
         ) : (

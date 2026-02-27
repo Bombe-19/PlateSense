@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Upload, Download, Search, FlaskConical, Ruler, Scale, Target, BarChart3, Layers, Home, Microscope, BarChart4, Settings, User } from "lucide-react";
+import { Upload, Download, Search, FlaskConical, Ruler, Scale, Target, BarChart3, Layers, Home, Microscope, BarChart4, Settings, User, Clipboard, Video, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import Navbar from "@/components/Navbar";
@@ -18,6 +18,12 @@ interface FoodItem {
   height: number;
   confidence: number;
   components: string[];
+  bbox?: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
 }
 
 interface AnalysisResult {
@@ -35,12 +41,16 @@ const COLORS = ["hsl(145, 63%, 42%)", "hsl(260, 50%, 65%)", "hsl(220, 70%, 55%)"
 
 const Analysis = () => {
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const webcamInputRef = useRef<HTMLInputElement>(null);
   const [imageFile, setImageFile] = useState<string | null>(null);
   const [imageFileObject, setImageFileObject] = useState<File | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [imageWidth, setImageWidth] = useState(0);
+  const [imageHeight, setImageHeight] = useState(0);
 
   const handleAnalyze = async () => {
     if (!imageFileObject) {
@@ -60,15 +70,38 @@ const Analysis = () => {
       const transformedResult: AnalysisResult = {
         id: analysisData.id,
         imageUrl: imageFile || "",
-        foods: (analysisData.foods || []).map((f: any) => ({
-          name: f.name || f.food_name,
-          volume: f.volume || f.volume_ml,
-          weight: f.weight || f.weight_grams,
-          area: f.area || f.area_cm2 || 0,
-          height: f.height || f.height_cm || 0,
-          confidence: f.confidence,
-          components: Array.isArray(f.components) ? f.components : [],
-        })),
+        foods: (analysisData.foods || []).map((f: any) => {
+          // Convert bbox coordinates from corner format (x1, y1, x2, y2) to center format (x, y, width, height)
+          let bbox;
+          if (f.bbox) {
+            // If already in correct format
+            bbox = {
+              x: f.bbox.x || 0,
+              y: f.bbox.y || 0,
+              width: f.bbox.width || 0,
+              height: f.bbox.height || 0,
+            };
+          } else if (f.bbox_x1 != null && f.bbox_y1 != null && f.bbox_x2 != null && f.bbox_y2 != null) {
+            // Convert from corner coordinates to x, y, width, height
+            bbox = {
+              x: f.bbox_x1,
+              y: f.bbox_y1,
+              width: f.bbox_x2 - f.bbox_x1,
+              height: f.bbox_y2 - f.bbox_y1,
+            };
+          }
+          
+          return {
+            name: f.name || f.food_name,
+            volume: f.volume || f.volume_ml,
+            weight: f.weight || f.weight_grams,
+            area: f.area || f.area_cm2 || 0,
+            height: f.height || f.height_cm || 0,
+            confidence: f.confidence,
+            components: Array.isArray(f.components) ? f.components : [],
+            bbox: bbox,
+          };
+        }),
         totalVolume: analysisData.total_volume_ml || analysisData.totalVolume,
         totalWeight: analysisData.total_weight_grams || analysisData.totalWeight,
         totalItems: analysisData.total_items_detected || analysisData.totalItems,
@@ -77,10 +110,13 @@ const Analysis = () => {
       };
 
       setResult(transformedResult);
+      console.log("Analysis Result:", transformedResult);
+      console.log("Foods with bbox:", transformedResult.foods.map(f => ({ name: f.name, bbox: f.bbox })));
     } catch (err: any) {
       const errorMessage = err.response?.data?.detail || err.message || "Analysis failed";
       setError(errorMessage);
       console.error("Analysis error:", err);
+      console.error("Analysis response:", err.response?.data);
     } finally {
       setIsAnalyzing(false);
     }
@@ -102,11 +138,58 @@ const Analysis = () => {
     const file = e.target.files?.[0];
     if (file && file.type.startsWith("image/")) {
       setImageFileObject(file);
-      setImageFile(URL.createObjectURL(file));
+      const url = URL.createObjectURL(file);
+      setImageFile(url);
       setError(null);
     } else {
       setError("Please select an image file");
     }
+  };
+
+  const handlePaste = async () => {
+    try {
+      const items = await navigator.clipboard.read();
+      for (const item of items) {
+        const imageTypes = item.types.filter(type => type.startsWith("image/"));
+        if (imageTypes.length > 0) {
+          const blob = await item.getType(imageTypes[0]);
+          if (blob) {
+            setImageFileObject(blob as File);
+            const url = URL.createObjectURL(blob);
+            setImageFile(url);
+            setError(null);
+          }
+          break;
+        }
+      }
+    } catch (err) {
+      setError("Unable to paste image. Please use upload or take a photo instead.");
+    }
+  };
+
+  const handleWebcam = () => {
+    webcamInputRef.current?.click();
+  };
+
+  const handleWebcamCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      setImageFileObject(file);
+      const url = URL.createObjectURL(file);
+      setImageFile(url);
+      setError(null);
+    } else {
+      setError("Failed to capture image");
+    }
+  };
+
+  const handleClearImage = () => {
+    setImageFile(null);
+    setImageFileObject(null);
+    setResult(null);
+    setError(null);
+    setImageWidth(0);
+    setImageHeight(0);
   };
 
   const filteredFoods = result?.foods.filter(f =>
@@ -146,21 +229,67 @@ const Analysis = () => {
                 <FlaskConical className="h-5 w-5 text-primary" /> Original Image
               </h2>
               <div
-                className="relative rounded-xl overflow-hidden bg-muted aspect-video flex items-center justify-center cursor-pointer"
+                className="relative rounded-xl overflow-hidden bg-muted flex items-center justify-center cursor-pointer min-h-[300px] max-h-[600px]"
                 onDrop={handleDrop}
                 onDragOver={(e) => e.preventDefault()}
-                onClick={() => document.getElementById("file-input")?.click()}
               >
                 {imageFile ? (
-                  <img src={imageFile} alt="Food" className="w-full h-full object-cover" />
+                  <>
+                    <button
+                      onClick={handleClearImage}
+                      className="cursor-target absolute top-3 right-3 z-10 p-1.5 rounded-lg bg-red-500/90 hover:bg-red-600 text-white transition-colors"
+                      title="Cancel image"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                    <img 
+                      src={imageFile} 
+                      alt="Food" 
+                      className="w-full h-full object-contain" 
+                      onLoad={(e) => {
+                        const img = e.currentTarget as HTMLImageElement;
+                        setImageWidth(img.naturalWidth);
+                        setImageHeight(img.naturalHeight);
+                      }}
+                    />
+                    <ScanAnimation isScanning={isAnalyzing} />
+                  </>
                 ) : (
                   <div className="text-center p-8">
-                    <Upload className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-sm font-medium text-muted-foreground">Drop an image or click to upload</p>
+                    <div className="space-y-4">
+                      <div>
+                        <Upload className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
+                        <p className="text-sm font-medium text-muted-foreground">Upload Image</p>
+                      </div>
+                      <div className="flex gap-3 justify-center flex-wrap">
+                        <button
+                          onClick={() => fileInputRef.current?.click()}
+                          className="cursor-target flex flex-col items-center gap-2 px-4 py-3 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors"
+                        >
+                          <Upload className="h-5 w-5 text-primary" />
+                          <span className="text-xs font-medium text-primary">Upload</span>
+                        </button>
+                        <button
+                          onClick={handlePaste}
+                          className="cursor-target flex flex-col items-center gap-2 px-4 py-3 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors"
+                        >
+                          <Clipboard className="h-5 w-5 text-primary" />
+                          <span className="text-xs font-medium text-primary">Paste</span>
+                        </button>
+                        <button
+                          onClick={handleWebcam}
+                          className="cursor-target flex flex-col items-center gap-2 px-4 py-3 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors"
+                        >
+                          <Video className="h-5 w-5 text-primary" />
+                          <span className="text-xs font-medium text-primary">Webcam</span>
+                        </button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">or drag & drop an image</p>
+                    </div>
                   </div>
                 )}
-                <ScanAnimation isScanning={isAnalyzing} />
-                <input id="file-input" type="file" accept="image/*" className="hidden" onChange={handleFileInput} />
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileInput} />
+                <input ref={webcamInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleWebcamCapture} />
               </div>
               <button
                 onClick={handleAnalyze}
@@ -177,25 +306,50 @@ const Analysis = () => {
                 <h2 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                   <Target className="h-5 w-5 text-primary" /> AI Detection Result
                 </h2>
-                <div className="relative rounded-xl overflow-hidden bg-muted aspect-video">
-                  <img src={imageFile!} alt="Detection" className="w-full h-full object-cover" />
+                <div className="relative rounded-xl overflow-hidden bg-muted flex items-center justify-center min-h-[300px] max-h-[600px]">
+                  <img 
+                    src={imageFile!} 
+                    alt="Detection" 
+                    className="w-full h-full object-contain relative z-0" 
+                  />
                   {/* Bounding box overlays based on detected items */}
-                  {result.foods.map((f, i) => (
-                    <div
-                      key={f.name}
-                      className="absolute border-2 border-primary rounded-lg"
-                      style={{
-                        left: `${15 + i * 18}%`,
-                        top: `${10 + i * 8}%`,
-                        width: `${20 + (i % 2) * 5}%`,
-                        height: `${30 + (i % 3) * 5}%`,
-                      }}
-                    >
-                      <span className="absolute -top-6 left-0 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-md font-medium">
-                        {f.name} · {f.volume}ml · {f.weight}g
-                      </span>
-                    </div>
-                  ))}
+                  {result.foods.map((f, i) => {
+                    // Use backend bbox if available, otherwise use fallback
+                    const bbox = f.bbox;
+                    const hasBbox = bbox && bbox.width > 0 && bbox.height > 0 && imageWidth > 0 && imageHeight > 0;
+                    
+                    // Calculate percentages
+                    const leftPercent = hasBbox ? (bbox.x / imageWidth) * 100 : 15 + i * 18;
+                    const topPercent = hasBbox ? (bbox.y / imageHeight) * 100 : 10 + i * 8;
+                    const widthPercent = hasBbox ? (bbox.width / imageWidth) * 100 : 20 + (i % 2) * 5;
+                    const heightPercent = hasBbox ? (bbox.height / imageHeight) * 100 : 30 + (i % 3) * 5;
+                    
+                    return (
+                      <div
+                        key={`${f.name}-${i}`}
+                        className="absolute border-3 border-green-400 rounded-lg group hover:border-yellow-300 transition-all pointer-events-none"
+                        style={{
+                          left: `${leftPercent}%`,
+                          top: `${topPercent}%`,
+                          width: `${widthPercent}%`,
+                          height: `${heightPercent}%`,
+                          minWidth: '50px',
+                          minHeight: '50px',
+                          boxShadow: '0 0 0 2px rgba(74, 222, 128, 0.5)',
+                        }}
+                      >
+                        <span className="absolute -top-7 left-0 bg-green-500 text-white text-xs px-2 py-1 rounded-md font-medium whitespace-nowrap group-hover:bg-green-400 transition-colors shadow-lg pointer-events-auto">
+                          {f.name}
+                        </span>
+                        <span className="absolute left-1 top-1 bg-black/60 text-white text-xs px-2 py-0.5 rounded font-semibold pointer-events-auto">
+                          {f.volume.toFixed(1)}ml
+                        </span>
+                        <span className="absolute -bottom-7 left-0 bg-blue-500 text-white text-xs px-2 py-1 rounded-md font-medium whitespace-nowrap group-hover:bg-blue-400 transition-colors shadow-lg pointer-events-auto">
+                          {f.weight.toFixed(1)}g · {f.confidence.toFixed(0)}%
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
                 <div className="mt-4 grid grid-cols-3 gap-3">
                   <div className="metric-green metric-badge"><Layers className="h-3.5 w-3.5" /> {result.totalItems} items</div>

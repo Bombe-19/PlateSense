@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, Enum, ForeignKey, Text, JSON, Date
+from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, Enum, ForeignKey, Text, JSON, Date, LargeBinary
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
@@ -38,6 +38,7 @@ class AnalysisResult(Base):
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     image_filename = Column(String(255))
     image_path = Column(String(500))
+    image_data = Column(LargeBinary)  # Store image as BLOB in database
     analysis_date = Column(DateTime, default=datetime.utcnow)
     total_volume_ml = Column(Float, nullable=False)
     total_weight_grams = Column(Float, nullable=False)

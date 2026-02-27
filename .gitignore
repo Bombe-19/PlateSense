@@ -130,3 +130,4 @@ Desktop.ini
 database_schema.sql
 QUICK_REFERENCE.txt
 hero-food.jpg
+migrations/

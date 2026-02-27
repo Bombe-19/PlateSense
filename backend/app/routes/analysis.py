@@ -89,15 +89,17 @@ async def upload_and_analyze(
     """Upload image and perform volumetric analysis"""
     
     try:
-        # Create uploads directory if not exists
+        # Create temporary uploads directory for analysis processing only
         upload_dir = Path("backend/uploads")
         upload_dir.mkdir(parents=True, exist_ok=True)
         
-        # Save uploaded file
-        file_path = upload_dir / f"{datetime.utcnow().timestamp()}_{file.filename}"
-        with open(file_path, "wb") as buffer:
-            contents = await file.read()
-            buffer.write(contents)
+        # Read file contents
+        file_contents = await file.read()
+        
+        # Save to temp location for analysis processing
+        temp_file_path = upload_dir / f"{datetime.utcnow().timestamp()}_{file.filename}"
+        with open(temp_file_path, "wb") as buffer:
+            buffer.write(file_contents)
         
         # Get analyzer
         analyzer = get_analyzer()
@@ -108,13 +110,14 @@ async def upload_and_analyze(
             )
         
         # Run analysis
-        analysis_result = analyzer.analyze_image(str(file_path))
+        analysis_result = analyzer.analyze_image(str(temp_file_path))
         
-        # Create analysis record
+        # Create analysis record with image stored as BLOB
         db_analysis = AnalysisResult(
             user_id=current_user.id,
             image_filename=file.filename,
-            image_path=str(file_path),
+            image_path=str(temp_file_path),  # Keep for now, can be removed later
+            image_data=file_contents,  # Store image as binary in database
             analysis_date=datetime.utcnow(),
             total_volume_ml=analysis_result["summary"]["total_volume_ml"],
             total_weight_grams=analysis_result["summary"]["total_weight_grams"],
@@ -157,6 +160,12 @@ async def upload_and_analyze(
         db.commit()
         db.refresh(db_analysis)
         
+        # Clean up temporary file
+        try:
+            temp_file_path.unlink()
+        except:
+            pass
+        
         return {
             "id": db_analysis.id,
             "user_id": current_user.id,
@@ -176,7 +185,13 @@ async def upload_and_analyze(
                     "confidence": f.confidence,
                     "area": f.area_cm2,
                     "height": f.height_cm,
-                    "components": f.components or []
+                    "components": f.components or [],
+                    "bbox": {
+                        "x": f.bbox_x1,
+                        "y": f.bbox_y1,
+                        "width": f.bbox_x2 - f.bbox_x1,
+                        "height": f.bbox_y2 - f.bbox_y1,
+                    } if f.bbox_x1 is not None and f.bbox_y1 is not None and f.bbox_x2 is not None and f.bbox_y2 is not None else None
                 }
                 for f in db_analysis.food_items
             ]
@@ -209,6 +224,40 @@ async def get_analysis(
     
     return AnalysisDetailResponse.from_orm(analysis)
 
+@router.get("/image/{analysis_id}")
+async def get_analysis_image(
+    analysis_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get analysis image as base64"""
+    
+    analysis = db.query(AnalysisResult).filter(
+        (AnalysisResult.id == analysis_id) &
+        (AnalysisResult.user_id == current_user.id)
+    ).first()
+    
+    if not analysis:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Analysis not found"
+        )
+    
+    if not analysis.image_data:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Image data not found"
+        )
+    
+    import base64
+    image_base64 = base64.b64encode(analysis.image_data).decode("utf-8")
+    
+    return {
+        "id": analysis.id,
+        "image_filename": analysis.image_filename,
+        "image_data": f"data:image/jpeg;base64,{image_base64}"
+    }
+
 @router.get("/history/all")
 async def get_analysis_history(
     limit: int = 30,
@@ -216,7 +265,7 @@ async def get_analysis_history(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Get user's analysis history"""
+    """Get user's analysis history with food items"""
     
     analyses = db.query(AnalysisResult).filter(
         AnalysisResult.user_id == current_user.id
@@ -226,22 +275,40 @@ async def get_analysis_history(
         AnalysisResult.user_id == current_user.id
     ).count()
     
+    import base64
+    analyses_data = []
+    
+    for a in analyses:
+        image_base64 = None
+        if a.image_data:
+            image_base64 = f"data:image/jpeg;base64,{base64.b64encode(a.image_data).decode('utf-8')}"
+        
+        analyses_data.append({
+            "id": a.id,
+            "date": a.analysis_date,
+            "total_volume_ml": a.total_volume_ml,
+            "total_weight_grams": a.total_weight_grams,
+            "total_items": a.total_items_detected,
+            "avg_confidence": a.avg_confidence,
+            "image_filename": a.image_filename,
+            "image_data": image_base64,
+            "foods": [
+                {
+                    "id": f.id,
+                    "name": f.food_name,
+                    "volume": f.volume_ml,
+                    "weight": f.weight_grams,
+                    "confidence": f.confidence,
+                }
+                for f in a.food_items
+            ]
+        })
+    
     return {
         "total": total,
         "limit": limit,
         "offset": offset,
-        "analyses": [
-            {
-                "id": a.id,
-                "date": a.analysis_date,
-                "total_volume_ml": a.total_volume_ml,
-                "total_weight_grams": a.total_weight_grams,
-                "total_items": a.total_items_detected,
-                "avg_confidence": a.avg_confidence,
-                "image_filename": a.image_filename
-            }
-            for a in analyses
-        ]
+        "analyses": analyses_data
     }
 
 @router.delete("/{analysis_id}", status_code=status.HTTP_204_NO_CONTENT)
