@@ -20,16 +20,11 @@ const features = [
 const Index = () => {
   const navigate = useNavigate();
   const [isScanning, setIsScanning] = useState(false);
-  const [showMetrics, setShowMetrics] = useState(false);
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const handleDemoAnalyze = () => {
-    setPreviewImage(heroFood);
     setIsScanning(true);
-    setShowMetrics(false);
     setTimeout(() => {
       setIsScanning(false);
-      setShowMetrics(true);
     }, 2500);
   };
 
@@ -61,174 +56,284 @@ const Index = () => {
     },
   ];
 
+  const stats = [
+    { value: "1.2M+", label: "MEALS SCANNED", detail: "+12.4% MoM", icon: "📈" },
+    { value: "98.2%", label: "ACCURACY RATE", detail: "Medical Grade", icon: "✓" },
+    { value: "<0.5s", label: "ANALYSIS SPEED", detail: "Real-time AI", icon: "⚡" },
+    { value: "500+", label: "ENTERPRISE CLIENTS", detail: "Global Support", icon: "🤝" },
+  ];
+
   return (
-    <div className="page-gradient">
+    <div className="relative min-h-screen bg-background-light dark:bg-background-dark">
+      {/* Background Texture Layer */}
+      <div className="fixed inset-0 z-0 opacity-20 pointer-events-none" style={{
+        backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBAyH-QeO3uQ7GDZPILAvrD79bT8p5RO3DpJgdgxE8GHvAd9Ot0b5I7HGtNGYihXSPOQErJrT_JWOY_VYcAsQ1rI3YaMMnVIbB_gQNTK8HQLyP6IMDaNWQ5rrct9BloFXctFUu9IFy9g2V9Mwi6hQIL0Qc6z2HeE2R8IOrfKRXTSmfwbuZ0GTPCSpwwOER8knokw-kTzD5wUgwspbaFuSkk9LwjWQ_oVXJ0Gxgw7ieRcv6Dvgl-IglwJ4XSyoGb6O5gFyiaBJHKemzQ")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+        backgroundRepeat: 'no-repeat',
+      }} />
+      {/* Cloud-White Mesh Overlay - In Front */}
+      <div className="fixed inset-0 z-10 pointer-events-none" style={{
+        backgroundImage: 'radial-gradient(circle, rgba(236, 240, 241, 0.08) 1.5px, transparent 1.5px)',
+        backgroundSize: '25px 25px',
+        backgroundPosition: '0 0',
+        maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0) 100%)',
+        WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0) 100%)',
+      }} />
       <Navbar />
 
-      {/* Hero */}
-      <section className="container py-20 lg:py-28">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Left */}
+      {/* Hero Section - Centered */}
+      <section className="relative px-6 py-12 md:py-24 flex flex-col items-center min-h-[60vh] justify-center">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="max-w-4xl text-center mb-16"
+        >
+          <h1 className="text-5xl md:text-7xl font-black leading-tight tracking-tighter mb-6 text-foreground">
+            Precision meets <span className="text-orange-500">Appetite</span>
+          </h1>
+          <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto font-medium">
+            High-definition volume and depth estimation for medical-grade nutritional accuracy through advanced computer vision.
+          </p>
+        </motion.div>
+
+        {/* Hero Image with Overlays */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="relative w-full max-w-5xl aspect-video rounded-3xl overflow-hidden shadow-2xl border-8 border-white/20 dark:border-slate-800"
+        >
+          {/* Hero Image */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url('/sample.png')`,
+            }}
+          />
+          
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+          
+          {/* Cloud Mesh Effect */}
+          <div 
+            className="absolute inset-0"
+            style={{
+              backgroundImage: 'radial-gradient(circle, rgba(236, 240, 241, 0.12) 1.5px, transparent 1.5px)',
+              backgroundSize: '25px 25px',
+              backgroundPosition: '0 0',
+              maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0) 100%)',
+              WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0) 100%)',
+            }}
+          />
+          
+          {/* Scanner Animation */}
+          {isScanning && <ScanAnimation isScanning={isScanning} />}
+
+          {/* Top Left - Weight Card */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="absolute top-8 left-8 glass-card p-5 rounded-2xl flex items-center gap-4 shadow-xl"
           >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight text-foreground">
-              Measure Your Meals{" "}
-              <span className="text-primary">with Precision.</span>
-            </h1>
-            <p className="mt-5 text-lg text-muted-foreground max-w-lg">
-              Food Caliper uses AI-powered volumetric analysis to estimate food volume and weight instantly from a single image.
-            </p>
-            <ul className="mt-6 space-y-3">
-              {[
-                { icon: Ruler, text: "Accurate volume estimation (ml)" },
-                { icon: Scale, text: "Intelligent weight prediction (grams)" },
-                { icon: Brain, text: "Smart food & component detection" },
-                { icon: BarChart3, text: "Nutrition-ready insights" },
-              ].map(({ icon: Icon, text }) => (
-                <li key={text} className="flex items-center gap-3 text-foreground">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-                    <Icon className="h-4 w-4 text-primary" />
-                  </span>
-                  <span className="text-sm font-medium">{text}</span>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-8 flex gap-3">
-              <Link
-                to="/login"
-                className="cursor-target px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity flex items-center gap-2"
-              >
-                Start Analyzing <ArrowRight className="h-4 w-4" />
-              </Link>
-              <a
-                href="#features"
-                className="cursor-target px-6 py-3 rounded-xl border border-border text-foreground font-semibold hover:bg-muted transition-colors"
-              >
-                See How It Works
-              </a>
+            <div className="bg-cyan-500/20 p-2 rounded-lg">
+              <Scale className="text-cyan-400" size={24} />
+            </div>
+            <div>
+              <p className="text-foreground text-xs font-bold uppercase tracking-wider opacity-60">Calculated Weight</p>
+              <p className="text-foreground text-2xl font-extrabold leading-none">450g</p>
             </div>
           </motion.div>
 
-          {/* Right – Upload Card */}
+          {/* Bottom Right - Volume Card */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="absolute bottom-8 right-8 glass-card p-5 rounded-2xl flex items-center gap-4 shadow-xl"
           >
-            <div className="glass-card p-6">
-              <div className="relative rounded-xl overflow-hidden bg-muted aspect-[4/3] flex items-center justify-center">
-                {previewImage ? (
-                  <img src={previewImage} alt="Food preview" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="text-center p-8">
-                    <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-                    <p className="text-sm font-medium text-muted-foreground">Drag & drop a food image</p>
-                    <p className="text-xs text-muted-foreground mt-1">or click to browse</p>
-                  </div>
-                )}
-                <ScanAnimation isScanning={isScanning} />
-              </div>
-
-              <button
-                onClick={handleDemoAnalyze}
-                className="cursor-target mt-4 w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity"
-              >
-                {isScanning ? "Analyzing..." : "Analyze Now"}
-              </button>
-
-              {showMetrics && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-4 grid grid-cols-3 gap-3"
-                >
-                  <div className="glass-card p-3 text-center">
-                    <p className="text-xs text-muted-foreground">Volume</p>
-                    <p className="text-lg font-bold text-primary">
-                      <AnimatedCounter value={mockMetrics.volume} suffix=" ml" />
-                    </p>
-                  </div>
-                  <div className="glass-card p-3 text-center">
-                    <p className="text-xs text-muted-foreground">Weight</p>
-                    <p className="text-lg font-bold text-accent">
-                      <AnimatedCounter value={mockMetrics.weight} suffix=" g" />
-                    </p>
-                  </div>
-                  <div className="glass-card p-3 text-center">
-                    <p className="text-xs text-muted-foreground">Items</p>
-                    <p className="text-lg font-bold text-metric-blue">
-                      <AnimatedCounter value={mockMetrics.items} />
-                    </p>
-                  </div>
-                </motion.div>
-              )}
+            <div className="bg-cyan-500/20 p-2 rounded-lg">
+              <Ruler className="text-cyan-400" size={24} />
+            </div>
+            <div>
+              <p className="text-foreground text-xs font-bold uppercase tracking-wider opacity-60">Volume Analysis</p>
+              <p className="text-foreground text-2xl font-extrabold leading-none">120 cm³</p>
             </div>
           </motion.div>
-        </div>
-      </section>
 
-      {/* Features */}
-      <section id="features" className="container py-20">
+          {/* Center Scanner Circle */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="w-64 h-64 border-2 border-cyan-400/30 rounded-full animate-pulse" />
+            <div className="absolute w-48 h-48 border-4 border-cyan-400/50 rounded-full" />
+          </div>
+        </motion.div>
+
+        {/* CTA Button */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-12"
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="mt-16"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground">Why Food Caliper?</h2>
-          <p className="mt-3 text-muted-foreground max-w-md mx-auto">
-            Precision food analysis for health-conscious individuals, researchers, and smart kitchens.
-          </p>
+          <button
+            onClick={handleDemoAnalyze}
+            className="cursor-target group relative flex min-w-[220px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-16 px-8 bg-orange-500 text-white text-lg font-black tracking-wide shadow-[0_0_30px_rgba(249,115,22,0.4)] transition-all hover:scale-105 active:scale-95"
+          >
+            <span className="relative z-10 flex items-center gap-2">
+              {isScanning ? "Analyzing..." : (
+                <>
+                  <BarChart3 size={24} />
+                  Start Analysis
+                </>
+              )}
+            </span>
+            <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+          </button>
         </motion.div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {features.map((f, i) => (
+      </section>
+
+      {/* Stats Section */}
+      <section className="px-6 py-20 bg-white/40 dark:bg-background-dark/40 backdrop-blur-sm border-y border-border">
+        <div className="max-w-6xl mx-auto flex flex-wrap justify-center md:justify-between gap-12 md:gap-8">
+          {stats.map((stat, i) => (
             <motion.div
-              key={f.title}
+              key={stat.label}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="glass-card p-6 text-center"
+              className="flex flex-col items-center md:items-start min-w-[200px]"
             >
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
-                <f.icon className="h-7 w-7 text-primary" />
+              <p className="text-slate-deep dark:text-white text-5xl font-black mb-2">{stat.value}</p>
+              <p className="text-muted-foreground font-bold uppercase tracking-widest text-sm">{stat.label}</p>
+              <div className="mt-2 flex items-center gap-1 text-emerald-500 font-bold text-sm">
+                <span>{stat.icon}</span>
+                {stat.detail}
               </div>
-              <h3 className="font-semibold text-foreground">{f.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{f.desc}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="gradient-cta">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="container text-center glass-card p-12 mx-auto"
-        >
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-            Ready to Calibrate Your Nutrition?
-          </h2>
-          <p className="mt-3 text-muted-foreground">
-            Join thousands of users measuring their meals with AI precision.
-          </p>
-          <Link
-            to="/login"
-            className="cursor-target mt-8 inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-primary text-primary-foreground font-semibold text-lg hover:opacity-90 transition-opacity"
+      {/* Features Section */}
+      <section id="features" className="px-6 py-32 max-w-7xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-16">
+          {/* Mass Estimation */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="flex items-stretch justify-between gap-6 rounded-3xl bg-white dark:bg-slate-900/50 p-10 shadow-sm border border-border"
           >
-            Let's Caliper Now <ArrowRight className="h-5 w-5" />
-          </Link>
-        </motion.div>
+            <div className="flex flex-col justify-between flex-1 gap-6">
+              <div className="flex flex-col gap-2">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-2">
+                  <Microscope className="text-primary" size={28} />
+                </div>
+                <h3 className="text-foreground text-2xl font-bold">Mass Estimation</h3>
+                <p className="text-muted-foreground text-base leading-relaxed">
+                  Proprietary depth-mapping algorithms calculate food weight with +/- 0.5g precision using only a single image.
+                </p>
+              </div>
+              <Link
+                to="/#"
+                className="cursor-target flex items-center gap-2 text-primary font-bold text-sm group"
+              >
+                Learn about methodology
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+            <div 
+              className="w-2/5 rounded-2xl hidden sm:block border border-primary/10 bg-cover bg-center"
+              style={{
+                backgroundImage: `url('/mass.png')`,
+              }}
+            />
+          </motion.div>
+
+          {/* Volume Mapping */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="flex items-stretch justify-between gap-6 rounded-3xl bg-white dark:bg-slate-900/50 p-10 shadow-sm border border-border"
+          >
+            <div className="flex flex-col justify-between flex-1 gap-6">
+              <div className="flex flex-col gap-2">
+                <div className="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center mb-2">
+                  <BarChart3 className="text-cyan-500" size={28} />
+                </div>
+                <h3 className="text-foreground text-2xl font-bold">Volume Mapping</h3>
+                <p className="text-muted-foreground text-base leading-relaxed">
+                  Real-time contouring creates a digital twin of any dish, allowing for exact portion control and calorie counting.
+                </p>
+              </div>
+              <Link
+                to="/#"
+                className="cursor-target flex items-center gap-2 text-cyan-500 font-bold text-sm group"
+              >
+                Explore the API
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+            <div className="w-2/5 bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 rounded-2xl hidden sm:block border border-cyan-500/10" />
+          </motion.div>
+        </div>
       </section>
 
       {/* Footer */}
-      <footer className="container py-8 text-center text-sm text-muted-foreground">
-        © 2026 Food Caliper. All rights reserved.
+      <footer className="bg-slate-900 text-white px-6 md:px-20 py-16 dark:bg-background-dark">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between gap-12 mb-12">
+          <div className="flex flex-col gap-4 max-w-xs">
+            <div className="flex items-center gap-2">
+              <Microscope className="text-primary" size={32} />
+              <h2 className="text-xl font-black">FoodCaliper</h2>
+            </div>
+            <p className="text-slate-400 text-sm leading-relaxed">
+              Redefining nutritional monitoring through the lens of precision technology and deep learning.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-10">
+            <div className="flex flex-col gap-4">
+              <h4 className="font-bold">Product</h4>
+              <nav className="flex flex-col gap-2 text-slate-400 text-sm">
+                <a className="hover:text-primary transition-colors" href="#features">Features</a>
+                <a className="hover:text-primary transition-colors" href="/login">Enterprise</a>
+                <a className="hover:text-primary transition-colors" href="#features">API Docs</a>
+                <a className="hover:text-primary transition-colors" href="#features">Privacy</a>
+              </nav>
+            </div>
+            <div className="flex flex-col gap-4">
+              <h4 className="font-bold">Company</h4>
+              <nav className="flex flex-col gap-2 text-slate-400 text-sm">
+                <a className="hover:text-primary transition-colors" href="#features">About Us</a>
+                <a className="hover:text-primary transition-colors" href="#features">Careers</a>
+                <a className="hover:text-primary transition-colors" href="#features">Press Kit</a>
+                <a className="hover:text-primary transition-colors" href="#features">Contact</a>
+              </nav>
+            </div>
+            <div className="flex flex-col gap-4 col-span-2 sm:col-span-1">
+              <h4 className="font-bold">Subscribe</h4>
+              <div className="flex">
+                <input 
+                  type="email" 
+                  placeholder="Email" 
+                  className="bg-slate-800 border-none rounded-l-lg px-4 py-2 text-sm w-full focus:ring-1 focus:ring-primary"
+                />
+                <button className="bg-orange-500 px-4 py-2 rounded-r-lg hover:opacity-90 transition-opacity cursor-target">
+                  <ArrowRight size={16} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="max-w-6xl mx-auto border-t border-slate-800 pt-8 text-center text-slate-500 text-xs">
+          © 2024 FoodCaliper Technology Corp. All rights reserved.
+        </div>
       </footer>
 
       {/* Navigation Dock */}

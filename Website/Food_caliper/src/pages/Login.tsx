@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Mail, Lock, ArrowRight, AlertCircle, CheckCircle, Home, Microscope, BarChart4, Settings, User } from "lucide-react";
 import logo from "@/assets/logo.png";
+import BackgroundLayout from "@/components/BackgroundLayout";
 import Dock from "@/components/Dock";
 import { apiClient } from "@/services/apiClient";
 
@@ -84,7 +85,7 @@ const Login = () => {
   };
 
   return (
-    <div className="page-gradient flex items-center justify-center min-h-screen p-4">
+    <BackgroundLayout className="flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -291,7 +292,7 @@ const Login = () => {
           />
         </div>
       </div>
-    </div>
+    </BackgroundLayout>
   );
 };
 

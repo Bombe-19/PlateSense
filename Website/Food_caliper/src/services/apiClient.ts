@@ -57,6 +57,11 @@ class APIClient {
     this.clearUserId();
   }
 
+  async post(endpoint: string, data: any) {
+    const response = await this.client.post(endpoint, data);
+    return response.data;
+  }
+
   async getUserProfile(userId: number): Promise<User> {
     const response = await this.client.get(`/api/v1/auth/profile/${userId}`);
     return response.data;

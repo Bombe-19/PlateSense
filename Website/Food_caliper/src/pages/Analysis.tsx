@@ -4,6 +4,7 @@ import { Upload, Download, Search, FlaskConical, Ruler, Scale, Target, BarChart3
 import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import Navbar from "@/components/Navbar";
+import BackgroundLayout from "@/components/BackgroundLayout";
 import ScanAnimation from "@/components/ScanAnimation";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import Dock from "@/components/Dock";
@@ -200,7 +201,7 @@ const Analysis = () => {
   const weightChartData = result?.foods.map(f => ({ name: f.name, value: f.weight })) ?? [];
 
   return (
-    <div className="page-gradient min-h-screen">
+    <BackgroundLayout>
       <Navbar isAuthenticated />
 
       <div className="container py-8">
@@ -540,7 +541,7 @@ const Analysis = () => {
           />
         </div>
       </div>
-    </div>
+    </BackgroundLayout>
   );
 };
 

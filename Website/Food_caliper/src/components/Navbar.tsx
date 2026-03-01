@@ -55,29 +55,38 @@ const Navbar = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
     { to: "/reports", label: "Reports" },
   ];
 
+  const publicNavLinks = [
+    { to: "#", label: "Home" },
+    { to: "#about", label: "About" },
+    { to: "#importance", label: "Importance" },
+    { to: "#why-foodcaliper", label: "Why FoodCaliper" },
+  ];
+
   return (
     <motion.header
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="glass-card sticky top-0 z-50 border-b border-border/50 m-4 rounded-full"
+      className="flex items-center justify-between whitespace-nowrap border-b border-slate-200 dark:border-slate-800 px-6 md:px-20 py-5 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md sticky top-0 z-50"
     >
-      <div className="container flex h-16 items-center justify-between">
-        <Link to="/" className="cursor-target flex items-center gap-2">
-          <img src={logo} alt="Food Caliper" className="h-9 w-9 rounded-lg" />
-          <span className="text-lg font-bold text-foreground">Food Caliper</span>
+      <div className="flex items-center gap-2 text-slate-deep dark:text-white">
+        <img src="/logo.png" alt="FoodCaliper" className="h-9 w-9" />
+        <Link to="/" className="cursor-target text-xl font-black leading-tight tracking-tight hover:opacity-80 transition-opacity">
+          FoodCaliper
         </Link>
+      </div>
 
+      <div className="hidden md:flex flex-1 justify-end gap-10 items-center">
         {isAuthenticated ? (
           <>
-            <nav className="hidden md:flex items-center gap-1">
+            <nav className="flex items-center gap-8">
               {navLinks.map((link) => (
                 <Link
                   key={link.to}
                   to={link.to}
-                  className={`cursor-target px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
+                  className={`cursor-target text-sm font-semibold hover:text-primary transition-colors ${
                     location.pathname === link.to
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                      ? "text-primary"
+                      : "text-foreground"
                   }`}
                 >
                   {link.label}
@@ -128,22 +137,27 @@ const Navbar = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
             </div>
           </>
         ) : (
-          <div className="flex items-center gap-3">
-            <Link
-              to="/login"
-              className="cursor-target px-5 py-2 rounded-xl text-sm font-medium border border-border text-foreground hover:bg-muted transition-colors"
-            >
-              Sign In
-            </Link>
-            <Link
-              to="/login"
-              className="cursor-target px-5 py-2 rounded-xl text-sm font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
-            >
-              Let's Caliper
-            </Link>
-          </div>
+          <>
+            <nav className="flex items-center gap-8">
+              {publicNavLinks.map((link) => (
+                <a
+                  key={link.to}
+                  href={link.to}
+                  className="cursor-target text-sm font-semibold text-foreground hover:text-primary transition-colors"
+                >
+                  {link.label}
+                </a>
+              ))}
+            </nav>
+            <button className="cursor-target flex min-w-[120px] items-center justify-center rounded-xl h-11 px-6 bg-orange-600 text-white text-sm font-bold shadow-lg shadow-orange-600/20 hover:bg-orange-700 transition-colors">
+              <Link to="/login" className="w-full h-full flex items-center justify-center">
+                Let's Caliper
+              </Link>
+            </button>
+          </>
         )}
       </div>
+      <button className="md:hidden material-symbols-outlined text-foreground">menu</button>
     </motion.header>
   );
 };

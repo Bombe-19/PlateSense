@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import Navbar from "@/components/Navbar";
+import BackgroundLayout from "@/components/BackgroundLayout";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import Dock from "@/components/Dock";
 import { Link } from "react-router-dom";
@@ -76,7 +77,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="page-gradient min-h-screen">
+    <BackgroundLayout>
       <Navbar isAuthenticated />
 
       <div className="container py-8">
@@ -349,7 +350,7 @@ const Dashboard = () => {
           />
         </div>
       </div>
-    </div>
+    </BackgroundLayout>
   );
 };
 

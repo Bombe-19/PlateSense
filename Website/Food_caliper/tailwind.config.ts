@@ -66,6 +66,9 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        "background-light": "var(--background-light)",
+        "background-dark": "var(--background-dark)",
+        "cloud-white": "var(--cloud-white)",
       },
       borderRadius: {
         xl: "var(--radius)",
