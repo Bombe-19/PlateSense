@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Search, Layers, Ruler, Scale, Target, Eye, TrendingUp, Home, Microscope, BarChart4, Settings, User, Loader } from "lucide-react";
+import { Search, Layers, Ruler, Scale, Target, Eye, TrendingUp, Home, Microscope, BarChart4, Settings, User, Loader, ChevronLeft, ChevronRight, Pencil, CheckCircle2, Circle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
@@ -24,12 +24,33 @@ const Dashboard = () => {
   const [user, setUser] = useState<any>(null);
   const [analysisHistory, setAnalysisHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [visibleDateStart, setVisibleDateStart] = useState(0);
   const [totalStats, setTotalStats] = useState({
     totalVolume: 0,
     totalWeight: 0,
     totalItems: 0,
     avgConfidence: 0,
   });
+
+  // Generate all dates for the entire year
+  const generateDateRange = () => {
+    const dates = [];
+    const today = new Date();
+    const startOfYear = new Date(today.getFullYear(), 0, 1);
+    
+    // Generate all dates from start of year to today
+    let currentDate = new Date(startOfYear);
+    while (currentDate <= today) {
+      dates.push(new Date(currentDate));
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    return dates.reverse(); // Newest first
+  };
+
+  const dateRange = generateDateRange();
+  const visibleDates = dateRange.slice(visibleDateStart, visibleDateStart + 6);
 
   useEffect(() => {
     fetchDashboardData();
@@ -108,35 +129,91 @@ const Dashboard = () => {
 
             {/* 3-Column Grid */}
             <div className="mt-8 grid lg:grid-cols-3 gap-6">
-              {/* LEFT – Recent Analyses */}
+              {/* LEFT – Today's Scans with Date Navigation */}
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card p-6">
-                <h2 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-primary" /> Recent Analyses
-                </h2>
-                <div className="space-y-4">
-                  {analysisHistory.length > 0 ? (
-                    analysisHistory.slice(0, 5).map((analysis: any) => (
-                      <div key={analysis.id} className="p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors cursor-pointer">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-medium text-foreground">{analysis.image_filename || "Analysis"}</span>
-                          <span className="text-xs text-muted-foreground">
-                            {new Date(analysis.date || analysis.analysis_date).toLocaleDateString()}
-                          </span>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">🔍</span>
+                    <h3 className="font-semibold text-foreground">Today's Scans</h3>
+                  </div>
+                  <Pencil className="w-4 h-4 text-muted-foreground cursor-pointer hover:text-foreground transition-colors" />
+                </div>
+
+                {/* Date Picker with Navigation */}
+                <div className="flex items-center gap-2 mb-5">
+                  <ChevronLeft 
+                    className="w-4 h-4 text-muted-foreground cursor-pointer hover:text-foreground transition-colors" 
+                    onClick={() => setVisibleDateStart(Math.max(0, visibleDateStart - 6))}
+                  />
+                  <div className="flex gap-2 flex-1">
+                    {visibleDates.map((date) => {
+                      const isSelected = date.toLocaleDateString() === selectedDate.toLocaleDateString();
+                      return (
+                        <div
+                          key={date.toLocaleDateString()}
+                          onClick={() => setSelectedDate(new Date(date))}
+                          className={`flex flex-col items-center px-3 py-2 rounded-xl text-xs font-medium cursor-pointer transition-all ${
+                            isSelected
+                              ? "bg-orange-500 text-white"
+                              : "text-muted-foreground hover:bg-orange-100 dark:hover:bg-orange-900/30"
+                          }`}
+                        >
+                          <span className="text-base font-bold">{date.getDate()}</span>
+                          <span>{date.toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 3)}</span>
                         </div>
-                        <div className="flex gap-2 flex-wrap">
-                          <span className="metric-badge metric-violet text-xs">
-                            <Ruler className="h-3 w-3" />{analysis.total_volume_ml?.toFixed(0) || 0} ml
-                          </span>
-                          <span className="metric-badge metric-blue text-xs">
-                            <Scale className="h-3 w-3" />{analysis.total_weight_grams?.toFixed(0) || 0} g
-                          </span>
-                          <span className="metric-badge metric-green text-xs">{analysis.avg_confidence?.toFixed(0) || 0}%</span>
+                      );
+                    })}
+                  </div>
+                  <ChevronRight 
+                    className="w-4 h-4 text-muted-foreground cursor-pointer hover:text-foreground transition-colors" 
+                    onClick={() => setVisibleDateStart(Math.min(Math.max(0, dateRange.length - 6), visibleDateStart + 6))}
+                  />
+                </div>
+
+                {/* Scans for Selected Date */}
+                <div className="space-y-3 max-h-[400px] overflow-y-auto scrollbar-hide">
+                  {(() => {
+                    const dateStr = selectedDate.toLocaleDateString();
+                    const scansForDate = analysisHistory.filter((analysis: any) => {
+                      const analysisDate = new Date(analysis.date || analysis.analysis_date);
+                      return analysisDate.toLocaleDateString() === dateStr;
+                    });
+
+                    if (scansForDate.length === 0) {
+                      return <p className="text-sm text-muted-foreground text-center py-4">No scans for this date</p>;
+                    }
+
+                    return scansForDate.map((analysis: any) => {
+                      const analysisTime = new Date(analysis.date || analysis.analysis_date);
+                      const timeStr = analysisTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                      return (
+                        <div key={analysis.id} className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/60 transition-colors cursor-pointer group">
+                          <div className="mt-1">
+                            <CheckCircle2 className="w-5 h-5 text-green-500" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs text-muted-foreground">{timeStr}</p>
+                            <p className="text-sm font-medium text-foreground truncate">
+                              {analysis.image_filename || "Food Analysis"}
+                            </p>
+                            <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground flex-wrap">
+                              <span className="flex items-center gap-1">
+                                <Ruler className="h-3 w-3 text-primary" />
+                                {analysis.total_volume_ml?.toFixed(0) || 0} ml
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Scale className="h-3 w-3 text-primary" />
+                                {analysis.total_weight_grams?.toFixed(0) || 0} g
+                              </span>
+                              <span className="text-xs font-medium text-green-600 dark:text-green-400">
+                                {analysis.avg_confidence?.toFixed(0) || 0}% match
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-sm text-muted-foreground">No analyses yet</p>
-                  )}
+                      );
+                    });
+                  })()}
                 </div>
               </motion.div>
 
@@ -341,7 +418,7 @@ const Dashboard = () => {
               { 
                 icon: <User size={20} />, 
                 label: 'Profile', 
-                onClick: () => navigate('/login') 
+                onClick: () => navigate('/profile') 
               },
             ]}
             panelHeight={68}

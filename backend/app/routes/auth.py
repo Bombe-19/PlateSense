@@ -202,3 +202,38 @@ async def get_user_profile(user_id: int, db: Session = Depends(get_db)):
         )
     
     return UserResponse.from_orm(user)
+@router.put("/profile/{user_id}", response_model=UserResponse)
+async def update_user_profile(user_id: int, data: dict, db: Session = Depends(get_db)):
+    """Update user profile by user ID"""
+    
+    user = db.query(User).filter(User.id == user_id).first()
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    # Update fields if provided
+    if "username" in data:
+        user.username = data["username"]
+    if "email" in data:
+        user.email = data["email"]
+    if "full_name" in data:
+        user.full_name = data["full_name"]
+    if "profile_picture" in data:
+        user.profile_picture = data["profile_picture"]
+    if "height_cm" in data:
+        user.height_cm = data["height_cm"]
+    if "weight_kg" in data:
+        user.weight_kg = data["weight_kg"]
+    if "age" in data:
+        user.age = data["age"]
+    if "dietary_preferences" in data:
+        user.dietary_preferences = data["dietary_preferences"]
+    
+    user.updated_at = datetime.utcnow()
+    db.commit()
+    db.refresh(user)
+    
+    return UserResponse.from_orm(user)

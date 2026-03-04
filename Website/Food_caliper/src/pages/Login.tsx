@@ -283,7 +283,7 @@ const Login = () => {
               { 
                 icon: <User size={20} />, 
                 label: 'Profile', 
-                onClick: () => navigate('/login') 
+                onClick: () => navigate('/profile') 
               },
             ]}
             panelHeight={68}

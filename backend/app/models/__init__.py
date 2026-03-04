@@ -12,7 +12,7 @@ class User(Base):
     email = Column(String(100), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=False)
     full_name = Column(String(100))
-    profile_picture = Column(String(255))
+    profile_picture = Column(Text)  # Store as base64 encoded image string
     height_cm = Column(Float)
     weight_kg = Column(Float)
     age = Column(Integer)

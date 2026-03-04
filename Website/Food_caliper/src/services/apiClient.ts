@@ -9,6 +9,10 @@ interface User {
   email: string;
   full_name?: string;
   profile_picture?: string;
+  height_cm?: number;
+  weight_kg?: number;
+  age?: number;
+  dietary_preferences?: string;
   created_at: string;
 }
 
@@ -64,6 +68,11 @@ class APIClient {
 
   async getUserProfile(userId: number): Promise<User> {
     const response = await this.client.get(`/api/v1/auth/profile/${userId}`);
+    return response.data;
+  }
+
+  async updateUserProfile(userId: number, data: any): Promise<User> {
+    const response = await this.client.put(`/api/v1/auth/profile/${userId}`, data);
     return response.data;
   }
 

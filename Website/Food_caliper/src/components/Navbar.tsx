@@ -57,9 +57,10 @@ const Navbar = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
 
   const publicNavLinks = [
     { to: "#", label: "Home" },
-    { to: "#about", label: "About" },
-    { to: "#importance", label: "Importance" },
-    { to: "#why-foodcaliper", label: "Why FoodCaliper" },
+    { to: "#about", label: "Problem" },
+    { to: "#solution", label: "Solutions" },
+    { to: "#technology", label: "Technology" },
+    { to: "#resources", label: "Resources" },
   ];
 
   return (

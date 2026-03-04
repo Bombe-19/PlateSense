@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Ruler, Scale, Brain, BarChart3, Zap, Target, Upload, ArrowRight, Home, Microscope, BarChart4, Settings, User } from "lucide-react";
+import { Ruler, Scale, Brain, BarChart3, Zap, Target, Upload, ArrowRight, Home, Microscope, BarChart4, Settings, User, Eye, Utensils, TrendingUp, Database } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import ScanAnimation from "@/components/ScanAnimation";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import Dock from "@/components/Dock";
+import Carousel from "@/components/Carousel";
+import ScrollReveal from "@/components/ScrollReveal";
 import heroFood from "@/assets/hero-food.jpg";
 
 const mockMetrics = { volume: 342, weight: 285, items: 4 };
@@ -52,7 +54,7 @@ const Index = () => {
     { 
       icon: <User size={20} />, 
       label: 'Profile', 
-      onClick: () => navigate('/login') 
+      onClick: () => navigate('/profile') 
     },
   ];
 
@@ -195,6 +197,103 @@ const Index = () => {
         </motion.div>
       </section>
 
+      {/* Product Section */}
+      <section id="product" className="px-6 py-32 bg-gray-100 dark:bg-gray-800 relative z-20">
+        <div className="max-w-7xl mx-auto">
+          {/* Section Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <ScrollReveal
+              enableBlur
+              baseOpacity={0.15}
+              baseRotation={2}
+              blurStrength={3}
+              containerClassName="mb-6"
+              textClassName="text-5xl md:text-6xl font-black text-foreground"
+            >
+              What is FoodCaliper?
+            </ScrollReveal>
+            <div className="w-24 h-1.5 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full mx-auto" />
+          </motion.div>
+
+          {/* Carousel + Video Grid */}
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Left - Description + Carousel */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="flex flex-col gap-8"
+            >
+              {/* Description Text */}
+              <ScrollReveal
+                enableBlur={false}
+                blurStrength={4}
+                baseOpacity={0.1}
+                baseRotation={3}
+                textClassName="text-lg text-muted-foreground leading-relaxed"
+              >
+                FoodCaliper is an AI-powered food analysis platform that estimates the volume and weight of food using image-based analysis. By combining computer vision techniques with calibrated food density data, the system converts a simple food image into measurable information such as portion size, estimated weight, calorie estimation, and basic nutritional insights. The platform is designed to simplify food measurement and provide a faster, more consistent way to analyze meals across different environments.
+              </ScrollReveal>
+              
+              {/* Carousel */}
+              <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                <Carousel
+                  baseWidth={350}
+                  autoplay={false}
+                  autoplayDelay={3000}
+                  pauseOnHover={false}
+                  loop={false}
+                  round={false}
+                />
+              </div>
+            </motion.div>
+
+            {/* Right - Video Placeholder */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="relative"
+            >
+              <div className="relative aspect-video rounded-3xl overflow-hidden shadow-2xl border-2 border-orange-200 dark:border-orange-900/40 bg-gradient-to-br from-slate-900 to-slate-800">
+                {/* Video Background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-cyan-500/5 to-transparent" />
+                
+                {/* Mesh Pattern */}
+                <div 
+                  className="absolute inset-0"
+                  style={{
+                    backgroundImage: 'radial-gradient(circle, rgba(249,115,22,0.1) 1px, transparent 1px)',
+                    backgroundSize: '20px 20px',
+                  }}
+                />
+
+                {/* Centered Play Button */}
+                <div className="absolute inset-0 flex items-center justify-center z-10">
+                  <div className="group relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full blur-2xl opacity-0 group-hover:opacity-75 transition-opacity duration-300" />
+                    <button className="relative w-20 h-20 rounded-full bg-orange-500 hover:bg-orange-600 transition-colors flex items-center justify-center shadow-lg hover:shadow-2xl hover:shadow-orange-500/50">
+                      <div className="w-0 h-0 border-l-8 border-l-white border-t-5 border-t-transparent border-b-5 border-b-transparent ml-1" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Video Placeholder Text */}
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-6 text-white">
+                  <p className="font-semibold text-lg">Watch FoodCaliper in Action</p>
+                  <p className="text-sm text-gray-300 mt-1">See how our AI analyzes food in real-time</p>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* Stats Section */}
       <section className="px-6 py-20 bg-white/40 dark:bg-background-dark/40 backdrop-blur-sm border-y border-border">
         <div className="max-w-6xl mx-auto flex flex-wrap justify-center md:justify-between gap-12 md:gap-8">
@@ -220,6 +319,21 @@ const Index = () => {
 
       {/* Features Section */}
       <section id="features" className="px-6 py-32 max-w-7xl mx-auto">
+        {/* Section Header */}
+        <div className="text-center mb-16">
+          <ScrollReveal
+            enableBlur
+            baseOpacity={0.15}
+            baseRotation={2}
+            blurStrength={3}
+            containerClassName="mb-6"
+            textClassName="text-5xl md:text-6xl font-black text-foreground"
+          >
+            How It Works
+          </ScrollReveal>
+          <div className="w-24 h-1.5 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full mx-auto" />
+        </div>
+
         <div className="grid md:grid-cols-2 gap-16">
           {/* Mass Estimation */}
           <motion.div
