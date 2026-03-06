@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status, Query
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status, Query, Form
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from app.database import get_db
@@ -9,6 +9,7 @@ from datetime import datetime
 import json
 import os
 import sys
+from typing import Optional
 
 # Add parent directory to path for volumetric_food_analysis
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
@@ -20,13 +21,31 @@ try:
     from volumetric_food_analysis import FoodVolumeAnalyzer
     ANALYZER = None
     ANALYZER_INITIALIZED = False
-except ImportError:
+    print("✓ Volumetric analysis module imported successfully")
+except ImportError as e:
+    print(f"⚠️ Warning: Could not import volumetric_food_analysis: {e}")
+    print("⚠️ Analysis functionality will be limited")
+    ANALYZER = None
+    ANALYZER_INITIALIZED = False
+except Exception as e:
+    print(f"⚠️ Warning: Error importing volumetric_food_analysis: {e}")
     ANALYZER = None
     ANALYZER_INITIALIZED = False
 
-def get_analyzer():
-    """Initialize or get analyzer instance"""
+def get_analyzer(nutrition_dataset_path: Optional[str] = None):
+    """Initialize or get analyzer instance with optional nutrition dataset"""
     global ANALYZER, ANALYZER_INITIALIZED
+    
+    # Check if FoodVolumeAnalyzer is available
+    if 'FoodVolumeAnalyzer' not in globals():
+        raise HTTPException(
+            status_code=503, 
+            detail="Food analysis service unavailable. Please ensure all dependencies are installed."
+        )
+    
+    # If requesting nutrition analysis but current analyzer doesn't have it, reinitialize
+    if nutrition_dataset_path and (ANALYZER is None or not hasattr(ANALYZER, 'nutrition_data') or ANALYZER.nutrition_data is None):
+        ANALYZER_INITIALIZED = False
     
     if not ANALYZER_INITIALIZED:
         try:
@@ -56,12 +75,36 @@ def get_analyzer():
             
             plate_diameter = float(os.getenv("PLATE_DIAMETER_CM", "25"))
             
+            # Handle nutrition dataset path
+            nutrition_path = None
+            if nutrition_dataset_path:
+                # Check if it's an absolute path
+                if Path(nutrition_dataset_path).is_absolute():
+                    nutrition_path = nutrition_dataset_path
+                else:
+                    # Look for nutrition dataset in multiple locations
+                    possible_nutrition_paths = [
+                        nutrition_dataset_path,  # As provided
+                        str(Path(__file__).parent.parent.parent.parent / nutrition_dataset_path),  # Relative to Food folder
+                        str(Path(__file__).parent.parent.parent.parent / "Food_data" / nutrition_dataset_path),
+                        "indian_Food_Nutrition_Processed.csv",  # Default name
+                        str(Path(__file__).parent.parent.parent.parent / "indian_Food_Nutrition_Processed.csv"),
+                    ]
+                    
+                    for path in possible_nutrition_paths:
+                        if Path(path).exists():
+                            nutrition_path = path
+                            print(f"Found nutrition dataset at: {path}")
+                            break
+            
             ANALYZER = FoodVolumeAnalyzer(
                 yolo_model_path=model_path,
-                plate_diameter_cm=plate_diameter
+                plate_diameter_cm=plate_diameter,
+                nutrition_dataset_path=nutrition_path
             )
             ANALYZER_INITIALIZED = True
-            print(f"YOLO analyzer initialized successfully with model: {model_path}")
+            nutrition_status = "with nutrition analysis" if nutrition_path else "without nutrition analysis"
+            print(f"YOLO analyzer initialized successfully {nutrition_status}")
         except Exception as e:
             print(f"Failed to initialize analyzer: {str(e)}")
             return None
@@ -80,13 +123,238 @@ def get_current_user(user_id: int = Query(...), db: Session = Depends(get_db)):
         )
     
     return user
-@router.post("/upload")
+
+
+@router.get("/validate-nutrition-dataset")
+async def validate_nutrition_dataset(
+    dataset_path: str = Query(..., description="Path to nutrition dataset file")
+):
+    """Validate nutrition dataset path and return dataset info (no auth required for validation)"""
+    
+    try:
+        # Check if it's an absolute path
+        if not Path(dataset_path).is_absolute():
+            # Look for nutrition dataset in multiple locations
+            possible_paths = [
+                dataset_path,  # As provided
+                str(Path(__file__).parent.parent.parent.parent / dataset_path),  # Relative to Food folder
+                str(Path(__file__).parent.parent.parent.parent / "Food_data" / dataset_path),
+                "indian_Food_Nutrition_Processed.csv",  # Default name
+                str(Path(__file__).parent.parent.parent.parent / "indian_Food_Nutrition_Processed.csv"),
+            ]
+            
+            dataset_path_resolved = None
+            for path in possible_paths:
+                if Path(path).exists():
+                    dataset_path_resolved = path
+                    break
+            
+            if not dataset_path_resolved:
+                return {
+                    "valid": False,
+                    "error": f"Dataset file not found",
+                    "searched_paths": possible_paths
+                }
+            
+            dataset_path = dataset_path_resolved
+        
+        # Validate file exists and is readable
+        dataset_file = Path(dataset_path)
+        if not dataset_file.exists():
+            return {
+                "valid": False,
+                "error": f"Dataset file does not exist: {dataset_path}"
+            }
+        
+        if not dataset_file.is_file():
+            return {
+                "valid": False,
+                "error": f"Path exists but is not a file: {dataset_path}"
+            }
+        
+        # Check file extension
+        if dataset_file.suffix.lower() not in ['.csv', '.xlsx', '.xls']:
+            return {
+                "valid": False,
+                "error": f"Unsupported file format: {dataset_file.suffix}. Expected: .csv, .xlsx, .xls"
+            }
+        
+        # Try to load and validate dataset structure
+        try:
+            import pandas as pd
+            
+            if dataset_file.suffix.lower() == '.csv':
+                df = pd.read_csv(dataset_path, encoding='utf-8', nrows=5)  # Just load first 5 rows for validation
+            else:
+                df = pd.read_excel(dataset_path, nrows=5)
+            
+            if df.empty:
+                return {
+                    "valid": False,
+                    "error": "Dataset file is empty"
+                }
+            
+            # Check for expected columns
+            columns = df.columns.tolist()
+            expected_nutrition_cols = ['calories', 'protein', 'carbohydrate', 'fat']
+            found_nutrition_cols = []
+            
+            for col in columns:
+                col_lower = col.lower()
+                for expected in expected_nutrition_cols:
+                    if expected in col_lower:
+                        found_nutrition_cols.append(col)
+                        break
+            
+            file_size = dataset_file.stat().st_size
+            
+            return {
+                "valid": True,
+                "info": {
+                    "file_path": str(dataset_path),
+                    "file_size_bytes": file_size,
+                    "file_size_kb": round(file_size / 1024, 1),
+                    "total_columns": len(columns),
+                    "columns": columns[:10],  # Show first 10 columns
+                    "nutrition_columns_found": found_nutrition_cols,
+                    "sample_food_names": df.iloc[:3, 0].tolist() if len(df) > 0 else [],
+                    "has_nutrition_data": len(found_nutrition_cols) >= 2
+                }
+            }
+            
+        except Exception as e:
+            return {
+                "valid": False,
+                "error": f"Error reading dataset file: {str(e)}"
+            }
+        
+    except Exception as e:
+        return {
+            "valid": False,
+            "error": f"Validation error: {str(e)}"
+        }
+
+
+@router.get("/validate-nutrition-dataset")
+async def validate_nutrition_dataset(
+    dataset_path: str = Query(..., description="Path to nutrition dataset file"),
+    current_user: User = Depends(get_current_user)
+):
+    """Validate nutrition dataset path and return dataset info"""
+    
+    try:
+        # Check if it's an absolute path
+        if not Path(dataset_path).is_absolute():
+            # Look for nutrition dataset in multiple locations
+            possible_paths = [
+                dataset_path,  # As provided
+                str(Path(__file__).parent.parent.parent.parent / dataset_path),  # Relative to Food folder
+                str(Path(__file__).parent.parent.parent.parent / "Food_data" / dataset_path),
+                "indian_Food_Nutrition_Processed.csv",  # Default name
+                str(Path(__file__).parent.parent.parent.parent / "indian_Food_Nutrition_Processed.csv"),
+            ]
+            
+            dataset_path_resolved = None
+            for path in possible_paths:
+                if Path(path).exists():
+                    dataset_path_resolved = path
+                    break
+            
+            if not dataset_path_resolved:
+                return {
+                    "valid": False,
+                    "error": f"Dataset file not found. Searched in: {possible_paths}",
+                    "searched_paths": possible_paths
+                }
+            
+            dataset_path = dataset_path_resolved
+        
+        # Validate file exists and is readable
+        dataset_file = Path(dataset_path)
+        if not dataset_file.exists():
+            return {
+                "valid": False,
+                "error": f"Dataset file does not exist: {dataset_path}"
+            }
+        
+        if not dataset_file.is_file():
+            return {
+                "valid": False,
+                "error": f"Path exists but is not a file: {dataset_path}"
+            }
+        
+        # Check file extension
+        if dataset_file.suffix.lower() not in ['.csv', '.xlsx', '.xls']:
+            return {
+                "valid": False,
+                "error": f"Unsupported file format: {dataset_file.suffix}. Expected: .csv, .xlsx, .xls"
+            }
+        
+        # Try to load and validate dataset structure
+        try:
+            import pandas as pd
+            
+            if dataset_file.suffix.lower() == '.csv':
+                df = pd.read_csv(dataset_path, encoding='utf-8', nrows=5)  # Just load first 5 rows for validation
+            else:
+                df = pd.read_excel(dataset_path, nrows=5)
+            
+            if df.empty:
+                return {
+                    "valid": False,
+                    "error": "Dataset file is empty"
+                }
+            
+            # Check for expected columns
+            columns = df.columns.tolist()
+            expected_nutrition_cols = ['calories', 'protein', 'carbohydrate', 'fat']
+            found_nutrition_cols = []
+            
+            for col in columns:
+                col_lower = col.lower()
+                for expected in expected_nutrition_cols:
+                    if expected in col_lower:
+                        found_nutrition_cols.append(col)
+                        break
+            
+            file_size = dataset_file.stat().st_size
+            
+            return {
+                "valid": True,
+                "info": {
+                    "file_path": str(dataset_path),
+                    "file_size_bytes": file_size,
+                    "file_size_kb": round(file_size / 1024, 1),
+                    "total_rows": len(df),
+                    "total_columns": len(columns),
+                    "columns": columns,
+                    "nutrition_columns_found": found_nutrition_cols,
+                    "sample_food_names": df.iloc[:3, 0].tolist() if len(df) > 0 else [],
+                    "has_nutrition_data": len(found_nutrition_cols) >= 2
+                }
+            }
+            
+        except Exception as e:
+            return {
+                "valid": False,
+                "error": f"Error reading dataset file: {str(e)}"
+            }
+        
+    except Exception as e:
+        return {
+            "valid": False,
+            "error": f"Validation error: {str(e)}"
+        }
+
+@router.post("/upload", response_model=AnalysisResultResponse)
 async def upload_and_analyze(
     file: UploadFile = File(...),
+    nutrition_dataset_path: Optional[str] = Form(None),
+    plate_diameter_cm: Optional[float] = Form(25.0),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Upload image and perform volumetric analysis"""
+    """Upload image and perform volumetric analysis with optional nutritional analysis"""
     
     try:
         # Create temporary uploads directory for analysis processing only
@@ -101,8 +369,8 @@ async def upload_and_analyze(
         with open(temp_file_path, "wb") as buffer:
             buffer.write(file_contents)
         
-        # Get analyzer
-        analyzer = get_analyzer()
+        # Get analyzer with nutrition support
+        analyzer = get_analyzer(nutrition_dataset_path)
         if not analyzer:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -112,13 +380,16 @@ async def upload_and_analyze(
         # Run analysis
         analysis_result = analyzer.analyze_image(str(temp_file_path))
         
-        # Create analysis record with image stored as BLOB
+        # Extract nutritional summary
+        nutritional_summary = analysis_result["summary"].get("nutritional_summary", {})
+        
+        # Create analysis record with image stored as BLOB and nutritional data
         db_analysis = AnalysisResult(
             user_id=current_user.id,
             image_filename=file.filename,
             image_path=str(temp_file_path),  # Keep for now, can be removed later
             image_data=file_contents,  # Store image as binary in database
-            analysis_date=datetime.utcnow(),
+            analysis_date=datetime.now(),  # Use local time instead of UTC
             total_volume_ml=analysis_result["summary"]["total_volume_ml"],
             total_weight_grams=analysis_result["summary"]["total_weight_grams"],
             total_items_detected=analysis_result["summary"]["total_items_detected"],
@@ -127,15 +398,26 @@ async def upload_and_analyze(
             model_used=analysis_result["analysis_metadata"].get("model_used"),
             calibration_method=analysis_result["analysis_metadata"].get("calibration_method"),
             plate_diameter_cm=analysis_result["analysis_metadata"].get("reference_plate_diameter_cm"),
+            # Nutritional summary data
+            total_calories=nutritional_summary.get("total_calories", 0),
+            total_protein_g=nutritional_summary.get("total_protein_g", 0),
+            total_carbohydrates_g=nutritional_summary.get("total_carbohydrates_g", 0),
+            total_fat_g=nutritional_summary.get("total_fat_g", 0),
+            total_fiber_g=nutritional_summary.get("total_fiber_g", 0),
+            items_with_nutrition_data=nutritional_summary.get("items_with_nutrition_data", 0),
+            nutrition_dataset_used=nutrition_dataset_path if nutrition_dataset_path else None,
             status="success",
-            created_at=datetime.utcnow()
+            created_at=datetime.now()  # Use local time
         )
         
         db.add(db_analysis)
         db.flush()  # Get the ID without committing
         
-        # Create food items records
+        # Create food items records with nutritional data
         for food_item in analysis_result["food_items"]:
+            # Extract nutrition data if available
+            nutrition = food_item.get("nutrition", {})
+            
             db_food = FoodItem(
                 analysis_id=db_analysis.id,
                 user_id=current_user.id,
@@ -153,7 +435,20 @@ async def upload_and_analyze(
                 bbox_x2=food_item["bounding_box"]["x2"],
                 bbox_y2=food_item["bounding_box"]["y2"],
                 components=food_item.get("components"),
-                created_at=datetime.utcnow()
+                nutritional_info=nutrition if nutrition else None,
+                # Individual nutritional values for this food portion
+                calories=nutrition.get("calories"),
+                protein_g=nutrition.get("protein"),
+                carbohydrates_g=nutrition.get("carbohydrates"),
+                fat_g=nutrition.get("fat"),
+                fiber_g=nutrition.get("fiber"),
+                sugar_g=nutrition.get("sugar"),
+                sodium_mg=nutrition.get("sodium"),
+                calcium_mg=nutrition.get("calcium"),
+                iron_mg=nutrition.get("iron"),
+                vitamin_c_mg=nutrition.get("vitamin_c"),
+                matched_food_name=nutrition.get("matched_name"),
+                created_at=datetime.now()
             )
             db.add(db_food)
         
@@ -171,27 +466,50 @@ async def upload_and_analyze(
             "user_id": current_user.id,
             "image_filename": db_analysis.image_filename,
             "analysis_date": db_analysis.analysis_date,
+            "created_at": db_analysis.analysis_date,  # Add created_at field
             "total_volume_ml": db_analysis.total_volume_ml,
             "total_weight_grams": db_analysis.total_weight_grams,
             "total_items_detected": db_analysis.total_items_detected,
             "avg_confidence": db_analysis.avg_confidence,
             "status": db_analysis.status,
+            # Nutritional summary
+            "nutritional_summary": {
+                "total_calories": db_analysis.total_calories,
+                "total_protein_g": db_analysis.total_protein_g,
+                "total_carbohydrates_g": db_analysis.total_carbohydrates_g,
+                "total_fat_g": db_analysis.total_fat_g,
+                "total_fiber_g": db_analysis.total_fiber_g,
+                "items_with_nutrition_data": db_analysis.items_with_nutrition_data,
+            },
             "foods": [
                 {
                     "id": f.id,
                     "name": f.food_name,
-                    "volume": f.volume_ml,
-                    "weight": f.weight_grams,
+                    "volume_ml": f.volume_ml,            # Fixed field name
+                    "weight_grams": f.weight_grams,      # Fixed field name
                     "confidence": f.confidence,
-                    "area": f.area_cm2,
-                    "height": f.height_cm,
+                    "area_cm2": f.area_cm2,              # Fixed field name
+                    "height_cm": f.height_cm,            # Fixed field name
                     "components": f.components or [],
-                    "bbox": {
-                        "x": f.bbox_x1,
-                        "y": f.bbox_y1,
-                        "width": f.bbox_x2 - f.bbox_x1,
-                        "height": f.bbox_y2 - f.bbox_y1,
-                    } if f.bbox_x1 is not None and f.bbox_y1 is not None and f.bbox_x2 is not None and f.bbox_y2 is not None else None
+                    # Add bbox fields expected by schema
+                    "bbox_x1": f.bbox_x1,
+                    "bbox_y1": f.bbox_y1,
+                    "bbox_x2": f.bbox_x2,
+                    "bbox_y2": f.bbox_y2,
+                    # Nutritional data
+                    "nutritional_info": {
+                        "calories": f.calories,
+                        "protein_g": f.protein_g,
+                        "carbohydrates_g": f.carbohydrates_g,
+                        "fat_g": f.fat_g,
+                        "fiber_g": f.fiber_g,
+                        "sugar_g": f.sugar_g,
+                        "sodium_mg": f.sodium_mg,
+                        "calcium_mg": f.calcium_mg,
+                        "iron_mg": f.iron_mg,
+                        "vitamin_c_mg": f.vitamin_c_mg,
+                        "matched_food_name": f.matched_food_name,
+                    } if f.calories is not None else None,
                 }
                 for f in db_analysis.food_items
             ]

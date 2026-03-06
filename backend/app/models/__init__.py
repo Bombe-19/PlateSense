@@ -19,8 +19,8 @@ class User(Base):
     dietary_preferences = Column(String(255))
     oauth_provider = Column(String(50))  # google, facebook, etc.
     oauth_id = Column(String(255))  # OAuth provider's user ID
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     last_login = Column(DateTime)
     is_active = Column(Boolean, default=True)
     
@@ -39,7 +39,7 @@ class AnalysisResult(Base):
     image_filename = Column(String(255))
     image_path = Column(String(500))
     image_data = Column(LargeBinary)  # Store image as BLOB in database
-    analysis_date = Column(DateTime, default=datetime.utcnow)
+    analysis_date = Column(DateTime, default=datetime.now)
     total_volume_ml = Column(Float, nullable=False)
     total_weight_grams = Column(Float, nullable=False)
     total_items_detected = Column(Integer, nullable=False)
@@ -50,8 +50,18 @@ class AnalysisResult(Base):
     plate_diameter_cm = Column(Float)
     status = Column(String(20), default="pending")  # success, failed, pending
     notes = Column(Text)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Nutritional summary columns
+    total_calories = Column(Float, default=0)  # Total calories for all foods
+    total_protein_g = Column(Float, default=0)  # Total protein for all foods
+    total_carbohydrates_g = Column(Float, default=0)  # Total carbs for all foods
+    total_fat_g = Column(Float, default=0)  # Total fat for all foods
+    total_fiber_g = Column(Float, default=0)  # Total fiber for all foods
+    items_with_nutrition_data = Column(Integer, default=0)  # How many items have nutrition data
+    nutrition_dataset_used = Column(String(255))  # Which nutrition dataset was used
+    
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     
     # Relationships
     user = relationship("User", back_populates="analysis_results")
@@ -79,7 +89,21 @@ class FoodItem(Base):
     bbox_y2 = Column(Integer)
     components = Column(JSON)  # Sub-components detected
     nutritional_info = Column(JSON)  # Cached nutrition data
-    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Nutritional columns (per actual food portion)
+    calories = Column(Float)  # Actual calories for this portion
+    protein_g = Column(Float)  # Actual protein for this portion
+    carbohydrates_g = Column(Float)  # Actual carbs for this portion
+    fat_g = Column(Float)  # Actual fat for this portion
+    fiber_g = Column(Float)  # Actual fiber for this portion
+    sugar_g = Column(Float)  # Actual sugar for this portion
+    sodium_mg = Column(Float)  # Actual sodium for this portion
+    calcium_mg = Column(Float)  # Actual calcium for this portion
+    iron_mg = Column(Float)  # Actual iron for this portion
+    vitamin_c_mg = Column(Float)  # Actual vitamin C for this portion
+    matched_food_name = Column(String(200))  # Name from nutrition database
+    
+    created_at = Column(DateTime, default=datetime.now)
     
     # Relationships
     analysis = relationship("AnalysisResult", back_populates="food_items")
@@ -97,7 +121,7 @@ class AnalysisSummary(Base):
     total_weight_grams = Column(Float, default=0)
     avg_confidence = Column(Float, default=0)
     summary_type = Column(String(20), default="daily")  # daily, weekly, monthly
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.now)
     
     # Relationships
     user = relationship("User", back_populates="analysis_summaries")
@@ -114,7 +138,7 @@ class AuditLog(Base):
     details = Column(JSON)
     ip_address = Column(String(45))
     user_agent = Column(String(500))
-    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    created_at = Column(DateTime, default=datetime.now, index=True)
     
     # Relationships
     user = relationship("User", back_populates="audit_logs")

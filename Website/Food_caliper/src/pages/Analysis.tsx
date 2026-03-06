@@ -11,6 +11,35 @@ import Dock from "@/components/Dock";
 import heroFood from "@/assets/hero-food.jpg";
 import { apiClient } from "@/services/apiClient";
 
+// Add nutrition-specific CSS classes
+const nutritionStyles = `
+  .metric-red { @apply bg-red-500/10 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800; }
+  .metric-yellow { @apply bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800; }
+`;
+
+interface NutritionalInfo {
+  calories?: number;
+  protein_g?: number;
+  carbohydrates_g?: number;
+  fat_g?: number;
+  fiber_g?: number;
+  sugar_g?: number;
+  sodium_mg?: number;
+  calcium_mg?: number;
+  iron_mg?: number;
+  vitamin_c_mg?: number;
+  matched_food_name?: string;
+}
+
+interface NutritionalSummary {
+  total_calories: number;
+  total_protein_g: number;
+  total_carbohydrates_g: number;
+  total_fat_g: number;
+  total_fiber_g: number;
+  items_with_nutrition_data: number;
+}
+
 interface FoodItem {
   name: string;
   volume: number;
@@ -19,6 +48,7 @@ interface FoodItem {
   height: number;
   confidence: number;
   components: string[];
+  nutrition?: NutritionalInfo;
   bbox?: {
     x: number;
     y: number;
@@ -35,6 +65,7 @@ interface AnalysisResult {
   totalWeight: number;
   totalItems: number;
   avgConfidence: number;
+  nutritionalSummary?: NutritionalSummary;
   status: string;
 }
 
@@ -52,6 +83,9 @@ const Analysis = () => {
   const [error, setError] = useState<string | null>(null);
   const [imageWidth, setImageWidth] = useState(0);
   const [imageHeight, setImageHeight] = useState(0);
+  const [nutritionDatasetPath, setNutritionDatasetPath] = useState("indian_Food_Nutrition_Processed.csv");
+  const [plateDiameter, setPlateDiameter] = useState(25);
+  const [enableNutrition, setEnableNutrition] = useState(true);
 
   const handleAnalyze = async () => {
     if (!imageFileObject) {
@@ -64,8 +98,55 @@ const Analysis = () => {
     setResult(null);
 
     try {
-      // Use apiClient.uploadImage which handles authentication and FormData properly
-      const analysisData = await apiClient.uploadImage(imageFileObject);
+      // Create FormData for multipart/form-data request
+      const formData = new FormData();
+      formData.append('file', imageFileObject);
+      formData.append('plate_diameter_cm', plateDiameter.toString());
+      
+      // Only add nutrition dataset if enabled and path is provided
+      if (enableNutrition && nutritionDatasetPath.trim()) {
+        formData.append('nutrition_dataset_path', nutritionDatasetPath.trim());
+      }
+
+      // Use direct fetch instead of apiClient to handle FormData with additional fields
+      const response = await fetch('/api/v1/analysis/upload?user_id=1', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        let errorMessage = 'Analysis failed';
+        try {
+          // Check if response has content and is JSON
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const errorData = await response.json();
+            errorMessage = errorData.detail || errorData.message || 'Analysis failed';
+          } else {
+            // If not JSON, try to get text
+            const errorText = await response.text();
+            errorMessage = errorText || `HTTP Error ${response.status}: ${response.statusText}`;
+          }
+        } catch (parseError) {
+          // If parsing fails, use HTTP status info
+          errorMessage = `HTTP Error ${response.status}: ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
+      }
+
+      let analysisData;
+      try {
+        // Check if response has content and is JSON
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          analysisData = await response.json();
+        } else {
+          throw new Error('Server returned non-JSON response');
+        }
+      } catch (parseError) {
+        console.error('Failed to parse response as JSON:', parseError);
+        throw new Error('Invalid response format from server');
+      }
 
       // Transform backend response to match our interface
       const transformedResult: AnalysisResult = {
@@ -100,6 +181,8 @@ const Analysis = () => {
             height: f.height || f.height_cm || 0,
             confidence: f.confidence,
             components: Array.isArray(f.components) ? f.components : [],
+            nutrition: (f.nutrition && Object.keys(f.nutrition).length > 0) ? f.nutrition : 
+                      (f.nutritional_info && Object.keys(f.nutritional_info).length > 0) ? f.nutritional_info : undefined,
             bbox: bbox,
           };
         }),
@@ -107,12 +190,13 @@ const Analysis = () => {
         totalWeight: analysisData.total_weight_grams || analysisData.totalWeight,
         totalItems: analysisData.total_items_detected || analysisData.totalItems,
         avgConfidence: analysisData.avg_confidence || analysisData.avgConfidence,
+        nutritionalSummary: analysisData.nutritional_summary,
         status: analysisData.status,
       };
 
       setResult(transformedResult);
       console.log("Analysis Result:", transformedResult);
-      console.log("Foods with bbox:", transformedResult.foods.map(f => ({ name: f.name, bbox: f.bbox })));
+      console.log("Nutritional Summary:", transformedResult.nutritionalSummary);
     } catch (err: any) {
       const errorMessage = err.response?.data?.detail || err.message || "Analysis failed";
       setError(errorMessage);
@@ -292,12 +376,62 @@ const Analysis = () => {
                 <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileInput} />
                 <input ref={webcamInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleWebcamCapture} />
               </div>
+              
+              {/* Nutritional Analysis Settings */}
+              <div className="mt-4 p-4 rounded-lg bg-muted/50 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <Microscope className="h-4 w-4" />
+                    Nutritional Analysis
+                  </label>
+                  <button
+                    onClick={() => setEnableNutrition(!enableNutrition)}
+                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                      enableNutrition ? 'bg-primary' : 'bg-muted-foreground/30'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                        enableNutrition ? 'translate-x-5' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+                
+                {enableNutrition && (
+                  <div className="space-y-2">
+                    <div>
+                      <label className="text-xs text-muted-foreground">Nutrition Dataset Path:</label>
+                      <input
+                        type="text"
+                        value={nutritionDatasetPath}
+                        onChange={(e) => setNutritionDatasetPath(e.target.value)}
+                        placeholder="indian_Food_Nutrition_Processed.csv"
+                        className="w-full mt-1 px-2 py-1 text-xs border border-border rounded bg-background text-foreground"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground">Plate Diameter (cm):</label>
+                      <input
+                        type="number"
+                        value={plateDiameter}
+                        onChange={(e) => setPlateDiameter(Number(e.target.value))}
+                        min="15"
+                        max="35"
+                        step="0.5"
+                        className="w-full mt-1 px-2 py-1 text-xs border border-border rounded bg-background text-foreground"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+              
               <button
                 onClick={handleAnalyze}
                 disabled={isAnalyzing || !imageFile}
                 className="cursor-target mt-4 w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
               >
-                {isAnalyzing ? "Analyzing..." : "Analyze Now"}
+                {isAnalyzing ? "Analyzing..." : enableNutrition ? "Analyze with Nutrition" : "Analyze"}
               </button>
             </motion.div>
 
@@ -366,7 +500,7 @@ const Analysis = () => {
             <div className="grid lg:grid-cols-2 gap-6">
               {/* Summary */}
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card p-6">
-                <h2 className="font-semibold text-foreground mb-4">Summary Analytics</h2>
+                <h2 className="font-semibold text-foreground mb-4">Volume & Weight Analytics</h2>
                 <div className="grid grid-cols-2 gap-4">
                   {[
                     { label: "Total Items", value: result.totalItems, icon: Layers, cls: "metric-green" },
@@ -387,24 +521,61 @@ const Analysis = () => {
                 </div>
               </motion.div>
 
-              {/* Quick Stats */}
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card p-6">
-                <h2 className="font-semibold text-foreground mb-2">Avg per Item</h2>
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Avg Volume</span>
-                    <span className="font-medium text-foreground">{(result.totalVolume / result.totalItems).toFixed(1)} ml</span>
+              {/* Nutritional Summary or Quick Stats */}
+              {result.nutritionalSummary && result.nutritionalSummary.items_with_nutrition_data > 0 ? (
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card p-6">
+                  <h2 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                    <Microscope className="h-5 w-5 text-primary" /> 
+                    Nutritional Summary
+                  </h2>
+                  <div className="grid grid-cols-2 gap-4">
+                    {[
+                      { label: "Total Calories", value: Math.round(result.nutritionalSummary.total_calories), suffix: " kcal", icon: FlaskConical, cls: "metric-red" },
+                      { label: "Protein", value: Math.round(result.nutritionalSummary.total_protein_g), suffix: "g", icon: BarChart4, cls: "metric-green" },
+                      { label: "Carbohydrates", value: Math.round(result.nutritionalSummary.total_carbohydrates_g), suffix: "g", icon: BarChart4, cls: "metric-yellow" },
+                      { label: "Fat", value: Math.round(result.nutritionalSummary.total_fat_g), suffix: "g", icon: BarChart4, cls: "metric-orange" },
+                    ].map(m => (
+                      <div key={m.label} className="glass-card p-4">
+                        <div className={`${m.cls} metric-badge mb-2`}>
+                          <m.icon className="h-3.5 w-3.5" />
+                        </div>
+                        <p className="text-xs text-muted-foreground">{m.label}</p>
+                        <p className="text-xl font-bold text-foreground">
+                          <AnimatedCounter value={m.value} suffix={m.suffix} />
+                        </p>
+                      </div>
+                    ))}
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Avg Weight</span>
-                    <span className="font-medium text-foreground">{(result.totalWeight / result.totalItems).toFixed(1)} g</span>
+                  <div className="mt-4 text-xs text-muted-foreground text-center">
+                    Nutrition data available for {result.nutritionalSummary.items_with_nutrition_data} of {result.totalItems} items
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Avg Confidence</span>
-                    <span className="font-medium text-foreground">{result.avgConfidence.toFixed(1)}%</span>
+                </motion.div>
+              ) : (
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card p-6">
+                  <h2 className="font-semibold text-foreground mb-2">Avg per Item</h2>
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Avg Volume</span>
+                      <span className="font-medium text-foreground">{(result.totalVolume / result.totalItems).toFixed(1)} ml</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Avg Weight</span>
+                      <span className="font-medium text-foreground">{(result.totalWeight / result.totalItems).toFixed(1)} g</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Avg Confidence</span>
+                      <span className="font-medium text-foreground">{result.avgConfidence.toFixed(1)}%</span>
+                    </div>
+                    {!enableNutrition && (
+                      <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                        <p className="text-xs text-yellow-600 dark:text-yellow-400 text-center">
+                          Enable nutritional analysis to see calorie and macro information
+                        </p>
+                      </div>
+                    )}
                   </div>
-                </div>
-              </motion.div>
+                </motion.div>
+              )}
             </div>
           )}
         </div>
@@ -435,7 +606,7 @@ const Analysis = () => {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border">
-                    {["Food Name", "Volume (ml)", "Weight (g)", "Area (cm²)", "Height (cm)", "Confidence", "Components"].map(h => (
+                    {["Food Name", "Volume (ml)", "Weight (g)", "Area (cm²)", "Height (cm)", "Confidence", "Calories", "Protein (g)", "Carbs (g)", "Fat (g)", "Components"].map(h => (
                       <th key={h} className="text-left py-3 px-3 text-muted-foreground font-medium">{h}</th>
                     ))}
                   </tr>
@@ -443,26 +614,68 @@ const Analysis = () => {
                 <tbody>
                   {filteredFoods.map((f: FoodItem) => (
                     <tr key={f.name} className="border-b border-border/50 hover:bg-muted/50 transition-colors">
-                      <td className="py-3 px-3 font-medium text-foreground">{f.name}</td>
+                      <td className="py-3 px-3">
+                        <div className="font-medium text-foreground">{f.name}</div>
+                        {f.nutrition?.matched_food_name && f.nutrition.matched_food_name !== f.name && (
+                          <div className="text-xs text-muted-foreground mt-1">Matched: {f.nutrition.matched_food_name}</div>
+                        )}
+                      </td>
                       <td className="py-3 px-3 text-foreground">{f.volume.toFixed(2)}</td>
                       <td className="py-3 px-3 text-foreground">{f.weight.toFixed(2)}</td>
                       <td className="py-3 px-3 text-foreground">{f.area.toFixed(2)}</td>
                       <td className="py-3 px-3 text-foreground">{f.height.toFixed(2)}</td>
                       <td className="py-3 px-3">
-                        <span className={`metric-badge ${f.confidence > 90 ? "metric-green" : "metric-orange"}`}>
-                          {f.confidence.toFixed(1)}%
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${
+                          f.confidence > 0.8 ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
+                          f.confidence > 0.6 ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' :
+                          'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                        }`}>
+                          {(f.confidence * 100).toFixed(0)}%
                         </span>
                       </td>
+                      <td className="py-3 px-3 text-foreground">
+                        {f.nutrition?.calories ? (
+                          <span className="font-medium">{f.nutrition.calories.toFixed(0)} kcal</span>
+                        ) : (
+                          <span className="text-muted-foreground text-xs">No data</span>
+                        )}
+                      </td>
+                      <td className="py-3 px-3 text-foreground">
+                        {f.nutrition?.protein_g ? (
+                          <span>{f.nutrition.protein_g.toFixed(1)}g</span>
+                        ) : (
+                          <span className="text-muted-foreground text-xs">-</span>
+                        )}
+                      </td>
+                      <td className="py-3 px-3 text-foreground">
+                        {f.nutrition?.carbohydrates_g ? (
+                          <span>{f.nutrition.carbohydrates_g.toFixed(1)}g</span>
+                        ) : (
+                          <span className="text-muted-foreground text-xs">-</span>
+                        )}
+                      </td>
+                      <td className="py-3 px-3 text-foreground">
+                        {f.nutrition?.fat_g ? (
+                          <span>{f.nutrition.fat_g.toFixed(1)}g</span>
+                        ) : (
+                          <span className="text-muted-foreground text-xs">-</span>
+                        )}
+                      </td>
                       <td className="py-3 px-3">
-                        <div className="flex flex-wrap gap-1">
-                          {f.components.length > 0 ? (
-                            f.components.map(c => (
-                              <span key={c} className="metric-badge metric-violet text-xs">{c}</span>
-                            ))
-                          ) : (
-                            <span className="text-xs text-muted-foreground">None</span>
-                          )}
-                        </div>
+                        {f.components && f.components.length > 0 ? (
+                          <div className="flex flex-wrap gap-1">
+                            {f.components.slice(0, 2).map(c => (
+                              <span key={c} className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs rounded font-medium">
+                                {c}
+                              </span>
+                            ))}
+                            {f.components.length > 2 && (
+                              <span className="text-xs text-muted-foreground">+{f.components.length - 2} more</span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground text-xs">None</span>
+                        )}
                       </td>
                     </tr>
                   ))}

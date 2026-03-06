@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from "axios";
 
 // API configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
 
 interface User {
   id: number;
@@ -26,6 +26,7 @@ class APIClient {
       headers: {
         "Content-Type": "application/json",
       },
+      timeout: 30000, // 30 second timeout
     });
 
     // Load userId from localStorage

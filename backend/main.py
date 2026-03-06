@@ -118,11 +118,11 @@ if __name__ == "__main__":
     import uvicorn
     
     HOST = os.getenv("API_HOST", "0.0.0.0")
-    PORT = int(os.getenv("API_PORT", "8000"))
+    PORT = int(os.getenv("API_PORT", "3001"))  # Changed default to 3001
     
     uvicorn.run(
         "main:app",
         host=HOST,
         port=PORT,
-        reload=True if os.getenv("ENVIRONMENT") == "development" else False
+        reload=True if os.getenv("ENVIRONMENT", "development") == "development" else False
     )
