@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Ruler, Scale, Brain, BarChart3, Zap, Target, Upload, ArrowRight, Home, Microscope, BarChart4, Settings, User, Eye, Utensils, TrendingUp, Database } from "lucide-react";
+import { Ruler, Scale, Brain, BarChart3, Zap, Target, Upload, ArrowRight, Home, Microscope, BarChart4, Settings, User, Eye, Utensils, TrendingUp, Database, Hospital, Activity, Users, FlaskConical } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import ScanAnimation from "@/components/ScanAnimation";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import Dock from "@/components/Dock";
 import Carousel from "@/components/Carousel";
 import ScrollReveal from "@/components/ScrollReveal";
+import LogoLoop from "@/components/LogoLoop";
 import heroFood from "@/assets/hero-food.jpg";
 
 const mockMetrics = { volume: 342, weight: 285, items: 4 };
@@ -198,7 +199,7 @@ const Index = () => {
       </section>
 
       {/* Product Section */}
-      <section id="product" className="px-6 py-32 bg-gray-100 dark:bg-gray-800 relative z-20">
+      <section id="product" className="px-6 py-32 bg-white/40 dark:bg-background-dark/40 backdrop-blur-sm border-y border-border relative z-20">
         <div className="max-w-7xl mx-auto">
           {/* Section Header */}
           <motion.div
@@ -294,27 +295,138 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="px-6 py-20 bg-white/40 dark:bg-background-dark/40 backdrop-blur-sm border-y border-border">
-        <div className="max-w-6xl mx-auto flex flex-wrap justify-center md:justify-between gap-12 md:gap-8">
-          {stats.map((stat, i) => (
+      {/* Solutions Section */}
+      <section id="solutions" className="px-6 py-32 bg-gradient-to-br from-white via-gray-50 to-white dark:from-background-dark dark:via-slate-900/50 dark:to-background-dark">
+        <div className="max-w-7xl mx-auto">
+          {/* Section Header */}
+          <div className="text-center mb-16">
+            <ScrollReveal
+              enableBlur
+              baseOpacity={0.15}
+              baseRotation={2}
+              blurStrength={3}
+              containerClassName="mb-6"
+              textClassName="text-5xl md:text-6xl font-black text-foreground"
+            >
+              Solutions
+            </ScrollReveal>
+            <div className="w-24 h-1.5 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full mx-auto" />
+          </div>
+
+          {/* Solution Cards Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Healthcare */}
             <motion.div
-              key={stat.label}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="flex flex-col items-center md:items-start min-w-[200px]"
+              transition={{ delay: 0 }}
+              className="group relative overflow-hidden rounded-3xl bg-white dark:bg-slate-900/80 p-8 shadow-lg border border-border hover:shadow-2xl transition-all duration-300 flex flex-col justify-between h-full"
             >
+              <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative z-10 flex flex-col gap-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                    <Hospital className="text-red-500" size={24} />
+                  </div>
+                  <h3 className="text-xl font-bold text-foreground">Healthcare</h3>
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  In healthcare environments, accurate dietary monitoring is essential for patient recovery and long-term health management. FoodCaliper helps hospitals and nutritionists estimate food portions and calorie intake more consistently by analyzing meal images. This enables healthcare professionals to track patient nutrition, maintain dietary compliance, and support better nutritional planning without relying on manual portion estimation.
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Nutrition Platforms */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="group relative overflow-hidden rounded-3xl bg-white dark:bg-slate-900/80 p-8 shadow-lg border border-border hover:shadow-2xl transition-all duration-300 flex flex-col justify-between h-full"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative z-10 flex flex-col gap-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                    <Activity className="text-green-500" size={24} />
+                  </div>
+                  <h3 className="text-xl font-bold text-foreground">Nutrition Platforms</h3>
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Digital nutrition and fitness platforms require reliable data to help users track their meals and manage dietary goals. FoodCaliper can integrate with these platforms to automatically estimate portion size, weight, and calories from food images. This simplifies meal tracking and allows users to monitor their nutritional intake with minimal effort while improving the accuracy of food logging.
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Food Service Operations */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="group relative overflow-hidden rounded-3xl bg-white dark:bg-slate-900/80 p-8 shadow-lg border border-border hover:shadow-2xl transition-all duration-300 flex flex-col justify-between h-full"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative z-10 flex flex-col gap-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                    <Utensils className="text-blue-500" size={24} />
+                  </div>
+                  <h3 className="text-xl font-bold text-foreground">Food Service Operations</h3>
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  FoodCaliper helps food service providers maintain consistent portion sizes across meals and locations. Restaurants, cloud kitchens, and institutional food services can use the platform to monitor portion measurements, reduce food waste, and ensure quality control in meal preparation. By analyzing meal portions through images, the system supports operational efficiency and better resource management.
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Research & Analytics */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+              className="group relative overflow-hidden rounded-3xl bg-white dark:bg-slate-900/80 p-8 shadow-lg border border-border hover:shadow-2xl transition-all duration-300 flex flex-col justify-between h-full"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-violet-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative z-10 flex flex-col gap-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                    <FlaskConical className="text-purple-500" size={24} />
+                  </div>
+                  <h3 className="text-xl font-bold text-foreground">Research &amp; Analytics</h3>
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  In academic and nutritional research, collecting accurate food intake data is often difficult and time-consuming. FoodCaliper enables researchers to analyze food images and convert them into measurable dietary data such as portion size, weight, and calorie estimates. This allows research teams to gather structured food consumption data more efficiently and conduct large-scale dietary studies with improved data consistency.
+                </p>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="px-6 py-20 bg-white/40 dark:bg-background-dark/40 backdrop-blur-sm border-y border-border">
+        <LogoLoop
+          logos={stats}
+          speed={60}
+          logoHeight={120}
+          gap={48}
+          pauseOnHover={true}
+          direction="left"
+          width="100%"
+          renderItem={(stat) => (
+            <div className="flex flex-col items-center justify-center min-w-[220px]">
               <p className="text-slate-deep dark:text-white text-5xl font-black mb-2">{stat.value}</p>
               <p className="text-muted-foreground font-bold uppercase tracking-widest text-sm">{stat.label}</p>
               <div className="mt-2 flex items-center gap-1 text-emerald-500 font-bold text-sm">
                 <span>{stat.icon}</span>
                 {stat.detail}
               </div>
-            </motion.div>
-          ))}
-        </div>
+            </div>
+          )}
+        />
       </section>
 
       {/* Features Section */}
@@ -416,6 +528,7 @@ const Index = () => {
               <h4 className="font-bold">Product</h4>
               <nav className="flex flex-col gap-2 text-slate-400 text-sm">
                 <a className="hover:text-primary transition-colors" href="#features">Features</a>
+                <a className="hover:text-primary transition-colors" href="#solutions">Solutions</a>
                 <a className="hover:text-primary transition-colors" href="/login">Enterprise</a>
                 <a className="hover:text-primary transition-colors" href="#features">API Docs</a>
                 <a className="hover:text-primary transition-colors" href="#features">Privacy</a>
