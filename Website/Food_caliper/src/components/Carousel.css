@@ -1,14 +1,16 @@
 .carousel-container {
   position: relative;
   overflow: hidden;
-  border: 2px solid #ff8c00;
-  border-radius: 16px;
-  padding: 12px;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
   --outer-r: 16px;
   --p-distance: 8px;
-  background: #ffffff;
+  background: transparent;
   /* dark mode styles */
-  background: #1f1f1f;
+  background: transparent;
 }
 
 .carousel-track {
@@ -22,20 +24,21 @@
   flex-direction: column;
   align-items: flex-start;
   justify-content: space-between;
-  border: 2px solid #e0e0e0;
-  border-radius: calc(var(--outer-r) - var(--p-distance));
-  background: #f5f5f5;
+  border: 2px solid #ff8c00;
+  border-radius: 16px;
+  background: #ffffff;
   overflow: hidden;
   cursor: grab;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 24px rgba(255, 140, 0, 0.15);
+  padding: 8px;
 }
 
 .carousel-item:hover {
   border-color: #ff8c00;
   background: #ffffff;
-  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.12);
-  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(255, 140, 0, 0.25);
+  transform: translateY(-4px);
 }
 
 .carousel-item:active {

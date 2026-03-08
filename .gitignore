@@ -103,7 +103,6 @@ app_test.py
 test_*.py
 food_detection.py
 food_scrape.py
-volumetric_food_analysis.py
 migrate_db.py
 
 # Documentation files (MD)

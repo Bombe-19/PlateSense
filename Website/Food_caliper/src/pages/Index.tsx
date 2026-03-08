@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Ruler, Scale, Brain, BarChart3, Zap, Target, Upload, ArrowRight, Home, Microscope, BarChart4, Settings, User, Eye, Utensils, TrendingUp, Database, Hospital, Activity, Users, FlaskConical } from "lucide-react";
+import { Ruler, Scale, Brain, BarChart3, Zap, Target, Upload, ArrowRight, Home, Microscope, BarChart4, Settings, User, Eye, Utensils, TrendingUp, Database, Hospital, Activity, Users, FlaskConical, Play, Cpu } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import ScanAnimation from "@/components/ScanAnimation";
 import AnimatedCounter from "@/components/AnimatedCounter";
@@ -23,6 +23,13 @@ const features = [
 const Index = () => {
   const navigate = useNavigate();
   const [isScanning, setIsScanning] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
+
+  const tabContents = {
+    overview: "FoodCaliper is an AI-powered food analysis platform that estimates the volume and weight of food using image-based analysis. By combining computer vision techniques with calibrated food density data, the system converts a simple food image into measurable information such as portion size, estimated weight, calorie estimation, and basic nutritional insights.",
+    specs: "Advanced deep learning models trained on 10,000+ food items. Real-time processing with sub-second analysis. Medical-grade accuracy (±12-18% error margin). Support for 116 distinct food types. Cloud-based infrastructure with 99.9% uptime.",
+    usecases: "Perfect for health tracking, nutrition research, hospital dietary management, smart kitchen applications, and fitness enthusiasts. Integrates with nutrition apps and health platforms for comprehensive dietary monitoring and analysis.",
+  };
 
   const handleDemoAnalyze = () => {
     setIsScanning(true);
@@ -198,7 +205,7 @@ const Index = () => {
         </motion.div>
       </section>
 
-      {/* Product Section */}
+      {/* Product Section - Redesigned */}
       <section id="product" className="px-6 py-32 bg-white/40 dark:bg-background-dark/40 backdrop-blur-sm border-y border-border relative z-20">
         <div className="max-w-7xl mx-auto">
           {/* Section Header */}
@@ -221,75 +228,96 @@ const Index = () => {
             <div className="w-24 h-1.5 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full mx-auto" />
           </motion.div>
 
-          {/* Carousel + Video Grid */}
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Left - Description + Carousel */}
+          {/* Description Paragraph */}
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center text-lg text-muted-foreground max-w-3xl mx-auto mb-16 leading-relaxed"
+          >
+            FoodCaliper is an AI-powered food analysis platform that estimates the volume and weight of food in image analysis. By combining computer vision techniques with calibrated food density data, the system converts a simple food image into measurable such as portion weight, calorie estimation, and basic nutritional insights. This platform is designed to simplify food measurement and provide a faster, more consistent way to analyze meals across different environments.
+          </motion.p>
+
+          {/* Two Card Grid */}
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Left Card - Carousel Full Width */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="flex flex-col gap-8"
+              className="relative overflow-hidden rounded-3xl bg-slate-900 dark:bg-slate-950 shadow-2xl border border-slate-800 hover:border-slate-700 transition-all group min-h-96 flex items-center justify-center p-0"
             >
-              {/* Description Text */}
-              <ScrollReveal
-                enableBlur={false}
-                blurStrength={4}
-                baseOpacity={0.1}
-                baseRotation={3}
-                textClassName="text-lg text-muted-foreground leading-relaxed"
-              >
-                FoodCaliper is an AI-powered food analysis platform that estimates the volume and weight of food using image-based analysis. By combining computer vision techniques with calibrated food density data, the system converts a simple food image into measurable information such as portion size, estimated weight, calorie estimation, and basic nutritional insights. The platform is designed to simplify food measurement and provide a faster, more consistent way to analyze meals across different environments.
-              </ScrollReveal>
+              {/* Background Gradient */}
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               
-              {/* Carousel */}
-              <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+              {/* Mesh Pattern */}
+              <div 
+                className="absolute inset-0 opacity-30"
+                style={{
+                  backgroundImage: 'radial-gradient(circle, rgba(249,115,22,0.15) 1px, transparent 1px)',
+                  backgroundSize: '25px 25px',
+                }}
+              />
+
+              {/* Carousel Section - Full Width */}
+              <div className="relative z-10 w-full flex justify-center">
                 <Carousel
-                  baseWidth={350}
+                  baseWidth={400}
                   autoplay={false}
                   autoplayDelay={3000}
                   pauseOnHover={false}
-                  loop={false}
+                  loop={true}
                   round={false}
                 />
               </div>
+
+              {/* Decorative Elements */}
+              <div className="absolute top-0 right-0 w-40 h-40 bg-orange-500/5 rounded-full blur-3xl group-hover:bg-orange-500/10 transition-all" />
             </motion.div>
 
-            {/* Right - Video Placeholder */}
+            {/* Right Card - Watch in Action */}
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="relative"
+              className="relative overflow-hidden rounded-3xl bg-slate-900 dark:bg-slate-950 shadow-2xl border border-slate-800 hover:border-slate-700 transition-all group min-h-96"
             >
-              <div className="relative aspect-video rounded-3xl overflow-hidden shadow-2xl border-2 border-orange-200 dark:border-orange-900/40 bg-gradient-to-br from-slate-900 to-slate-800">
-                {/* Video Background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-cyan-500/5 to-transparent" />
-                
-                {/* Mesh Pattern */}
-                <div 
-                  className="absolute inset-0"
-                  style={{
-                    backgroundImage: 'radial-gradient(circle, rgba(249,115,22,0.1) 1px, transparent 1px)',
-                    backgroundSize: '20px 20px',
-                  }}
-                />
+              {/* Background Gradient */}
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              
+              {/* Video/Image Background */}
+              <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-900" />
+              
+              {/* Mesh Pattern */}
+              <div 
+                className="absolute inset-0 opacity-20"
+                style={{
+                  backgroundImage: 'radial-gradient(circle, rgba(100,200,255,0.1) 1px, transparent 1px)',
+                  backgroundSize: '25px 25px',
+                }}
+              />
 
-                {/* Centered Play Button */}
-                <div className="absolute inset-0 flex items-center justify-center z-10">
-                  <div className="group relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full blur-2xl opacity-0 group-hover:opacity-75 transition-opacity duration-300" />
-                    <button className="relative w-20 h-20 rounded-full bg-orange-500 hover:bg-orange-600 transition-colors flex items-center justify-center shadow-lg hover:shadow-2xl hover:shadow-orange-500/50">
-                      <div className="w-0 h-0 border-l-8 border-l-white border-t-5 border-t-transparent border-b-5 border-b-transparent ml-1" />
-                    </button>
-                  </div>
-                </div>
+              {/* Image showing food analysis */}
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-cyan-500/5" />
 
-                {/* Video Placeholder Text */}
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-6 text-white">
-                  <p className="font-semibold text-lg">Watch FoodCaliper in Action</p>
-                  <p className="text-sm text-gray-300 mt-1">See how our AI analyzes food in real-time</p>
+              {/* Content Overlay - Centered Play Button */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 z-20">
+                <div className="group/play relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full blur-2xl opacity-60 group-hover/play:opacity-100 transition-opacity duration-300 w-28 h-28" />
+                  <button className="relative w-28 h-28 rounded-full bg-orange-500 hover:bg-orange-600 transition-all flex items-center justify-center shadow-2xl hover:shadow-orange-500/50 group-hover/play:scale-110">
+                    <Play className="w-10 h-10 text-white fill-white ml-1" />
+                  </button>
                 </div>
               </div>
+
+              {/* Bottom Text */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-8 z-10">
+                <p className="font-bold text-xl text-white">Watch FoodCaliper in Action</p>
+                <p className="text-sm text-gray-300 mt-2">See how our AI analyzes food in real-time</p>
+              </div>
+
+              {/* Decorative Elements */}
+              <div className="absolute top-0 right-0 w-40 h-40 bg-cyan-500/5 rounded-full blur-3xl group-hover:bg-cyan-500/10 transition-all" />
             </motion.div>
           </div>
         </div>
