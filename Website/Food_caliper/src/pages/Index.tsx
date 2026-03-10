@@ -9,6 +9,7 @@ import Dock from "@/components/Dock";
 import Carousel from "@/components/Carousel";
 import ScrollReveal from "@/components/ScrollReveal";
 import LogoLoop from "@/components/LogoLoop";
+import PlatformSection from "@/components/PlatformSection";
 import heroFood from "@/assets/hero-food.jpg";
 
 const mockMetrics = { volume: 342, weight: 285, items: 4 };
@@ -536,6 +537,44 @@ const Index = () => {
             </div>
             <div className="w-2/5 bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 rounded-2xl hidden sm:block border border-cyan-500/10" />
           </motion.div>
+        </div>
+      </section>
+
+      {/* Platform Section */}
+      <section
+        id="platform"
+        className="px-6 py-32 bg-white/40 dark:bg-background-dark/40 backdrop-blur-sm border-y border-border relative z-20"
+      >
+        <div className="max-w-7xl mx-auto">
+
+          {/* Section Header */}
+          <div className="text-center mb-16">
+            <ScrollReveal
+              enableBlur
+              baseOpacity={0.15}
+              baseRotation={2}
+              blurStrength={3}
+              containerClassName="mb-6"
+              textClassName="text-5xl md:text-6xl font-black text-foreground"
+            >
+              Platform
+            </ScrollReveal>
+
+            <div className="w-24 h-1.5 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full mx-auto" />
+
+            <p className="mt-6 text-muted-foreground max-w-3xl mx-auto text-lg">
+              The FoodCaliper platform provides a complete AI-powered environment
+              for analyzing food images and extracting measurable insights such as
+              volume, weight, and nutritional data. The system combines computer
+              vision with structured analytics to help organizations track food
+              measurements, monitor nutritional intake, and generate reliable
+              food analysis reports.
+            </p>
+          </div>
+
+          {/* Platform Component */}
+          <PlatformSection />
+
         </div>
       </section>
 
