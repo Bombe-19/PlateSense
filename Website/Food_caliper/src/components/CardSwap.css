@@ -1,176 +1,73 @@
 .card-swap-container {
-  position: relative;
-  perspective: 1000px;
-  transform-style: preserve-3d;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+
+  transform: translate(5%, 20%);
+  transform-origin: bottom right;
+
+  perspective: 900px;
 }
+
 
 .card {
   position: absolute;
-  left: 50%;
   top: 50%;
-  border-radius: 16px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 32px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  left: 50%;
+
+  border-radius: 18px;
+
+  background: linear-gradient(
+    135deg,
+    rgba(15, 23, 42, 0.85),
+    rgba(10, 15, 30, 0.95)
+  );
+
+  backdrop-filter: blur(16px);
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+
+  padding: 24px 48px;
+
+  color: #fff;
+
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  color: white;
+  justify-content: flex-start;
+  align-items: stretch;
+
+  transform-style: preserve-3d;
+  will-change: transform;
+
   overflow: hidden;
 }
 
-.card h3 {
-  font-size: 24px;
-  font-weight: 700;
-  margin: 0 0 12px 0;
-  letter-spacing: -0.5px;
-}
+/* subtle glow */
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
 
-.card p {
-  font-size: 14px;
-  opacity: 0.8;
-  margin: 0;
-  line-height: 1.6;
-}
+  background: radial-gradient(
+    circle at 30% 20%,
+    rgba(139, 92, 246, 0.2),
+    transparent 60%
+  );
 
-/* Platform Section Styles */
-
-.platform-wrapper {
-  padding: 120px 80px;
-  background: linear-gradient(to bottom, transparent, rgba(249, 115, 22, 0.03));
-}
-
-.platform-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 120px;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.platform-text {
-  display: flex;
-  flex-direction: column;
-  gap: 200px;
-}
-
-.feature-block {
-  min-height: 80vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 40px 0;
-}
-
-.feature-block h2 {
-  font-size: 48px;
-  font-weight: 700;
-  margin: 0 0 24px 0;
-  letter-spacing: -1px;
-  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.feature-block p {
-  font-size: 18px;
-  color: #6b7280;
-  line-height: 1.6;
-  max-width: 500px;
-  margin: 0;
-}
-
-.platform-cards {
-  position: sticky;
-  top: 120px;
-  height: 500px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Responsive Design */
-
-@media (max-width: 1024px) {
-  .platform-wrapper {
-    padding: 80px 40px;
-  }
-
-  .platform-grid {
-    grid-template-columns: 1fr;
-    gap: 60px;
-  }
-
-  .platform-cards {
-    position: relative;
-    top: auto;
-    height: 400px;
-  }
-
-  .feature-block h2 {
-    font-size: 36px;
-  }
-
-  .feature-block p {
-    font-size: 16px;
-  }
+  pointer-events: none;
 }
 
 @media (max-width: 768px) {
-  .platform-wrapper {
-    padding: 60px 20px;
-  }
-
-  .platform-grid {
-    gap: 40px;
-  }
-
-  .platform-text {
-    gap: 120px;
-  }
-
-  .feature-block {
-    min-height: 60vh;
-    padding: 20px 0;
-  }
-
-  .feature-block h2 {
-    font-size: 28px;
-  }
-
-  .feature-block p {
-    font-size: 14px;
-  }
-
-  .card h3 {
-    font-size: 18px;
-  }
-
-  .card p {
-    font-size: 12px;
+  .card-swap-container {
+    transform: scale(0.75) translate(25%, 25%);
   }
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .card {
-    background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.8) 100%);
-    border-color: rgba(100, 116, 139, 0.3);
-  }
-
-  .feature-block h2 {
-    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .feature-block p {
-    color: #9ca3af;
+@media (max-width: 480px) {
+  .card-swap-container {
+    transform: scale(0.55) translate(25%, 25%);
   }
 }

@@ -51,8 +51,8 @@ interface CardSwapProps {
 }
 
 const CardSwap = ({
-  width = 500,
-  height = 400,
+  width = 600,       
+  height = 500,       
   cardDistance = 60,
   verticalDistance = 70,
   activeIndex = 0,
