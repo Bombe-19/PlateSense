@@ -1,13 +1,22 @@
 .scroll-reveal {
   margin: 20px 0;
+  display: block;
 }
 
 .scroll-reveal-text {
-  font-size: clamp(1.6rem, 4vw, 3rem);
-  line-height: 1.5;
-  font-weight: 600;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: 1.2;
+  font-weight: 900;
+  color: hsl(var(--foreground));
+  letter-spacing: -0.02em;
+}
+
+.dark .scroll-reveal-text {
+  color: hsl(var(--foreground));
 }
 
 .word {
   display: inline-block;
+  will-change: opacity, transform, filter;
+  transform-origin: center;
 }

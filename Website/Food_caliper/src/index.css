@@ -81,6 +81,7 @@
 
   html {
     background-color: #f8f6f6;
+    scroll-behavior: smooth;
   }
 
   body {

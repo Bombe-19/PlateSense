@@ -20,7 +20,7 @@ const App = () => (
       <Sonner />
       <TargetCursor 
         spinDuration={2}
-        hideDefaultCursor
+        hideDefaultCursor={false}
         parallaxOn
         hoverDuration={0.2}
       />

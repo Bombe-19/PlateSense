@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Ruler, Scale, Brain, BarChart3, Zap, Target, Upload, ArrowRight, Home, Microscope, BarChart4, Settings, User, Eye, Utensils, TrendingUp, Database, Hospital, Activity, Users, FlaskConical, Play, Cpu } from "lucide-react";
+import { Ruler, Scale, Brain, BarChart3, Zap, Target, Upload, Home, BarChart4, Settings, User, Eye, Utensils, TrendingUp, Database, Hospital, Activity, Users, FlaskConical, Play, Cpu } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import ScanAnimation from "@/components/ScanAnimation";
 import AnimatedCounter from "@/components/AnimatedCounter";
@@ -11,6 +11,7 @@ import ScrollReveal from "@/components/ScrollReveal";
 import LogoLoop from "@/components/LogoLoop";
 import PlatformSection from "@/components/PlatformSection";
 import heroFood from "@/assets/hero-food.jpg";
+import logo from "@/assets/logo.png";
 
 const mockMetrics = { volume: 342, weight: 285, items: 4 };
 
@@ -46,7 +47,7 @@ const Index = () => {
       onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' }) 
     },
     { 
-      icon: <Microscope size={20} />, 
+      icon: <Eye size={20} />, 
       label: 'Analyze', 
       onClick: () => navigate('/analysis') 
     },
@@ -218,10 +219,6 @@ const Index = () => {
           >
             <ScrollReveal
               enableBlur
-              baseOpacity={0.15}
-              baseRotation={2}
-              blurStrength={3}
-              containerClassName="mb-6"
               textClassName="text-5xl md:text-6xl font-black text-foreground"
             >
               What is FoodCaliper?
@@ -331,11 +328,8 @@ const Index = () => {
           <div className="text-center mb-16">
             <ScrollReveal
               enableBlur
-              baseOpacity={0.15}
-              baseRotation={2}
-              blurStrength={3}
               containerClassName="mb-6"
-              textClassName="text-5xl md:text-6xl font-black text-foreground"
+              textClassName="text-5xl font-black text-black dark:text-white"
             >
               Solutions
             </ScrollReveal>
@@ -458,92 +452,10 @@ const Index = () => {
         />
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="px-6 py-32 max-w-7xl mx-auto">
-        {/* Section Header */}
-        <div className="text-center mb-16">
-          <ScrollReveal
-            enableBlur
-            baseOpacity={0.15}
-            baseRotation={2}
-            blurStrength={3}
-            containerClassName="mb-6"
-            textClassName="text-5xl md:text-6xl font-black text-foreground"
-          >
-            How It Works
-          </ScrollReveal>
-          <div className="w-24 h-1.5 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full mx-auto" />
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-16">
-          {/* Mass Estimation */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="flex items-stretch justify-between gap-6 rounded-3xl bg-white dark:bg-slate-900/50 p-10 shadow-sm border border-border"
-          >
-            <div className="flex flex-col justify-between flex-1 gap-6">
-              <div className="flex flex-col gap-2">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-2">
-                  <Microscope className="text-primary" size={28} />
-                </div>
-                <h3 className="text-foreground text-2xl font-bold">Mass Estimation</h3>
-                <p className="text-muted-foreground text-base leading-relaxed">
-                  Proprietary depth-mapping algorithms calculate food weight with +/- 0.5g precision using only a single image.
-                </p>
-              </div>
-              <Link
-                to="/#"
-                className="cursor-target flex items-center gap-2 text-primary font-bold text-sm group"
-              >
-                Learn about methodology
-                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </div>
-            <div 
-              className="w-2/5 rounded-2xl hidden sm:block border border-primary/10 bg-cover bg-center"
-              style={{
-                backgroundImage: `url('/mass.png')`,
-              }}
-            />
-          </motion.div>
-
-          {/* Volume Mapping */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="flex items-stretch justify-between gap-6 rounded-3xl bg-white dark:bg-slate-900/50 p-10 shadow-sm border border-border"
-          >
-            <div className="flex flex-col justify-between flex-1 gap-6">
-              <div className="flex flex-col gap-2">
-                <div className="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center mb-2">
-                  <BarChart3 className="text-cyan-500" size={28} />
-                </div>
-                <h3 className="text-foreground text-2xl font-bold">Volume Mapping</h3>
-                <p className="text-muted-foreground text-base leading-relaxed">
-                  Real-time contouring creates a digital twin of any dish, allowing for exact portion control and calorie counting.
-                </p>
-              </div>
-              <Link
-                to="/#"
-                className="cursor-target flex items-center gap-2 text-cyan-500 font-bold text-sm group"
-              >
-                Explore the API
-                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </div>
-            <div className="w-2/5 bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 rounded-2xl hidden sm:block border border-cyan-500/10" />
-          </motion.div>
-        </div>
-      </section>
-
       {/* Platform Section */}
       <section
         id="platform"
-        className="px-6 py-32 bg-white/40 dark:bg-background-dark/40 backdrop-blur-sm border-y border-border relative z-20"
+        className="px-6 py-32 bg-white/60 dark:bg-background-dark/50 backdrop-blur-md border-y border-border relative z-20"
       >
         <div className="max-w-7xl mx-auto">
 
@@ -551,9 +463,7 @@ const Index = () => {
           <div className="text-center mb-16">
             <ScrollReveal
               enableBlur
-              baseOpacity={0.15}
-              baseRotation={2}
-              blurStrength={3}
+
               containerClassName="mb-6"
               textClassName="text-5xl md:text-6xl font-black text-foreground"
             >
@@ -578,55 +488,184 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-slate-900 text-white px-6 md:px-20 py-16 dark:bg-background-dark">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between gap-12 mb-12">
-          <div className="flex flex-col gap-4 max-w-xs">
-            <div className="flex items-center gap-2">
-              <Microscope className="text-primary" size={32} />
-              <h2 className="text-xl font-black">FoodCaliper</h2>
-            </div>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              Redefining nutritional monitoring through the lens of precision technology and deep learning.
-            </p>
+      {/* How It Works Section */}
+      <section id="features" className="px-6 py-32 bg-white/40 dark:bg-background-dark/40 backdrop-blur-sm border-y border-border relative z-20">
+        <div className="max-w-7xl mx-auto">
+          {/* Section Header */}
+          <div className="text-center mb-16">
+            <ScrollReveal
+              enableBlur
+              containerClassName="mb-6"
+              textClassName="text-5xl md:text-6xl font-black text-foreground"
+            >
+              How It Works
+            </ScrollReveal>
+            <div className="w-24 h-1.5 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full mx-auto" />
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-10">
-            <div className="flex flex-col gap-4">
-              <h4 className="font-bold">Product</h4>
-              <nav className="flex flex-col gap-2 text-slate-400 text-sm">
-                <a className="hover:text-primary transition-colors" href="#features">Features</a>
-                <a className="hover:text-primary transition-colors" href="#solutions">Solutions</a>
-                <a className="hover:text-primary transition-colors" href="/login">Enterprise</a>
-                <a className="hover:text-primary transition-colors" href="#features">API Docs</a>
-                <a className="hover:text-primary transition-colors" href="#features">Privacy</a>
-              </nav>
-            </div>
-            <div className="flex flex-col gap-4">
-              <h4 className="font-bold">Company</h4>
-              <nav className="flex flex-col gap-2 text-slate-400 text-sm">
-                <a className="hover:text-primary transition-colors" href="#features">About Us</a>
-                <a className="hover:text-primary transition-colors" href="#features">Careers</a>
-                <a className="hover:text-primary transition-colors" href="#features">Press Kit</a>
-                <a className="hover:text-primary transition-colors" href="#features">Contact</a>
-              </nav>
-            </div>
-            <div className="flex flex-col gap-4 col-span-2 sm:col-span-1">
-              <h4 className="font-bold">Subscribe</h4>
-              <div className="flex">
-                <input 
-                  type="email" 
-                  placeholder="Email" 
-                  className="bg-slate-800 border-none rounded-l-lg px-4 py-2 text-sm w-full focus:ring-1 focus:ring-primary"
-                />
-                <button className="bg-orange-500 px-4 py-2 rounded-r-lg hover:opacity-90 transition-opacity cursor-target">
-                  <ArrowRight size={16} />
-                </button>
+
+          {/* Grid Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Computer Vision */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="p-6 rounded-2xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 hover:border-orange-500/50 transition-all hover:bg-white/15 dark:hover:bg-white/10 shadow-lg"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <Eye className="text-orange-500" size={28} />
+                <h3 className="text-xl font-bold text-foreground">Computer Vision</h3>
               </div>
-            </div>
+              <p className="text-muted-foreground leading-relaxed">
+                The process begins with advanced computer vision models that detect and identify food items within an image. The system analyzes visual features such as shape, texture, and boundaries to accurately segment each food component. This step ensures that individual items on a plate are correctly recognized, forming a reliable foundation for further measurement and analysis.
+              </p>
+            </motion.div>
+
+            {/* Processing Pipeline */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="p-6 rounded-2xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 hover:border-orange-500/50 transition-all hover:bg-white/15 dark:hover:bg-white/10 shadow-lg"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <Cpu className="text-orange-500" size={28} />
+                <h3 className="text-xl font-bold text-foreground">Processing Pipeline</h3>
+              </div>
+              <p className="text-muted-foreground leading-relaxed">
+                All stages are integrated into a structured AI processing pipeline that manages detection, estimation, validation, and result generation. The pipeline ensures that each step is executed efficiently and consistently, minimizing errors while maintaining performance. This architecture enables FoodCaliper to deliver reliable results in real time, even for complex or mixed dishes.
+              </p>
+            </motion.div>
+
+            {/* Volume Estimation */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="p-6 rounded-2xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 hover:border-orange-500/50 transition-all hover:bg-white/15 dark:hover:bg-white/10 shadow-lg"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <Ruler className="text-orange-500" size={28} />
+                <h3 className="text-xl font-bold text-foreground">Volume Estimation</h3>
+              </div>
+              <p className="text-muted-foreground leading-relaxed">
+                After detecting the food, the system estimates its physical dimensions and portion size using spatial analysis techniques. By interpreting depth cues and surface area, FoodCaliper approximates the three-dimensional structure of the food. This allows the platform to determine how much space the food occupies, which is essential for accurate portion measurement.
+              </p>
+            </motion.div>
+          </div>
+
+          {/* Centered Last Two Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto mt-6">
+            {/* Density Modeling */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="p-6 rounded-2xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 hover:border-orange-500/50 transition-all hover:bg-white/15 dark:hover:bg-white/10 shadow-lg"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <Scale className="text-orange-500" size={28} />
+                <h3 className="text-xl font-bold text-foreground">Density Modeling</h3>
+              </div>
+              <p className="text-muted-foreground leading-relaxed">
+                The estimated volume is then converted into weight using calibrated food density models. Each food category is associated with specific density values, allowing the system to translate volume into realistic weight measurements. This step ensures that the results reflect real-world serving sizes rather than generic approximations.
+              </p>
+            </motion.div>
+
+            {/* Nutrition Calculation */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="p-6 rounded-2xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 hover:border-orange-500/50 transition-all hover:bg-white/15 dark:hover:bg-white/10 shadow-lg"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <BarChart3 className="text-orange-500" size={28} />
+                <h3 className="text-xl font-bold text-foreground">Nutrition Calculation</h3>
+              </div>
+              <p className="text-muted-foreground leading-relaxed">
+                Finally, the calculated weight is mapped to structured nutritional datasets to estimate calories and key macronutrients such as protein, carbohydrates, and fats. The system scales nutritional values based on portion size, providing meaningful dietary insights. This allows users to understand not just how much they are eating, but also the nutritional impact of their meals.
+              </p>
+            </motion.div>
           </div>
         </div>
-        <div className="max-w-6xl mx-auto border-t border-slate-800 pt-8 text-center text-slate-500 text-xs">
-          © 2024 FoodCaliper Technology Corp. All rights reserved.
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-slate-900/95 text-white px-6 md:px-20 py-20 border-t border-slate-800 relative z-20">
+        <div className="max-w-7xl mx-auto">
+          {/* Footer Top */}
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-12 mb-16">
+            {/* Brand Section */}
+            <div className="md:col-span-2">
+              <div className="flex items-center gap-3 mb-4">
+                <img src={logo} alt="FoodCaliper Logo" className="h-10 w-10" />
+                <h3 className="text-2xl font-black">FoodCaliper</h3>
+              </div>
+              <p className="text-slate-400 text-sm leading-relaxed mb-6 max-w-sm">
+                AI-powered food analysis platform that transforms images into measurable nutritional insights through advanced computer vision and deep learning.
+              </p>
+              <div className="flex gap-4">
+                <a href="#" className="text-slate-400 hover:text-primary transition-colors cursor-pointer">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a9 9 0 0 1-9 9m0-9a9 9 0 0 0-9 9m9-9v9m0 0a9 9 0 0 0 9-9m-9 9a9 9 0 0 1-9-9"/></svg>
+                </a>
+                <a href="#" className="text-slate-400 hover:text-primary transition-colors cursor-pointer">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V4z"/></svg>
+                </a>
+                <a href="#" className="text-slate-400 hover:text-primary transition-colors cursor-pointer">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 11a4 4 0 1 1 8 0 4 4 0 0 1-8 0zm6-7a6 6 0 1 0 0 12 6 6 0 0 0 0-12z"/></svg>
+                </a>
+              </div>
+            </div>
+
+            {/* Product */}
+            <div className="flex flex-col gap-4">
+              <h4 className="text-sm font-bold uppercase tracking-wider text-slate-200">Platform</h4>
+              <nav className="flex flex-col gap-3 text-sm">
+                <a href="#features" className="text-slate-400 hover:text-primary transition-colors cursor-pointer">Features</a>
+                <a href="#solutions" className="text-slate-400 hover:text-primary transition-colors cursor-pointer">Solutions</a>
+                <a href="#" className="text-slate-400 hover:text-primary transition-colors cursor-pointer">Technology</a>
+                <a href="#" className="text-slate-400 hover:text-primary transition-colors cursor-pointer">Pricing</a>
+              </nav>
+            </div>
+
+            {/* Company */}
+            <div className="flex flex-col gap-4">
+              <h4 className="text-sm font-bold uppercase tracking-wider text-slate-200">Company</h4>
+              <nav className="flex flex-col gap-3 text-sm">
+                <a href="#" className="text-slate-400 hover:text-primary transition-colors cursor-pointer">About</a>
+                <a href="#" className="text-slate-400 hover:text-primary transition-colors cursor-pointer">Careers</a>
+                <a href="#" className="text-slate-400 hover:text-primary transition-colors cursor-pointer">Blog</a>
+                <a href="#" className="text-slate-400 hover:text-primary transition-colors cursor-pointer">Contact</a>
+              </nav>
+            </div>
+
+            {/* Resources */}
+            <div className="flex flex-col gap-4">
+              <h4 className="text-sm font-bold uppercase tracking-wider text-slate-200">Resources</h4>
+              <nav className="flex flex-col gap-3 text-sm">
+                <a href="#" className="text-slate-400 hover:text-primary transition-colors cursor-pointer">Documentation</a>
+                <a href="#" className="text-slate-400 hover:text-primary transition-colors cursor-pointer">API Reference</a>
+                <a href="#" className="text-slate-400 hover:text-primary transition-colors cursor-pointer">Support</a>
+                <a href="#" className="text-slate-400 hover:text-primary transition-colors cursor-pointer">Status</a>
+              </nav>
+            </div>
+          </div>
+
+          {/* Footer Divider */}
+          <div className="border-t border-slate-800 pt-8">
+            {/* Footer Bottom */}
+            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+              <p className="text-slate-500 text-xs">
+                © 2026 FoodCaliper. All rights reserved.
+              </p>
+              <nav className="flex gap-6 text-xs text-slate-500">
+                <a href="#" className="hover:text-slate-300 transition-colors cursor-pointer">Privacy Policy</a>
+                <a href="#" className="hover:text-slate-300 transition-colors cursor-pointer">Terms of Service</a>
+                <a href="#" className="hover:text-slate-300 transition-colors cursor-pointer">Cookie Policy</a>
+              </nav>
+            </div>
+          </div>
         </div>
       </footer>
 
