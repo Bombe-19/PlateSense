@@ -76,7 +76,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="relative min-h-screen bg-background-light dark:bg-background-dark">
+    <div className="relative min-h-screen bg-background-light dark:bg-background-dark transition-colors duration-300 ease-out">
       {/* Background Texture Layer */}
       <div className="fixed inset-0 z-0 opacity-20 pointer-events-none" style={{
         backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBAyH-QeO3uQ7GDZPILAvrD79bT8p5RO3DpJgdgxE8GHvAd9Ot0b5I7HGtNGYihXSPOQErJrT_JWOY_VYcAsQ1rI3YaMMnVIbB_gQNTK8HQLyP6IMDaNWQ5rrct9BloFXctFUu9IFy9g2V9Mwi6hQIL0Qc6z2HeE2R8IOrfKRXTSmfwbuZ0GTPCSpwwOER8knokw-kTzD5wUgwspbaFuSkk9LwjWQ_oVXJ0Gxgw7ieRcv6Dvgl-IglwJ4XSyoGb6O5gFyiaBJHKemzQ")',
@@ -430,7 +430,7 @@ const Index = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="px-6 py-20 bg-white/40 dark:bg-background-dark/40 backdrop-blur-sm border-y border-border">
+      <section className="px-6 py-32 bg-white/50 dark:bg-background-dark/50 backdrop-blur-md border-y border-border relative z-20">
         <LogoLoop
           logos={stats}
           speed={60}
@@ -455,7 +455,7 @@ const Index = () => {
       {/* Platform Section */}
       <section
         id="platform"
-        className="px-6 py-32 bg-white/60 dark:bg-background-dark/50 backdrop-blur-md border-y border-border relative z-20"
+        className="px-6 py-32 bg-white/40 dark:bg-background-dark/40 backdrop-blur-sm border-y border-border relative z-20"
       >
         <div className="max-w-7xl mx-auto">
 
@@ -489,7 +489,7 @@ const Index = () => {
       </section>
 
       {/* How It Works Section */}
-      <section id="features" className="px-6 py-32 bg-white/40 dark:bg-background-dark/40 backdrop-blur-sm border-y border-border relative z-20">
+      <section id="features" className="px-6 py-32 bg-gradient-to-br from-white via-gray-50 to-white dark:from-background-dark dark:via-slate-900/50 dark:to-background-dark">
         <div className="max-w-7xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-16">
@@ -510,7 +510,7 @@ const Index = () => {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="p-6 rounded-2xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 hover:border-orange-500/50 transition-all hover:bg-white/15 dark:hover:bg-white/10 shadow-lg"
+              className="p-6 rounded-2xl backdrop-blur-xl bg-white/10 dark:bg-slate-800/50 border border-white/20 dark:border-slate-700/50 hover:border-orange-500/50 transition-all hover:bg-white/15 dark:hover:bg-slate-800/70 shadow-lg"
             >
               <div className="flex items-center gap-3 mb-4">
                 <Eye className="text-orange-500" size={28} />
@@ -526,7 +526,7 @@ const Index = () => {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="p-6 rounded-2xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 hover:border-orange-500/50 transition-all hover:bg-white/15 dark:hover:bg-white/10 shadow-lg"
+              className="p-6 rounded-2xl backdrop-blur-xl bg-white/10 dark:bg-slate-800/50 border border-white/20 dark:border-slate-700/50 hover:border-orange-500/50 transition-all hover:bg-white/15 dark:hover:bg-slate-800/70 shadow-lg"
             >
               <div className="flex items-center gap-3 mb-4">
                 <Cpu className="text-orange-500" size={28} />
@@ -542,7 +542,7 @@ const Index = () => {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="p-6 rounded-2xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 hover:border-orange-500/50 transition-all hover:bg-white/15 dark:hover:bg-white/10 shadow-lg"
+              className="p-6 rounded-2xl backdrop-blur-xl bg-white/10 dark:bg-slate-800/50 border border-white/20 dark:border-slate-700/50 hover:border-orange-500/50 transition-all hover:bg-white/15 dark:hover:bg-slate-800/70 shadow-lg"
             >
               <div className="flex items-center gap-3 mb-4">
                 <Ruler className="text-orange-500" size={28} />
@@ -561,7 +561,7 @@ const Index = () => {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="p-6 rounded-2xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 hover:border-orange-500/50 transition-all hover:bg-white/15 dark:hover:bg-white/10 shadow-lg"
+              className="p-6 rounded-2xl backdrop-blur-xl bg-white/10 dark:bg-slate-800/50 border border-white/20 dark:border-slate-700/50 hover:border-orange-500/50 transition-all hover:bg-white/15 dark:hover:bg-slate-800/70 shadow-lg"
             >
               <div className="flex items-center gap-3 mb-4">
                 <Scale className="text-orange-500" size={28} />
@@ -577,7 +577,7 @@ const Index = () => {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
-              className="p-6 rounded-2xl backdrop-blur-xl bg-white/10 dark:bg-white/5 border border-white/20 hover:border-orange-500/50 transition-all hover:bg-white/15 dark:hover:bg-white/10 shadow-lg"
+              className="p-6 rounded-2xl backdrop-blur-xl bg-white/10 dark:bg-slate-800/50 border border-white/20 dark:border-slate-700/50 hover:border-orange-500/50 transition-all hover:bg-white/15 dark:hover:bg-slate-800/70 shadow-lg"
             >
               <div className="flex items-center gap-3 mb-4">
                 <BarChart3 className="text-orange-500" size={28} />

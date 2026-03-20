@@ -67,11 +67,11 @@ const Navbar = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
     <motion.header
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="flex items-center justify-between whitespace-nowrap border-b border-slate-200 dark:border-slate-800 px-6 md:px-20 py-5 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md sticky top-0 z-50"
+      className="flex items-center justify-between whitespace-nowrap border-b border-slate-200 dark:border-slate-900 px-6 md:px-20 py-5 bg-white/90 dark:bg-slate-950/95 backdrop-blur-md sticky top-0 z-50 transition-colors duration-300"
     >
-      <div className="flex items-center gap-2 text-slate-deep dark:text-white">
+      <div className="flex items-center gap-2 text-slate-900 dark:text-white">
         <img src="/logo.png" alt="FoodCaliper" className="h-9 w-9" />
-        <Link to="/" className="cursor-target text-xl font-black leading-tight tracking-tight hover:opacity-80 transition-opacity">
+        <Link to="/" className="cursor-target text-xl font-black leading-tight tracking-tight hover:opacity-80 transition-all text-slate-900 dark:text-white">
           FoodCaliper
         </Link>
       </div>
@@ -87,7 +87,7 @@ const Navbar = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
                   className={`cursor-target text-sm font-semibold hover:text-primary transition-colors ${
                     location.pathname === link.to
                       ? "text-primary"
-                      : "text-foreground"
+                      : "text-slate-700 dark:text-slate-200"
                   }`}
                 >
                   {link.label}
@@ -144,7 +144,7 @@ const Navbar = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
                 <a
                   key={link.to}
                   href={link.to}
-                  className="cursor-target text-sm font-semibold text-foreground hover:text-primary transition-colors"
+                  className="cursor-target text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-primary transition-colors"
                 >
                   {link.label}
                 </a>
@@ -158,7 +158,7 @@ const Navbar = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
           </>
         )}
       </div>
-      <button className="md:hidden material-symbols-outlined text-foreground">menu</button>
+      <button className="md:hidden material-symbols-outlined text-slate-900 dark:text-white">menu</button>
     </motion.header>
   );
 };
