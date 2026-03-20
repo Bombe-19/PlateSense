@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import User
-from app.schemas import UserRegister, UserLogin, UserResponse
+from app.schemas import UserRegister, UserLogin, UserResponse, UserProfile
 from app.utils.auth import hash_password, verify_password
 from datetime import datetime
 from pydantic import BaseModel
@@ -189,7 +189,7 @@ async def login(credentials: UserLogin, db: Session = Depends(get_db)):
     
     return UserResponse.from_orm(user)
 
-@router.get("/profile/{user_id}", response_model=UserResponse)
+@router.get("/profile/{user_id}", response_model=UserProfile)
 async def get_user_profile(user_id: int, db: Session = Depends(get_db)):
     """Get user profile by user ID"""
     
@@ -201,8 +201,8 @@ async def get_user_profile(user_id: int, db: Session = Depends(get_db)):
             detail="User not found"
         )
     
-    return UserResponse.from_orm(user)
-@router.put("/profile/{user_id}", response_model=UserResponse)
+    return UserProfile.from_orm(user)
+@router.put("/profile/{user_id}", response_model=UserProfile)
 async def update_user_profile(user_id: int, data: dict, db: Session = Depends(get_db)):
     """Update user profile by user ID"""
     
@@ -236,4 +236,4 @@ async def update_user_profile(user_id: int, data: dict, db: Session = Depends(ge
     db.commit()
     db.refresh(user)
     
-    return UserResponse.from_orm(user)
+    return UserProfile.from_orm(user)

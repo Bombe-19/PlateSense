@@ -620,9 +620,19 @@ async def get_analysis_history(
                 {
                     "id": f.id,
                     "name": f.food_name,
-                    "volume": f.volume_ml,
-                    "weight": f.weight_grams,
+                    "volume_ml": f.volume_ml,
+                    "weight_grams": f.weight_grams,
                     "confidence": f.confidence,
+                    "calories": f.calories or 0,
+                    "protein_g": f.protein_g or 0,
+                    "carbohydrates_g": f.carbohydrates_g or 0,
+                    "fat_g": f.fat_g or 0,
+                    "fiber_g": f.fiber_g or 0,
+                    "sugar_g": f.sugar_g or 0,
+                    "sodium_mg": f.sodium_mg or 0,
+                    "calcium_mg": f.calcium_mg or 0,
+                    "iron_mg": f.iron_mg or 0,
+                    "vitamin_c_mg": f.vitamin_c_mg or 0,
                 }
                 for f in a.food_items
             ]

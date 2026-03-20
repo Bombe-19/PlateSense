@@ -65,6 +65,18 @@ class FoodItemDetail(BaseModel):
     density_g_per_ml: Optional[float] = None
     components: Optional[List[str]] = None
     nutritional_info: Optional[Dict[str, Any]] = None
+    # Individual nutritional values for this food portion
+    calories: Optional[float] = None
+    protein_g: Optional[float] = None
+    carbohydrates_g: Optional[float] = None
+    fat_g: Optional[float] = None
+    fiber_g: Optional[float] = None
+    sugar_g: Optional[float] = None
+    sodium_mg: Optional[float] = None
+    calcium_mg: Optional[float] = None
+    iron_mg: Optional[float] = None
+    vitamin_c_mg: Optional[float] = None
+    matched_food_name: Optional[str] = None
 
 class FoodItemResponse(FoodItemDetail):
     id: int

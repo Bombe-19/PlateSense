@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Analysis from "./pages/Analysis";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
+import Reports from "./pages/Reports";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/analysis" element={<Analysis />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/reports" element={<Reports />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           {/* Dark Mode Toggle - Available on all pages */}

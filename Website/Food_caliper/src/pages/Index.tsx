@@ -322,7 +322,7 @@ const Index = () => {
       </section>
 
       {/* Solutions Section */}
-      <section id="solutions" className="px-6 py-32 bg-gradient-to-br from-white via-gray-50 to-white dark:from-background-dark dark:via-slate-900/50 dark:to-background-dark">
+      <section id="solutions" className="px-6 py-32 bg-background-light dark:bg-background-dark transition-colors duration-300 ease-out">
         <div className="max-w-7xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-16">
@@ -489,7 +489,7 @@ const Index = () => {
       </section>
 
       {/* How It Works Section */}
-      <section id="features" className="px-6 py-32 bg-gradient-to-br from-white via-gray-50 to-white dark:from-background-dark dark:via-slate-900/50 dark:to-background-dark">
+      <section id="features" className="px-6 py-32 bg-background-light dark:bg-background-dark transition-colors duration-300 ease-out">
         <div className="max-w-7xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-16">

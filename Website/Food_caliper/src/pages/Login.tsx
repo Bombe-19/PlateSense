@@ -90,7 +90,7 @@ const Login = () => {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4 }}
-        className="glass-card w-full max-w-md p-8"
+        className="glass-card w-full max-w-5xl p-12"
       >
         <div className="text-center mb-8">
           <Link to="/" className="cursor-target inline-flex items-center gap-2 mb-4">

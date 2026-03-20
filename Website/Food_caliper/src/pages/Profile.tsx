@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Save, Upload, Loader } from "lucide-react";
+import { ArrowLeft, Save, Upload, Loader, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import BackgroundLayout from "@/components/BackgroundLayout";
@@ -68,7 +68,25 @@ const Profile = () => {
   ];
 
   useEffect(() => {
-    fetchUserProfile();
+    // Add a small delay to ensure component is mounted
+    const timer = setTimeout(() => {
+      fetchUserProfile();
+    }, 100);
+    
+    // Also fetch when the tab becomes visible (user returns to the tab)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        console.log("Tab became visible, refreshing profile...");
+        fetchUserProfile();
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   const fetchUserProfile = async () => {
@@ -77,26 +95,44 @@ const Profile = () => {
       setError(null);
       const userId = apiClient.getUserId();
       
+      console.log("Fetching profile for userId:", userId);
+      
       if (!userId) {
         navigate("/login");
         return;
       }
 
       const profile = await apiClient.getUserProfile(userId);
-      setFormData({
-        username: profile.username || "",
-        email: profile.email || "",
-        full_name: profile.full_name || "",
-        profile_picture: profile.profile_picture || "",
-        height_cm: profile.height_cm?.toString() || "",
-        weight_kg: profile.weight_kg?.toString() || "",
-        age: profile.age?.toString() || "",
-        dietary_preferences: profile.dietary_preferences || "",
-      });
+      console.log("Full profile response from backend:", profile);
+      console.log("All fields in profile:", Object.keys(profile));
+      
+      // Check what data we're getting
+      console.log("height_cm:", profile.height_cm, "type:", typeof profile.height_cm);
+      console.log("weight_kg:", profile.weight_kg, "type:", typeof profile.weight_kg);
+      console.log("age:", profile.age, "type:", typeof profile.age);
+      console.log("dietary_preferences:", profile.dietary_preferences);
+      console.log("profile_picture:", profile.profile_picture);
+      
+      const updatedFormData = {
+        username: profile.username != null ? String(profile.username).trim() : "",
+        email: profile.email != null ? String(profile.email).trim() : "",
+        full_name: profile.full_name != null ? String(profile.full_name).trim() : "",
+        profile_picture: profile.profile_picture != null ? String(profile.profile_picture).trim() : "",
+        height_cm: profile.height_cm != null ? String(profile.height_cm).trim() : "",
+        weight_kg: profile.weight_kg != null ? String(profile.weight_kg).trim() : "",
+        age: profile.age != null ? String(profile.age).trim() : "",
+        dietary_preferences: profile.dietary_preferences != null ? String(profile.dietary_preferences).trim() : "",
+      };
+      
+      console.log("Final updated form data being set:", updatedFormData);
+      setFormData(updatedFormData);
+      console.log("Form data state should now be set with:", updatedFormData);
+      
     } catch (err: any) {
       const errorMessage = err.response?.data?.detail || err.message || "Failed to load profile";
       setError(errorMessage);
       console.error("Error fetching profile:", err);
+      console.error("Error response:", err.response?.data);
     } finally {
       setInitialLoading(false);
     }
@@ -115,7 +151,8 @@ const Profile = () => {
     setError(null);
     try {
       const userId = apiClient.getUserId();
-      await apiClient.updateUserProfile(userId, {
+      
+      const dataToSend = {
         username: formData.username,
         email: formData.email,
         full_name: formData.full_name,
@@ -124,15 +161,26 @@ const Profile = () => {
         weight_kg: formData.weight_kg ? parseFloat(formData.weight_kg) : null,
         age: formData.age ? parseInt(formData.age) : null,
         dietary_preferences: formData.dietary_preferences,
-      });
+      };
+      
+      console.log("Sending to backend:", dataToSend);
+      
+      const response = await apiClient.updateUserProfile(userId, dataToSend);
+      console.log("Response from update:", response);
+      
       setIsEditing(false);
       alert("Profile updated successfully!");
-      // Fetch updated profile data and display
-      await fetchUserProfile();
+      
+      // Wait a moment then fetch updated profile data
+      setTimeout(() => {
+        fetchUserProfile();
+      }, 500);
+      
     } catch (err: any) {
       const errorMessage = err.response?.data?.detail || err.message || "Error updating profile";
       setError(errorMessage);
       console.error("Error updating profile:", err);
+      console.error("Error response data:", err.response?.data);
     } finally {
       setIsLoading(false);
     }
@@ -150,15 +198,28 @@ const Profile = () => {
         ) : (
           <>
             {/* Header */}
-            <div className="flex items-center gap-4 mb-8">
+            <div className="flex items-center justify-between gap-4 mb-8">
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => navigate("/")}
+                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <ArrowLeft size={20} />
+                  Back
+                </button>
+                <h1 className="text-4xl font-bold text-foreground">My Profile</h1>
+              </div>
               <button
-                onClick={() => navigate("/")}
-                className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+                onClick={() => {
+                  console.log("Refresh button clicked");
+                  fetchUserProfile();
+                }}
+                disabled={initialLoading}
+                className="flex items-center gap-2 p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                title="Refresh Profile"
               >
-                <ArrowLeft size={20} />
-                Back
+                <RefreshCw size={20} className={initialLoading ? "animate-spin" : ""} />
               </button>
-              <h1 className="text-4xl font-bold text-foreground">My Profile</h1>
             </div>
 
             {/* Error Message */}
@@ -206,7 +267,43 @@ const Profile = () => {
                 )}
               </div>
 
-              {/* Form Fields */}
+              {/* Display Mode (Read-only) */}
+              {!isEditing && (
+                <div className="space-y-6 mb-8">
+                  <div>
+                    <p className="text-xs uppercase font-bold text-muted-foreground mb-1">Full Name</p>
+                    <p className="text-lg font-semibold text-foreground">{formData.full_name || "Not set"}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase font-bold text-muted-foreground mb-1">Email</p>
+                    <p className="text-lg font-semibold text-foreground">{formData.email || "Not set"}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase font-bold text-muted-foreground mb-2">Health Information</p>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="bg-background rounded-lg p-4 border border-border">
+                        <p className="text-xs text-muted-foreground mb-1">Height</p>
+                        <p className="text-xl font-bold text-foreground">{formData.height_cm || "—"} <span className="text-sm">cm</span></p>
+                      </div>
+                      <div className="bg-background rounded-lg p-4 border border-border">
+                        <p className="text-xs text-muted-foreground mb-1">Weight</p>
+                        <p className="text-xl font-bold text-foreground">{formData.weight_kg || "—"} <span className="text-sm">kg</span></p>
+                      </div>
+                      <div className="bg-background rounded-lg p-4 border border-border">
+                        <p className="text-xs text-muted-foreground mb-1">Age</p>
+                        <p className="text-xl font-bold text-foreground">{formData.age || "—"} <span className="text-sm">yrs</span></p>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase font-bold text-muted-foreground mb-1">Dietary Preferences</p>
+                    <p className="text-foreground bg-background rounded-lg p-3 border border-border">{formData.dietary_preferences || "Not specified"}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Edit Form Mode */}
+              {isEditing && (
               <div className="space-y-6">
                 {/* Username */}
                 <div>
@@ -303,6 +400,7 @@ const Profile = () => {
                   />
                 </div>
               </div>
+              )}
 
               {/* Action Buttons */}
               <div className="flex gap-4 mt-8 pt-8 border-t border-border">
