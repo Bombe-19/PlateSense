@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Search, Layers, Ruler, Scale, Target, Eye, TrendingUp, Home, Microscope, BarChart4, Settings, User, Loader, ChevronLeft, ChevronRight, Pencil, CheckCircle2, Circle, Flame, Zap, Droplet, Activity } from "lucide-react";
+import { Search, Layers, Ruler, Scale, Target, Eye, TrendingUp, Home, Microscope, BarChart4, Settings, User, Loader, ChevronLeft, ChevronRight, Pencil, CheckCircle2, Circle, Flame, Zap, Droplet, Activity, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
@@ -447,34 +447,51 @@ const Dashboard = () => {
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mt-6 glass-card p-6">
                 <h2 className="font-semibold text-foreground mb-4">All Analyses</h2>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                  <table className="w-full text-sm border-collapse">
                     <thead>
-                      <tr className="border-b border-border">
-                        {["Date", "Image", "Volume (ml)", "Weight (g)", "Items", "Confidence"].map(h => (
-                          <th key={h} className="text-left py-3 px-3 text-muted-foreground font-medium">{h}</th>
-                        ))}
+                      <tr className="border-b border-border bg-muted/30">
+                        <th className="text-left py-4 px-6 text-muted-foreground font-semibold text-xs uppercase tracking-wider min-w-[100px]">Date</th>
+                        <th className="text-left py-4 px-6 text-muted-foreground font-semibold text-xs uppercase tracking-wider min-w-[140px]">Image</th>
+                        <th className="text-left py-4 px-6 text-muted-foreground font-semibold text-xs uppercase tracking-wider min-w-[90px]">Volume</th>
+                        <th className="text-left py-4 px-6 text-muted-foreground font-semibold text-xs uppercase tracking-wider min-w-[90px]">Weight</th>
+                        <th className="text-left py-4 px-6 text-muted-foreground font-semibold text-xs uppercase tracking-wider min-w-[100px]">Calories</th>
+                        <th className="text-left py-4 px-6 text-muted-foreground font-semibold text-xs uppercase tracking-wider min-w-[280px]">Nutrients</th>
+                        <th className="text-left py-4 px-6 text-muted-foreground font-semibold text-xs uppercase tracking-wider min-w-[70px]">Items</th>
                       </tr>
                     </thead>
                     <tbody>
                       {analysisHistory.map((analysis: any) => (
-                        <tr key={analysis.id} className="border-b border-border/50 hover:bg-muted/50 transition-colors">
-                          <td className="py-3 px-3 text-foreground">
+                        <tr key={analysis.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+                          <td className="py-4 px-6 text-foreground text-xs whitespace-nowrap">
                             {new Date(analysis.date || analysis.analysis_date).toLocaleDateString()}
                           </td>
-                          <td className="py-3 px-3 font-medium text-foreground">
+                          <td className="py-4 px-6 font-medium text-foreground text-xs max-w-[140px] truncate">
                             {analysis.image_filename || `Analysis #${analysis.id}`}
                           </td>
-                          <td className="py-3 px-3 text-foreground">{analysis.total_volume_ml?.toFixed(1) || 0}</td>
-                          <td className="py-3 px-3 text-foreground">{analysis.total_weight_grams?.toFixed(1) || 0}</td>
-                          <td className="py-3 px-3 text-foreground">{analysis.total_items || 0}</td>
-                          <td className="py-3 px-3">
-                            <span
-                              className={`metric-badge ${
-                                analysis.avg_confidence > 90 ? "metric-green" : "metric-orange"
-                              }`}
-                            >
-                              {analysis.avg_confidence?.toFixed(0) || 0}%
-                            </span>
+                          <td className="py-4 px-6 text-foreground text-xs whitespace-nowrap">
+                            {analysis.total_volume_ml?.toFixed(0) || 0} ml
+                          </td>
+                          <td className="py-4 px-6 text-foreground text-xs whitespace-nowrap">
+                            {analysis.total_weight_grams?.toFixed(0) || 0} g
+                          </td>
+                          <td className="py-4 px-6 text-foreground font-semibold text-xs text-orange-500 whitespace-nowrap">
+                            {analysis.total_calories?.toFixed(0) || 0} kcal
+                          </td>
+                          <td className="py-4 px-6 text-foreground text-xs">
+                            <div className="flex gap-2 flex-wrap">
+                              <span className="px-3 py-1.5 rounded-full bg-red-500/15 text-red-600 dark:text-red-400 font-semibold text-xs whitespace-nowrap">
+                                Protein: {(analysis.total_protein_g || 0).toFixed(1)}g
+                              </span>
+                              <span className="px-3 py-1.5 rounded-full bg-orange-500/15 text-orange-600 dark:text-orange-400 font-semibold text-xs whitespace-nowrap">
+                                Carbs: {(analysis.total_carbohydrates_g || 0).toFixed(1)}g
+                              </span>
+                              <span className="px-3 py-1.5 rounded-full bg-yellow-500/15 text-yellow-600 dark:text-yellow-400 font-semibold text-xs whitespace-nowrap">
+                                Fats: {(analysis.total_fat_g || 0).toFixed(1)}g
+                              </span>
+                            </div>
+                          </td>
+                          <td className="py-4 px-6 text-foreground font-medium text-xs whitespace-nowrap">
+                            {analysis.total_items || 0}
                           </td>
                         </tr>
                       ))}
@@ -508,9 +525,9 @@ const Dashboard = () => {
                 onClick: () => navigate('/dashboard') 
               },
               { 
-                icon: <Settings size={20} />, 
-                label: 'Settings', 
-                onClick: () => navigate('/login') 
+                icon: <FileText size={20} />, 
+                label: 'Reports', 
+                onClick: () => navigate('/reports') 
               },
               { 
                 icon: <User size={20} />, 

@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Upload, Download, Search, FlaskConical, Ruler, Scale, Target, BarChart3, Layers, Home, Microscope, BarChart4, Settings, User, Clipboard, Video, X } from "lucide-react";
+import { Upload, Download, Search, FlaskConical, Ruler, Scale, Target, BarChart3, Layers, Home, Microscope, BarChart4, Settings, User, Clipboard, Video, X, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import Navbar from "@/components/Navbar";
@@ -283,6 +283,32 @@ const Analysis = () => {
 
   const volumeChartData = result?.foods.map(f => ({ name: f.name, volume: f.volume })) ?? [];
   const weightChartData = result?.foods.map(f => ({ name: f.name, value: f.weight })) ?? [];
+  
+  // Calculate average nutrients across all food items (fetch from foods array like nutrients distribution)
+  const totalCaloriesFromFoods = result?.foods.reduce((sum, f) => sum + (f.nutrition?.calories || 0), 0) ?? 0;
+  const totalProteinFromFoods = result?.foods.reduce((sum, f) => sum + (f.nutrition?.protein_g || 0), 0) ?? 0;
+  const totalCarbsFromFoods = result?.foods.reduce((sum, f) => sum + (f.nutrition?.carbohydrates_g || 0), 0) ?? 0;
+  const totalFatFromFoods = result?.foods.reduce((sum, f) => sum + (f.nutrition?.fat_g || 0), 0) ?? 0;
+  
+  const avgCalories = result ? totalCaloriesFromFoods / Math.max(result.totalItems, 1) : 0;
+  const avgProtein = result ? totalProteinFromFoods / Math.max(result.totalItems, 1) : 0;
+  const avgCarbs = result ? totalCarbsFromFoods / Math.max(result.totalItems, 1) : 0;
+  const avgFat = result ? totalFatFromFoods / Math.max(result.totalItems, 1) : 0;
+  
+  // Nutrients distribution data
+  const nutrientsChartData = result?.foods.map(f => ({
+    name: f.name,
+    protein: f.nutrition?.protein_g || 0,
+    carbs: f.nutrition?.carbohydrates_g || 0,
+    fat: f.nutrition?.fat_g || 0,
+  })) ?? [];
+  
+  // Total nutrients for summary display
+  const totalNutrients = {
+    protein: result?.nutritionalSummary?.total_protein_g || 0,
+    carbs: result?.nutritionalSummary?.total_carbohydrates_g || 0,
+    fat: result?.nutritionalSummary?.total_fat_g || 0,
+  };
 
   return (
     <BackgroundLayout>
@@ -486,10 +512,11 @@ const Analysis = () => {
                     );
                   })}
                 </div>
-                <div className="mt-4 grid grid-cols-3 gap-3">
+                <div className="mt-4 grid grid-cols-4 gap-3">
                   <div className="metric-green metric-badge"><Layers className="h-3.5 w-3.5" /> {result.totalItems} items</div>
                   <div className="metric-violet metric-badge"><Ruler className="h-3.5 w-3.5" /> {result.totalVolume} ml</div>
                   <div className="metric-blue metric-badge"><Scale className="h-3.5 w-3.5" /> {result.totalWeight} g</div>
+                  <div className="metric-red metric-badge"><FlaskConical className="h-3.5 w-3.5" /> {Math.round(totalCaloriesFromFoods)} kcal</div>
                 </div>
               </motion.div>
             )}
@@ -506,7 +533,7 @@ const Analysis = () => {
                     { label: "Total Items", value: result.totalItems, icon: Layers, cls: "metric-green" },
                     { label: "Total Volume", value: result.totalVolume, suffix: " ml", icon: Ruler, cls: "metric-violet" },
                     { label: "Total Weight", value: result.totalWeight, suffix: " g", icon: Scale, cls: "metric-blue" },
-                    { label: "Avg Confidence", value: Math.round(result.avgConfidence), suffix: "%", icon: Target, cls: "metric-orange" },
+                    { label: "Total Calories", value: Math.round(totalCaloriesFromFoods), suffix: " kcal", icon: FlaskConical, cls: "metric-red" },
                   ].map(m => (
                     <div key={m.label} className="glass-card p-4">
                       <div className={`${m.cls} metric-badge mb-2`}>
@@ -552,7 +579,7 @@ const Analysis = () => {
                 </motion.div>
               ) : (
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card p-6">
-                  <h2 className="font-semibold text-foreground mb-2">Avg per Item</h2>
+                  <h2 className="font-semibold text-foreground mb-4">Avg per Item</h2>
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Avg Volume</span>
@@ -563,13 +590,36 @@ const Analysis = () => {
                       <span className="font-medium text-foreground">{(result.totalWeight / result.totalItems).toFixed(1)} g</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Avg Confidence</span>
-                      <span className="font-medium text-foreground">{result.avgConfidence.toFixed(1)}%</span>
+                      <span className="text-muted-foreground">Avg Calories</span>
+                      <span className="font-medium text-foreground">{avgCalories.toFixed(0)} kcal</span>
+                    </div>
+                    <div className="border-t border-border/50 pt-2 mt-2">
+                      <p className="text-xs font-medium text-muted-foreground mb-2">Avg Nutrients</p>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">Protein</span>
+                          <span className="font-medium text-foreground">{avgProtein.toFixed(1)}g</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">Carbs</span>
+                          <span className="font-medium text-foreground">{avgCarbs.toFixed(1)}g</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">Fats</span>
+                          <span className="font-medium text-foreground">{avgFat.toFixed(1)}g</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="border-t border-border/50 pt-2 mt-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Avg Confidence</span>
+                        <span className="font-medium text-foreground">{result.avgConfidence.toFixed(1)}%</span>
+                      </div>
                     </div>
                     {!enableNutrition && (
                       <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
                         <p className="text-xs text-yellow-600 dark:text-yellow-400 text-center">
-                          Enable nutritional analysis to see calorie and macro information
+                          Enable nutritional analysis to see more detailed nutrient information
                         </p>
                       </div>
                     )}
@@ -687,7 +737,7 @@ const Analysis = () => {
 
         {/* Charts */}
         {result && (
-          <div className="mt-6 grid lg:grid-cols-2 gap-6">
+          <div className="mt-6 grid lg:grid-cols-3 gap-6">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="glass-card p-6">
               <h2 className="font-semibold text-foreground mb-4">Volume Distribution</h2>
               <ResponsiveContainer width="100%" height={250}>
@@ -711,6 +761,20 @@ const Analysis = () => {
                   </Pie>
                   <Tooltip />
                 </PieChart>
+              </ResponsiveContainer>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="glass-card p-6">
+              <h2 className="font-semibold text-foreground mb-4">Nutrients Distribution</h2>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={nutrientsChartData}>
+                  <XAxis dataKey="name" tick={{ fontSize: 12, fill: "hsl(240, 10%, 50%)" }} />
+                  <YAxis tick={{ fontSize: 12, fill: "hsl(240, 10%, 50%)" }} />
+                  <Tooltip />
+                  <Bar dataKey="protein" fill="hsl(200, 70%, 50%)" radius={[8, 8, 0, 0]} />
+                  <Bar dataKey="carbs" fill="hsl(40, 80%, 50%)" radius={[8, 8, 0, 0]} />
+                  <Bar dataKey="fat" fill="hsl(10, 75%, 55%)" radius={[8, 8, 0, 0]} />
+                </BarChart>
               </ResponsiveContainer>
             </motion.div>
           </div>
@@ -738,9 +802,9 @@ const Analysis = () => {
                 onClick: () => navigate('/dashboard') 
               },
               { 
-                icon: <Settings size={20} />, 
-                label: 'Settings', 
-                onClick: () => navigate('/login') 
+                icon: <FileText size={20} />, 
+                label: 'Reports', 
+                onClick: () => navigate('/reports') 
               },
               { 
                 icon: <User size={20} />, 

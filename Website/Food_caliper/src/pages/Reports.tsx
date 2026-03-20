@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Loader, Calendar, Activity, Target } from "lucide-react";
+import { ArrowLeft, Loader, Calendar, Activity, Target, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import BackgroundLayout from "@/components/BackgroundLayout";
@@ -308,9 +308,9 @@ const Reports = () => {
       onClick: () => navigate('/dashboard') 
     },
     { 
-      icon: <Settings size={20} />, 
-      label: 'Settings', 
-      onClick: () => navigate('/login') 
+    icon: <FileText size={20} />, 
+    label: 'Reports', 
+    onClick: () => navigate('/reports') 
     },
     { 
       icon: <User size={20} />, 

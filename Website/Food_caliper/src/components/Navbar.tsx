@@ -51,7 +51,6 @@ const Navbar = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
   const navLinks = [
     { to: "/dashboard", label: "Dashboard" },
     { to: "/analysis", label: "New Analysis" },
-    { to: "/history", label: "History" },
     { to: "/reports", label: "Reports" },
   ];
 

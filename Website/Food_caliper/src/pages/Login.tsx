@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Mail, Lock, ArrowRight, AlertCircle, CheckCircle, Home, Microscope, BarChart4, Settings, User } from "lucide-react";
+import { Mail, Lock, ArrowRight, AlertCircle, CheckCircle, Home, Microscope, BarChart4, Settings, User, FileText } from "lucide-react";
 import logo from "@/assets/logo.png";
 import BackgroundLayout from "@/components/BackgroundLayout";
 import Dock from "@/components/Dock";
@@ -90,7 +90,7 @@ const Login = () => {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4 }}
-        className="glass-card w-full max-w-5xl p-12"
+        className="glass-card w-11/12 md:w-9/12 lg:w-1/2 p-8"
       >
         <div className="text-center mb-8">
           <Link to="/" className="cursor-target inline-flex items-center gap-2 mb-4">
@@ -276,9 +276,9 @@ const Login = () => {
                 onClick: () => navigate('/dashboard') 
               },
               { 
-                icon: <Settings size={20} />, 
-                label: 'Settings', 
-                onClick: () => navigate('/login') 
+                icon: <FileText size={20} />, 
+                label: 'Reports', 
+                onClick: () => navigate('/reports') 
               },
               { 
                 icon: <User size={20} />, 
