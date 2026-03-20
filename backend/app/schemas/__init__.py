@@ -102,6 +102,12 @@ class AnalysisResultResponse(BaseModel):
     avg_confidence: Optional[float]
     status: str
     created_at: datetime
+    total_calories: Optional[float] = 0
+    total_protein_g: Optional[float] = 0
+    total_carbohydrates_g: Optional[float] = 0
+    total_fat_g: Optional[float] = 0
+    total_fiber_g: Optional[float] = 0
+    items_with_nutrition_data: Optional[int] = 0
     foods: List[FoodItemResponse] = []
     
     class Config:

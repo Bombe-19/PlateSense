@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Search, Layers, Ruler, Scale, Target, Eye, TrendingUp, Home, Microscope, BarChart4, Settings, User, Loader, ChevronLeft, ChevronRight, Pencil, CheckCircle2, Circle } from "lucide-react";
+import { Search, Layers, Ruler, Scale, Target, Eye, TrendingUp, Home, Microscope, BarChart4, Settings, User, Loader, ChevronLeft, ChevronRight, Pencil, CheckCircle2, Circle, Flame, Zap, Droplet, Activity } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
@@ -50,7 +50,7 @@ const Dashboard = () => {
   };
 
   const dateRange = generateDateRange();
-  const visibleDates = dateRange.slice(visibleDateStart, visibleDateStart + 6);
+  const visibleDates = dateRange.slice(visibleDateStart, visibleDateStart + 5);
 
   useEffect(() => {
     fetchDashboardData();
@@ -128,9 +128,9 @@ const Dashboard = () => {
             </motion.div>
 
             {/* 3-Column Grid */}
-            <div className="mt-8 grid lg:grid-cols-3 gap-6">
+            <div className="mt-8 grid grid-cols-1 lg:grid-cols-10 gap-6">
               {/* LEFT – Today's Scans with Date Navigation */}
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card p-6">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card p-6 lg:col-span-3">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <span className="text-lg">🔍</span>
@@ -143,7 +143,7 @@ const Dashboard = () => {
                 <div className="flex items-center gap-2 mb-5">
                   <ChevronLeft 
                     className="w-4 h-4 text-muted-foreground cursor-pointer hover:text-foreground transition-colors" 
-                    onClick={() => setVisibleDateStart(Math.max(0, visibleDateStart - 6))}
+                    onClick={() => setVisibleDateStart(Math.max(0, visibleDateStart - 5))}
                   />
                   <div className="flex gap-2 flex-1">
                     {visibleDates.map((date) => {
@@ -166,7 +166,7 @@ const Dashboard = () => {
                   </div>
                   <ChevronRight 
                     className="w-4 h-4 text-muted-foreground cursor-pointer hover:text-foreground transition-colors" 
-                    onClick={() => setVisibleDateStart(Math.min(Math.max(0, dateRange.length - 6), visibleDateStart + 6))}
+                    onClick={() => setVisibleDateStart(Math.min(Math.max(0, dateRange.length - 5), visibleDateStart + 5))}
                   />
                 </div>
 
@@ -218,128 +218,225 @@ const Dashboard = () => {
               </motion.div>
 
               {/* CENTER */}
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-6">
-                {/* Metrics */}
-                <div className="grid grid-cols-2 gap-4">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-6 lg:col-span-4">
+                {/* Reports Container */}
+                <div className="glass-card p-6">
+                  <h2 className="font-semibold text-foreground mb-4">Reports</h2>
+                  {/* Analysis Metrics Cards */}
+                  <div className="grid grid-cols-2 gap-5">
                   {[
-                    { label: "Total Volume", value: totalStats.totalVolume, suffix: " ml", icon: Ruler, cls: "metric-violet" },
-                    { label: "Total Weight", value: totalStats.totalWeight, suffix: " g", icon: Scale, cls: "metric-blue" },
-                    { label: "Avg Confidence", value: totalStats.avgConfidence, suffix: "%", icon: Target, cls: "metric-orange" },
-                    { label: "Total Items", value: totalStats.totalItems, icon: Layers, cls: "metric-green" },
-                  ].map(m => (
-                    <div key={m.label} className="glass-card p-4">
-                      <div className={`${m.cls} metric-badge mb-2`}>
-                        <m.icon className="h-3.5 w-3.5" />
-                      </div>
-                      <p className="text-xs text-muted-foreground">{m.label}</p>
-                      <p className="text-xl font-bold text-foreground">
-                        <AnimatedCounter value={Math.round(m.value)} suffix={m.suffix} />
-                      </p>
+                    { label: "Weight", value: analysisHistory[0]?.total_weight_grams || 0, suffix: "g", icon: Scale, color: "bg-orange-500", textColor: "text-orange-500", progress: 60 },
+                    { label: "Volume", value: analysisHistory[0]?.total_volume_ml || 0, suffix: "ml", icon: Droplet, color: "bg-blue-500", textColor: "text-blue-500", progress: 70 },
+                    { label: "Calories", value: analysisHistory[0]?.total_calories || 0, suffix: "kcal", icon: Flame, color: "bg-red-500", textColor: "text-red-500", progress: Math.min((analysisHistory[0]?.total_calories || 0) / 30, 100) },
+                    { label: "Nutrients", value: analysisHistory[0]?.total_protein_g || 0, suffix: "g protein", icon: Activity, color: "bg-purple-500", textColor: "text-purple-500", progress: 80 },
+                  ].map((card, idx) => {
+                    const Icon = card.icon;
+                    return (
+                      <motion.div
+                        key={card.label}
+                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        transition={{ delay: idx * 0.1 }}
+                        whileHover={{ scale: 1.05, y: -4 }}
+                        className="relative p-5 rounded-2xl bg-slate-950/50 dark:bg-[#0f172a] border border-white/10 overflow-hidden shadow-xl backdrop-blur-sm hover:border-white/20 transition-all"
+                      >
+                        {/* BACKGROUND ICON */}
+                        <div className={`absolute top-3 right-3 ${card.textColor} opacity-30`}>
+                          <Icon size={60} />
+                        </div>
+
+                        {/* CONTENT */}
+                        <div className="relative z-10">
+                          {/* TITLE */}
+                          <p className="text-xs text-gray-400 uppercase tracking-wide mb-2">
+                            {card.label}
+                          </p>
+
+                          {/* VALUE */}
+                          <h3 className="text-2xl font-bold text-white">
+                            {typeof card.value === "number"
+                              ? card.value.toFixed(0)
+                              : card.value}
+                            {card.suffix && (
+                              <span className="text-sm text-gray-400 ml-1">
+                                {card.suffix}
+                              </span>
+                            )}
+                          </h3>
+
+                          {/* PROGRESS BAR */}
+                          <div className="mt-4 h-2 bg-white/10 rounded-full overflow-hidden">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${card.progress}%` }}
+                              transition={{ duration: 1, ease: "easeOut" }}
+                              className={`h-full ${card.color} rounded-full`}
+                            />
+                          </div>
+
+                          {/* NUTRIENT BREAKDOWN */}
+                          {card.label === "Nutrients" && (
+                            <div className="mt-3 text-xs text-gray-300 space-y-1">
+                              <div className="flex justify-between">
+                                <span>Protein</span><span className="font-semibold">{(analysisHistory[0]?.total_protein_g || 0).toFixed(1)}g</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Carbs</span><span className="font-semibold">{(analysisHistory[0]?.total_carbohydrates_g || 0).toFixed(1)}g</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Fat</span><span className="font-semibold">{(analysisHistory[0]?.total_fat_g || 0).toFixed(1)}g</span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+                </div>
+
+                {/* Activity & Food Categories - Side by Side */}
+                <div className="grid grid-cols-2 gap-6">
+                  {/* Activity Chart */}
+                  <div className="glass-card p-6">
+                    <div className="flex items-center gap-2 mb-4">
+                      <TrendingUp className="w-5 h-5 text-primary" />
+                      <h2 className="font-semibold text-foreground">Activity</h2>
                     </div>
-                  ))}
-                </div>
+                    {analysisHistory.length > 0 ? (
+                      <ResponsiveContainer width="100%" height={200}>
+                        <BarChart data={analysisHistory.slice(0, 4).reverse().map((item: any) => ({
+                          ...item,
+                          shortName: item.image_filename?.substring(0, 8) + (item.image_filename?.length > 8 ? '...' : '') || 'Analysis'
+                        }))} margin={{ top: 20, right: 30, left: 0, bottom: 40 }}>
+                          <XAxis 
+                            dataKey="shortName" 
+                            tick={{ fontSize: 12 }}
+                          />
+                          <YAxis tick={{ fontSize: 12 }} />
+                          <Tooltip 
+                            contentStyle={{ backgroundColor: "rgba(15, 23, 42, 0.9)", border: "1px solid rgba(255, 255, 255, 0.1)" }}
+                            labelStyle={{ color: "#fff" }}
+                          />
+                          <Bar 
+                            dataKey="total_volume_ml" 
+                            fill="hsl(145, 63%, 42%)" 
+                            radius={[8, 8, 0, 0]}
+                            name="Volume (ml)"
+                          />
+                          <Bar 
+                            dataKey="total_weight_grams" 
+                            fill="hsl(30, 90%, 55%)" 
+                            radius={[8, 8, 0, 0]}
+                            name="Weight (g)"
+                          />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="flex items-center justify-center h-48 text-muted-foreground">
+                        <p className="text-sm">No activity data yet</p>
+                      </div>
+                    )}
+                  </div>
 
-                {/* Weekly Trend Chart */}
-                <div className="glass-card p-6">
-                  <h2 className="font-semibold text-foreground mb-4">Recent Activity</h2>
-                  {analysisHistory.length > 0 ? (
-                    <p className="text-sm text-muted-foreground">
-                      Latest analysis: {new Date(analysisHistory[0].date || analysisHistory[0].analysis_date).toLocaleDateString()}
-                    </p>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">Start by uploading a food image for analysis</p>
-                  )}
-                </div>
-
-                {/* Category Distribution */}
-                <div className="glass-card p-6">
-                  <h2 className="font-semibold text-foreground mb-4">Food Categories</h2>
-                  <ResponsiveContainer width="100%" height={200}>
-                    <PieChart>
-                      <Pie data={categoryData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={75} innerRadius={40} label>
-                        {categoryData.map((_, i) => (
-                          <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
+                  {/* Category Distribution */}
+                  <div className="glass-card p-6">
+                    <h2 className="font-semibold text-foreground mb-4">Food Categories</h2>
+                    <ResponsiveContainer width="100%" height={200}>
+                      <PieChart>
+                        <Pie data={categoryData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={75} innerRadius={40} label>
+                          {categoryData.map((_, i) => (
+                            <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
               </motion.div>
 
               {/* RIGHT – Latest Analysis */}
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass-card p-6">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass-card p-6 flex flex-col lg:col-span-3">
                 <h2 className="font-semibold text-foreground mb-4">Latest Analysis</h2>
+                
                 {analysisHistory.length > 0 ? (
                   <>
-                    <div className="rounded-xl overflow-hidden bg-muted flex items-center justify-center mb-4 aspect-video">
+                    {/* Image */}
+                    <div className="rounded-xl overflow-hidden bg-muted flex items-center justify-center mb-4 aspect-square">
                       {analysisHistory[0].image_data ? (
                         <img 
                           src={analysisHistory[0].image_data} 
                           alt="Latest analysis" 
-                          className="w-full h-full object-contain"
+                          className="w-full h-full object-cover"
                         />
                       ) : (
                         <p className="text-sm text-muted-foreground">Analysis {analysisHistory[0].id}</p>
                       )}
                     </div>
-                    <div className="space-y-3">
-                      <div className="p-3 rounded-xl bg-muted/50">
-                        <p className="font-medium text-foreground text-sm mb-2">
-                          {analysisHistory[0].image_filename || "Latest Analysis"}
-                        </p>
-                        <div className="flex gap-2 mb-3 flex-wrap">
-                          <span className="text-xs text-muted-foreground">
-                            Vol: {analysisHistory[0].total_volume_ml?.toFixed(1) || 0}ml
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            Wt: {analysisHistory[0].total_weight_grams?.toFixed(1) || 0}g
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            Items: {analysisHistory[0].total_items || 0}
-                          </span>
+
+                    {/* Title/Heading */}
+                    <p className="font-semibold text-foreground text-sm mb-3">
+                      {analysisHistory[0].image_filename || "Latest Analysis"}
+                    </p>
+
+                    {/* Description */}
+                    <p className="text-xs text-muted-foreground mb-4 line-clamp-2">
+                      {analysisHistory[0].foods ? `Detected ${analysisHistory[0].foods.length} food item(s)` : "Food analysis ready for review"}
+                    </p>
+
+                    {/* Tags/Metrics */}
+                    <div className="flex gap-2 mb-4 flex-wrap">
+                      <span className="px-3 py-1 bg-muted/50 rounded-lg text-xs font-medium text-foreground border border-border">
+                        {(analysisHistory[0]?.total_volume_ml || 0).toFixed(0)} ml
+                      </span>
+                      <span className="px-3 py-1 bg-muted/50 rounded-lg text-xs font-medium text-foreground border border-border">
+                        {(analysisHistory[0]?.total_weight_grams || 0).toFixed(0)} g
+                      </span>
+                      <span className="px-3 py-1 bg-muted/50 rounded-lg text-xs font-medium text-foreground border border-border">
+                        {(analysisHistory[0]?.total_calories || 0).toFixed(0)} kcal
+                      </span>
+                    </div>
+
+                    {/* Detected Items */}
+                    {analysisHistory[0].foods && analysisHistory[0].foods.length > 0 && (
+                      <div className="mb-4 p-2 bg-muted/30 rounded-lg max-h-16 overflow-y-auto">
+                        <p className="text-xs text-muted-foreground font-medium mb-2">Detected Items:</p>
+                        <div className="space-y-1">
+                          {analysisHistory[0].foods.slice(0, 2).map((food: any) => (
+                            <p key={food.id} className="text-xs text-foreground">
+                              • {food.name}
+                            </p>
+                          ))}
+                          {analysisHistory[0].foods.length > 2 && (
+                            <p className="text-xs text-muted-foreground">
+                              +{analysisHistory[0].foods.length - 2} more
+                            </p>
+                          )}
                         </div>
                       </div>
-                      
-                      {/* Detected Food Items */}
-                      {analysisHistory[0].foods && analysisHistory[0].foods.length > 0 && (
-                        <div className="p-3 rounded-xl bg-muted/50">
-                          <p className="text-xs font-medium text-primary mb-2">Detected Items:</p>
-                          <div className="space-y-2">
-                            {analysisHistory[0].foods.map((food: any) => (
-                              <div key={food.id} className="text-xs text-muted-foreground p-1.5 bg-black/20 rounded-lg">
-                                <span className="font-medium text-foreground">{food.name}</span>
-                                <div className="flex gap-2 mt-0.5">
-                                  <span>{food.volume?.toFixed(1) || 0}ml</span>
-                                  <span>•</span>
-                                  <span>{food.weight?.toFixed(1) || 0}g</span>
-                                  <span>•</span>
-                                  <span>{(food.confidence * 100)?.toFixed(0) || 0}%</span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                    )}
+
+                    {/* View Button */}
                     <Link
                       to="/analysis"
-                      className="cursor-target mt-4 w-full py-2.5 rounded-xl border border-border text-sm font-medium text-foreground hover:bg-muted transition-colors flex items-center justify-center gap-2"
+                      className="cursor-target w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2 mt-auto"
                     >
-                      <Eye className="h-4 w-4" /> View Full Analysis
+                      <Eye className="h-4 w-4" /> View the Analysis
                     </Link>
                   </>
                 ) : (
-                  <div className="rounded-xl overflow-hidden bg-muted aspect-video mb-4 flex items-center justify-center">
-                    <div className="text-center">
-                      <p className="text-sm text-muted-foreground mb-3">No analysis yet</p>
-                      <Link
-                        to="/analysis"
-                        className="cursor-target inline-block px-4 py-2 bg-primary text-primary-foreground text-xs font-medium rounded-lg hover:opacity-90 transition-opacity"
-                      >
-                        Start Analysis
-                      </Link>
+                  <div className="flex-1 flex flex-col items-center justify-center">
+                    <div className="rounded-xl overflow-hidden bg-muted aspect-square mb-4 flex items-center justify-center w-full">
+                      <p className="text-sm text-muted-foreground">No image</p>
                     </div>
+                    <p className="text-sm text-muted-foreground mb-3">No analysis yet</p>
+                    <Link
+                      to="/analysis"
+                      className="cursor-target w-full py-2.5 bg-primary text-primary-foreground text-xs font-medium rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                    >
+                      Start Analysis
+                    </Link>
                   </div>
                 )}
               </motion.div>

@@ -608,6 +608,12 @@ async def get_analysis_history(
             "total_weight_grams": a.total_weight_grams,
             "total_items": a.total_items_detected,
             "avg_confidence": a.avg_confidence,
+            "total_calories": a.total_calories or 0,
+            "total_protein_g": a.total_protein_g or 0,
+            "total_carbohydrates_g": a.total_carbohydrates_g or 0,
+            "total_fat_g": a.total_fat_g or 0,
+            "total_fiber_g": a.total_fiber_g or 0,
+            "items_with_nutrition_data": a.items_with_nutrition_data or 0,
             "image_filename": a.image_filename,
             "image_data": image_base64,
             "foods": [
