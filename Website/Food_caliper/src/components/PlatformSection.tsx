@@ -79,45 +79,45 @@ export default function PlatformSection() {
           <Card>
             <h3 className="absolute top-4 left-4 text-lg font-semibold z-10">AI Dashboard</h3>
             <img 
-              src="/images/dashboard.png" 
+              src="/images/AI_dashboard.png" 
               alt=""
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           </Card>
 
           <Card>
             <h3 className="absolute top-4 left-4 text-lg font-semibold z-10">Food Reports</h3>
             <img 
-              src="/images/reports.png" 
+              src="/images/Food_reports.png" 
               alt=""
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           </Card>
 
           <Card>
             <h3 className="absolute top-4 left-4 text-lg font-semibold z-10">Data Insights</h3>
             <img 
-              src="/images/insights.png" 
+              src="/images/data_insights.png" 
               alt=""
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           </Card>
 
           <Card>
             <h3 className="absolute top-4 left-4 text-lg font-semibold z-10">Scan History</h3>
             <img 
-              src="/images/history.png" 
+              src="/images/Scan_history.png" 
               alt=""
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           </Card>
 
           <Card>
             <h3 className="absolute top-4 left-4 text-lg font-semibold z-10">Nutrition Analysis</h3>
             <img 
-              src="/images/nutrition.png" 
+              src="/images/nutritional_analysis.png" 
               alt=""
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           </Card>
 

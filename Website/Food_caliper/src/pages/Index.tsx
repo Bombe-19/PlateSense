@@ -281,41 +281,21 @@ const Index = () => {
               className="relative overflow-hidden rounded-3xl bg-slate-900 dark:bg-slate-950 shadow-2xl border border-slate-800 hover:border-slate-700 transition-all group min-h-96"
             >
               {/* Background Gradient */}
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
               
-              {/* Video/Image Background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-900" />
-              
-              {/* Mesh Pattern */}
-              <div 
-                className="absolute inset-0 opacity-20"
-                style={{
-                  backgroundImage: 'radial-gradient(circle, rgba(100,200,255,0.1) 1px, transparent 1px)',
-                  backgroundSize: '25px 25px',
-                }}
-              />
-
-              {/* Image showing food analysis */}
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-cyan-500/5" />
-
-              {/* Content Overlay - Centered Play Button */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 z-20">
-                <div className="group/play relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full blur-2xl opacity-60 group-hover/play:opacity-100 transition-opacity duration-300 w-28 h-28" />
-                  <button className="relative w-28 h-28 rounded-full bg-orange-500 hover:bg-orange-600 transition-all flex items-center justify-center shadow-2xl hover:shadow-orange-500/50 group-hover/play:scale-110">
-                    <Play className="w-10 h-10 text-white fill-white ml-1" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Bottom Text */}
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-8 z-10">
-                <p className="font-bold text-xl text-white">Watch FoodCaliper in Action</p>
-                <p className="text-sm text-gray-300 mt-2">See how our AI analyzes food in real-time</p>
-              </div>
+              {/* Video Element */}
+              <video
+                className="w-full h-full object-cover relative z-10"
+                controls
+                controlsList="nodownload"
+                autoPlay={false}
+              >
+                <source src="/videos/food_caliper.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
 
               {/* Decorative Elements */}
-              <div className="absolute top-0 right-0 w-40 h-40 bg-cyan-500/5 rounded-full blur-3xl group-hover:bg-cyan-500/10 transition-all" />
+              <div className="absolute top-0 right-0 w-40 h-40 bg-cyan-500/5 rounded-full blur-3xl group-hover:bg-cyan-500/10 transition-all pointer-events-none" />
             </motion.div>
           </div>
         </div>
