@@ -442,64 +442,186 @@ const Dashboard = () => {
               </motion.div>
             </div>
 
-            {/* Full Width Table */}
-            {analysisHistory.length > 0 && (
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mt-6 glass-card p-6">
-                <h2 className="font-semibold text-foreground mb-4">All Analyses</h2>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm border-collapse">
-                    <thead>
-                      <tr className="border-b border-border bg-muted/30">
-                        <th className="text-left py-4 px-6 text-muted-foreground font-semibold text-xs uppercase tracking-wider min-w-[100px]">Date</th>
-                        <th className="text-left py-4 px-6 text-muted-foreground font-semibold text-xs uppercase tracking-wider min-w-[140px]">Image</th>
-                        <th className="text-left py-4 px-6 text-muted-foreground font-semibold text-xs uppercase tracking-wider min-w-[90px]">Volume</th>
-                        <th className="text-left py-4 px-6 text-muted-foreground font-semibold text-xs uppercase tracking-wider min-w-[90px]">Weight</th>
-                        <th className="text-left py-4 px-6 text-muted-foreground font-semibold text-xs uppercase tracking-wider min-w-[100px]">Calories</th>
-                        <th className="text-left py-4 px-6 text-muted-foreground font-semibold text-xs uppercase tracking-wider min-w-[280px]">Nutrients</th>
-                        <th className="text-left py-4 px-6 text-muted-foreground font-semibold text-xs uppercase tracking-wider min-w-[70px]">Items</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {analysisHistory.map((analysis: any) => (
-                        <tr key={analysis.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
-                          <td className="py-4 px-6 text-foreground text-xs whitespace-nowrap">
-                            {new Date(analysis.date || analysis.analysis_date).toLocaleDateString()}
-                          </td>
-                          <td className="py-4 px-6 font-medium text-foreground text-xs max-w-[140px] truncate">
-                            {analysis.image_filename || `Analysis #${analysis.id}`}
-                          </td>
-                          <td className="py-4 px-6 text-foreground text-xs whitespace-nowrap">
-                            {analysis.total_volume_ml?.toFixed(0) || 0} ml
-                          </td>
-                          <td className="py-4 px-6 text-foreground text-xs whitespace-nowrap">
-                            {analysis.total_weight_grams?.toFixed(0) || 0} g
-                          </td>
-                          <td className="py-4 px-6 text-foreground font-semibold text-xs text-orange-500 whitespace-nowrap">
-                            {analysis.total_calories?.toFixed(0) || 0} kcal
-                          </td>
-                          <td className="py-4 px-6 text-foreground text-xs">
-                            <div className="flex gap-2 flex-wrap">
-                              <span className="px-3 py-1.5 rounded-full bg-red-500/15 text-red-600 dark:text-red-400 font-semibold text-xs whitespace-nowrap">
-                                Protein: {(analysis.total_protein_g || 0).toFixed(1)}g
-                              </span>
-                              <span className="px-3 py-1.5 rounded-full bg-orange-500/15 text-orange-600 dark:text-orange-400 font-semibold text-xs whitespace-nowrap">
-                                Carbs: {(analysis.total_carbohydrates_g || 0).toFixed(1)}g
-                              </span>
-                              <span className="px-3 py-1.5 rounded-full bg-yellow-500/15 text-yellow-600 dark:text-yellow-400 font-semibold text-xs whitespace-nowrap">
-                                Fats: {(analysis.total_fat_g || 0).toFixed(1)}g
-                              </span>
-                            </div>
-                          </td>
-                          <td className="py-4 px-6 text-foreground font-medium text-xs whitespace-nowrap">
-                            {analysis.total_items || 0}
-                          </td>
+            {/* Full Width Table - Total Calories Breakdown by Time of Day */}
+            {analysisHistory.length > 0 && (() => {
+              const latestDate = new Date(analysisHistory[0].date || analysisHistory[0].analysis_date);
+              const latestDateStr = latestDate.toLocaleDateString();
+              
+              // Get all analyses for the latest date
+              const latestDateAnalyses = analysisHistory.filter((analysis: any) => {
+                const analysisDate = new Date(analysis.date || analysis.analysis_date);
+                return analysisDate.toLocaleDateString() === latestDateStr;
+              });
+
+              // Helper function to get time period
+              const getTimePeriod = (date: Date) => {
+                const hour = date.getHours();
+                if (hour >= 6 && hour < 12) return 'morning';
+                if (hour >= 12 && hour < 17) return 'afternoon';
+                if (hour >= 17 && hour < 21) return 'evening';
+                return 'night';
+              };
+
+              // Calculate calories by time period
+              const caloriesByPeriod = {
+                morning: { calories: 0, count: 0 },
+                afternoon: { calories: 0, count: 0 },
+                evening: { calories: 0, count: 0 },
+                night: { calories: 0, count: 0 }
+              };
+
+              let totalCaloriesLatestDate = 0;
+              latestDateAnalyses.forEach((analysis: any) => {
+                const date = new Date(analysis.date || analysis.analysis_date);
+                const period = getTimePeriod(date);
+                const calories = analysis.total_calories || 0;
+                caloriesByPeriod[period as keyof typeof caloriesByPeriod].calories += calories;
+                caloriesByPeriod[period as keyof typeof caloriesByPeriod].count += 1;
+                totalCaloriesLatestDate += calories;
+              });
+
+              return (
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mt-6 glass-card p-6">
+                  <h2 className="font-semibold text-foreground mb-6">
+                    Total Calories Taken in {latestDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                  </h2>
+
+                  {/* Time Period Breakdown - Grid Cards */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    {[
+                      { 
+                        period: 'Morning', 
+                        icon: '🌅', 
+                        time: '6:00 AM - 12:00 PM',
+                        data: caloriesByPeriod.morning,
+                        bgColor: 'bg-yellow-500/20',
+                        borderColor: 'border-yellow-500/30'
+                      },
+                      { 
+                        period: 'Afternoon', 
+                        icon: '☀️', 
+                        time: '12:00 PM - 5:00 PM',
+                        data: caloriesByPeriod.afternoon,
+                        bgColor: 'bg-orange-500/20',
+                        borderColor: 'border-orange-500/30'
+                      },
+                      { 
+                        period: 'Evening', 
+                        icon: '🌆', 
+                        time: '5:00 PM - 9:00 PM',
+                        data: caloriesByPeriod.evening,
+                        bgColor: 'bg-purple-500/20',
+                        borderColor: 'border-purple-500/30'
+                      },
+                      { 
+                        period: 'Night', 
+                        icon: '🌙', 
+                        time: '9:00 PM - 6:00 AM',
+                        data: caloriesByPeriod.night,
+                        bgColor: 'bg-blue-500/20',
+                        borderColor: 'border-blue-500/30'
+                      }
+                    ].map((item, idx) => (
+                      <motion.div
+                        key={item.period}
+                        initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        className={`p-4 rounded-xl border ${item.bgColor} ${item.borderColor} backdrop-blur-sm`}
+                      >
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="text-2xl">{item.icon}</span>
+                          <div>
+                            <p className="font-semibold text-foreground">{item.period}</p>
+                            <p className="text-xs text-muted-foreground">{item.time}</p>
+                          </div>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-2xl font-bold text-foreground">
+                            {item.data.calories.toFixed(0)}
+                            <span className="text-xs text-muted-foreground ml-1">kcal</span>
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {item.data.count} {item.data.count === 1 ? 'item' : 'items'}
+                          </p>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  {/* Total Summary Card */}
+                  <div className="p-4 rounded-xl border border-green-500/30 bg-green-500/20 backdrop-blur-sm mb-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-muted-foreground font-medium">Total Calories for Today</p>
+                        <p className="text-3xl font-bold text-green-500">{totalCaloriesLatestDate.toFixed(0)} kcal</p>
+                      </div>
+                      <div className="text-4xl">🎯</div>
+                    </div>
+                  </div>
+
+                  {/* Detailed Table */}
+                  <div className="overflow-x-auto">
+                    <h3 className="font-semibold text-foreground mb-3 text-sm">All Analyses Details</h3>
+                    <table className="w-full text-sm border-collapse">
+                      <thead>
+                        <tr className="border-b border-border bg-muted/30">
+                          <th className="text-left py-4 px-6 text-muted-foreground font-semibold text-xs uppercase tracking-wider min-w-[100px]">Time</th>
+                          <th className="text-left py-4 px-6 text-muted-foreground font-semibold text-xs uppercase tracking-wider min-w-[140px]">Image</th>
+                          <th className="text-left py-4 px-6 text-muted-foreground font-semibold text-xs uppercase tracking-wider min-w-[90px]">Volume</th>
+                          <th className="text-left py-4 px-6 text-muted-foreground font-semibold text-xs uppercase tracking-wider min-w-[90px]">Weight</th>
+                          <th className="text-left py-4 px-6 text-muted-foreground font-semibold text-xs uppercase tracking-wider min-w-[100px]">Calories</th>
+                          <th className="text-left py-4 px-6 text-muted-foreground font-semibold text-xs uppercase tracking-wider min-w-[280px]">Nutrients</th>
+                          <th className="text-left py-4 px-6 text-muted-foreground font-semibold text-xs uppercase tracking-wider min-w-[70px]">Period</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </motion.div>
-            )}
+                      </thead>
+                      <tbody>
+                        {latestDateAnalyses.map((analysis: any) => {
+                          const analysisDate = new Date(analysis.date || analysis.analysis_date);
+                          const period = getTimePeriod(analysisDate);
+                          const periodEmoji = { morning: '🌅', afternoon: '☀️', evening: '🌆', night: '🌙' }[period];
+                          return (
+                            <tr key={analysis.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+                              <td className="py-4 px-6 text-foreground text-xs whitespace-nowrap">
+                                {analysisDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </td>
+                              <td className="py-4 px-6 font-medium text-foreground text-xs max-w-[140px] truncate">
+                                {analysis.image_filename || `Analysis #${analysis.id}`}
+                              </td>
+                              <td className="py-4 px-6 text-foreground text-xs whitespace-nowrap">
+                                {analysis.total_volume_ml?.toFixed(0) || 0} ml
+                              </td>
+                              <td className="py-4 px-6 text-foreground text-xs whitespace-nowrap">
+                                {analysis.total_weight_grams?.toFixed(0) || 0} g
+                              </td>
+                              <td className="py-4 px-6 text-foreground font-semibold text-xs text-orange-500 whitespace-nowrap">
+                                {analysis.total_calories?.toFixed(0) || 0} kcal
+                              </td>
+                              <td className="py-4 px-6 text-foreground text-xs">
+                                <div className="flex gap-2 flex-wrap">
+                                  <span className="px-3 py-1.5 rounded-full bg-red-500/15 text-red-600 dark:text-red-400 font-semibold text-xs whitespace-nowrap">
+                                    Protein: {(analysis.total_protein_g || 0).toFixed(1)}g
+                                  </span>
+                                  <span className="px-3 py-1.5 rounded-full bg-orange-500/15 text-orange-600 dark:text-orange-400 font-semibold text-xs whitespace-nowrap">
+                                    Carbs: {(analysis.total_carbohydrates_g || 0).toFixed(1)}g
+                                  </span>
+                                  <span className="px-3 py-1.5 rounded-full bg-yellow-500/15 text-yellow-600 dark:text-yellow-400 font-semibold text-xs whitespace-nowrap">
+                                    Fats: {(analysis.total_fat_g || 0).toFixed(1)}g
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="py-4 px-6 text-foreground font-medium text-xs whitespace-nowrap">
+                                <span className="text-lg">{periodEmoji}</span> {period.charAt(0).toUpperCase() + period.slice(1)}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </motion.div>
+              );
+            })()}
           </>
         )}
       </div>
