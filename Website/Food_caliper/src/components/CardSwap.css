@@ -38,7 +38,6 @@
   justify-content: flex-start;
   align-items: stretch;
 
-  transform-style: preserve-3d;
   will-change: transform;
 
   overflow: hidden;
