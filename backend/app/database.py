@@ -11,6 +11,10 @@ DATABASE_URL = os.getenv(
     "mysql+pymysql://root:root@localhost:3306/food_caliper_db"
 )
 
+# Standardize postgres protocol for SQLAlchemy compatibility (Render uses postgres:// by default)
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
 engine = create_engine(
     DATABASE_URL,
     pool_pre_ping=True,
