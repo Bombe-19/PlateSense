@@ -1,4 +1,5 @@
 import React from "react";
+import bgTexture from "@/assets/bg-texture.jpg";
 
 interface BackgroundLayoutProps {
   children: React.ReactNode;
@@ -12,8 +13,7 @@ const BackgroundLayout: React.FC<BackgroundLayoutProps> = ({ children, className
       <div
         className="fixed inset-0 z-0 opacity-20 pointer-events-none"
         style={{
-          backgroundImage:
-            'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBAyH-QeO3uQ7GDZPILAvrD79bT8p5RO3DpJgdgxE8GHvAd9Ot0b5I7HGtNGYihXSPOQErJrT_JWOY_VYcAsQ1rI3YaMMnVIbB_gQNTK8HQLyP6IMDaNWQ5rrct9BloFXctFUu9IFy9g2V9Mwi6hQIL0Qc6z2HeE2R8IOrfKRXTSmfwbuZ0GTPCSpwwOER8knokw-kTzD5wUgwspbaFuSkk9LwjWQ_oVXJ0Gxgw7ieRcv6Dvgl-IglwJ4XSyoGb6O5gFyiaBJHKemzQ")',
+          backgroundImage: `url(${bgTexture})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundAttachment: 'fixed',

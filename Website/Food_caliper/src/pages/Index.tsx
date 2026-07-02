@@ -12,6 +12,7 @@ import LogoLoop from "@/components/LogoLoop";
 import PlatformSection from "@/components/PlatformSection";
 import heroFood from "@/assets/hero-food.jpg";
 import logo from "@/assets/logo.png";
+import bgTexture from "@/assets/bg-texture.jpg";
 
 const mockMetrics = { volume: 342, weight: 285, items: 4 };
 
@@ -79,7 +80,7 @@ const Index = () => {
     <div className="relative min-h-screen bg-background-light dark:bg-background-dark transition-colors duration-300 ease-out">
       {/* Background Texture Layer */}
       <div className="fixed inset-0 z-0 opacity-20 pointer-events-none" style={{
-        backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBAyH-QeO3uQ7GDZPILAvrD79bT8p5RO3DpJgdgxE8GHvAd9Ot0b5I7HGtNGYihXSPOQErJrT_JWOY_VYcAsQ1rI3YaMMnVIbB_gQNTK8HQLyP6IMDaNWQ5rrct9BloFXctFUu9IFy9g2V9Mwi6hQIL0Qc6z2HeE2R8IOrfKRXTSmfwbuZ0GTPCSpwwOER8knokw-kTzD5wUgwspbaFuSkk9LwjWQ_oVXJ0Gxgw7ieRcv6Dvgl-IglwJ4XSyoGb6O5gFyiaBJHKemzQ")',
+        backgroundImage: `url(${bgTexture})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundAttachment: 'fixed',
