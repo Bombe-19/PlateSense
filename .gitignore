@@ -58,8 +58,8 @@ dist-ssr/
 *.local
 Website/Food_caliper/dist/
 Website/Food_caliper/build/
-Website/Food_caliper/src/components/ui/
-src/components/ui/
+# Website/Food_caliper/src/components/ui/
+# src/components/ui/
 
 # Temporary files
 temp/
