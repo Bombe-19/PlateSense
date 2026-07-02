@@ -69,7 +69,7 @@ const Navbar = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
       className="flex items-center justify-between whitespace-nowrap border-b border-slate-200 dark:border-slate-900 px-6 md:px-20 py-5 bg-white/90 dark:bg-slate-950/95 backdrop-blur-md sticky top-0 z-50 transition-colors duration-300"
     >
       <div className="flex items-center gap-2 text-slate-900 dark:text-white">
-        <img src="/logo.png" alt="FoodCaliper" className="h-9 w-9" />
+        <img src={logo} alt="FoodCaliper" className="h-9 w-9" />
         <Link to="/" className="cursor-target text-xl font-black leading-tight tracking-tight hover:opacity-80 transition-all text-slate-900 dark:text-white">
           FoodCaliper
         </Link>

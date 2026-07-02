@@ -128,5 +128,5 @@ Desktop.ini
 .env.example
 database_schema.sql
 QUICK_REFERENCE.txt
-hero-food.jpg
+# hero-food.jpg
 migrations/

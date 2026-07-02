@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import CardSwap, { Card } from "./CardSwap";
 
+// Import images from assets to allow Vite to bundle and resolve them correctly
+import aiDashboard from "@/assets/images/AI_dashboard.png";
+import foodReports from "@/assets/images/Food_reports.png";
+import dataInsights from "@/assets/images/data_insights.png";
+import scanHistory from "@/assets/images/Scan_history.png";
+import nutritionalAnalysis from "@/assets/images/nutritional_analysis.png";
+
 export default function PlatformSection() {
 
   const [activeIndex, setActiveIndex] = useState(0);
@@ -79,8 +86,8 @@ export default function PlatformSection() {
           <Card>
             <h3 className="absolute top-4 left-4 text-lg font-semibold z-10">AI Dashboard</h3>
             <img 
-              src="/images/AI_dashboard.png" 
-              alt=""
+              src={aiDashboard} 
+              alt="AI Dashboard Preview"
               className="w-full h-full object-contain"
             />
           </Card>
@@ -88,8 +95,8 @@ export default function PlatformSection() {
           <Card>
             <h3 className="absolute top-4 left-4 text-lg font-semibold z-10">Food Reports</h3>
             <img 
-              src="/images/Food_reports.png" 
-              alt=""
+              src={foodReports} 
+              alt="Food Reports Preview"
               className="w-full h-full object-contain"
             />
           </Card>
@@ -97,8 +104,8 @@ export default function PlatformSection() {
           <Card>
             <h3 className="absolute top-4 left-4 text-lg font-semibold z-10">Data Insights</h3>
             <img 
-              src="/images/data_insights.png" 
-              alt=""
+              src={dataInsights} 
+              alt="Data Insights Preview"
               className="w-full h-full object-contain"
             />
           </Card>
@@ -106,8 +113,8 @@ export default function PlatformSection() {
           <Card>
             <h3 className="absolute top-4 left-4 text-lg font-semibold z-10">Scan History</h3>
             <img 
-              src="/images/Scan_history.png" 
-              alt=""
+              src={scanHistory} 
+              alt="Scan History Preview"
               className="w-full h-full object-contain"
             />
           </Card>
@@ -115,8 +122,8 @@ export default function PlatformSection() {
           <Card>
             <h3 className="absolute top-4 left-4 text-lg font-semibold z-10">Nutrition Analysis</h3>
             <img 
-              src="/images/nutritional_analysis.png" 
-              alt=""
+              src={nutritionalAnalysis} 
+              alt="Nutrition Analysis Preview"
               className="w-full h-full object-contain"
             />
           </Card>
