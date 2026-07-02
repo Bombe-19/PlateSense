@@ -76,9 +76,9 @@ tmp/
 analysis_results/
 uploads/
 
-# Model files (keep only in local)
-best.pt
-*.pt
+# Model files (keep only in local, uncomment to upload to cloud host)
+# best.pt
+# *.pt
 food_detection_model/
 merged_food_models/
 food_detector_best.pt
