@@ -1,3 +1,4 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
 fastapi
 uvicorn[standard]
 sqlalchemy
@@ -9,7 +10,8 @@ python-dotenv
 pydantic[email]
 python-dateutil
 opencv-python-headless
-torch
+torch==2.3.1+cpu
+torchvision==0.18.1+cpu
 ultralytics
 Pillow
 python-multipart
@@ -19,3 +21,4 @@ psycopg2-binary
 pandas
 numpy
 transformers
+accelerate
