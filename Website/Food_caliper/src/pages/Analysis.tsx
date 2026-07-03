@@ -11,6 +11,8 @@ import Dock from "@/components/Dock";
 import heroFood from "@/assets/hero-food.jpg";
 import { apiClient } from "@/services/apiClient";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "";
+
 // Add nutrition-specific CSS classes
 const nutritionStyles = `
   .metric-red { @apply bg-red-500/10 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800; }
@@ -109,7 +111,8 @@ const Analysis = () => {
       }
 
       // Use direct fetch instead of apiClient to handle FormData with additional fields
-      const response = await fetch('/api/v1/analysis/upload?user_id=1', {
+      const userId = apiClient.getUserId() || localStorage.getItem('userId') || '1';
+      const response = await fetch(`${API_BASE_URL}/api/v1/analysis/upload?user_id=${userId}`, {
         method: 'POST',
         body: formData,
       });
