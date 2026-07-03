@@ -11,7 +11,23 @@ import os
 import sys
 import gc
 import torch
+import numpy as np
 from typing import Optional
+
+def convert_numpy(obj):
+    """Recursively convert numpy types to native Python types for PostgreSQL compatibility."""
+    if isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.floating):
+        return float(obj)
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, dict):
+        return {k: convert_numpy(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_numpy(i) for i in obj]
+    return obj
+
 
 # Add parent directory to path for volumetric_food_analysis
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
@@ -385,6 +401,9 @@ async def upload_and_analyze(
         
         # Free memory immediately after inference
         gc.collect()
+        
+        # Convert all numpy types to native Python types before DB insert
+        analysis_result = convert_numpy(analysis_result)
         
         # Extract nutritional summary
         nutritional_summary = analysis_result["summary"].get("nutritional_summary", {})
