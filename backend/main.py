@@ -29,18 +29,32 @@ app = FastAPI(
     openapi_url="/openapi.json"
 )
 
-# CORS Configuration
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+# CORS Configuration - reads from environment variables
+FRONTEND_URL = os.getenv("FRONTEND_URL", "")
+FRONTEND_URLS = os.getenv("FRONTEND_URLS", "")  # comma-separated list of URLs
+
 ALLOWED_ORIGINS = [
     "http://localhost:3001",
     "http://localhost:5173",
     "http://localhost:8080",
-    FRONTEND_URL,
     "http://localhost:8000",
     "http://127.0.0.1:3000",
     "http://127.0.0.1:5173",
-    "http://127.0.0.1:8080"
+    "http://127.0.0.1:8080",
 ]
+
+# Add FRONTEND_URL if set
+if FRONTEND_URL:
+    ALLOWED_ORIGINS.append(FRONTEND_URL.rstrip("/"))
+
+# Add FRONTEND_URLS (comma-separated) if set
+if FRONTEND_URLS:
+    for url in FRONTEND_URLS.split(","):
+        url = url.strip().rstrip("/")
+        if url and url not in ALLOWED_ORIGINS:
+            ALLOWED_ORIGINS.append(url)
+
+print(f"✓ CORS allowed origins: {ALLOWED_ORIGINS}")
 
 app.add_middleware(
     CORSMiddleware,
