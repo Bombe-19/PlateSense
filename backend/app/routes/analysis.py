@@ -9,6 +9,8 @@ from datetime import datetime
 import json
 import os
 import sys
+import gc
+import torch
 from typing import Optional
 
 # Add parent directory to path for volumetric_food_analysis
@@ -377,8 +379,12 @@ async def upload_and_analyze(
                 detail="YOLO model not initialized"
             )
         
-        # Run analysis
-        analysis_result = analyzer.analyze_image(str(temp_file_path))
+        # Run analysis inside no_grad to avoid storing gradients (saves RAM)
+        with torch.no_grad():
+            analysis_result = analyzer.analyze_image(str(temp_file_path))
+        
+        # Free memory immediately after inference
+        gc.collect()
         
         # Extract nutritional summary
         nutritional_summary = analysis_result["summary"].get("nutritional_summary", {})

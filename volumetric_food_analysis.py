@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import json
 import pandas as pd
+import gc
 from datetime import datetime
 from pathlib import Path
 from ultralytics import YOLO
@@ -11,6 +12,10 @@ import warnings
 from difflib import get_close_matches
 import re
 warnings.filterwarnings('ignore')
+
+# Force CPU usage — no GPU on Render
+torch.set_num_threads(2)  # Limit CPU threads to reduce memory
+
 
 
 class FoodVolumeAnalyzer:
@@ -29,15 +34,18 @@ class FoodVolumeAnalyzer:
         """
         print("🔧 Initializing Food Volume Analyzer with Nutritional Analysis...")
         
-        # Load YOLO model
+        # Load YOLO model — CPU only, half precision for less RAM
         self.yolo_model = YOLO(yolo_model_path)
+        self.yolo_model.to('cpu')
         print(f"✅ YOLO model loaded: {yolo_model_path}")
         
-        # Load depth estimation model
+        # Load depth estimation model — float16 uses HALF the RAM of float32
         print("⏳ Loading depth estimation model...")
         self.depth_estimator = pipeline(
             "depth-estimation",
-            model="LiheYoung/depth-anything-small-hf"  # Lightweight & fast
+            model="LiheYoung/depth-anything-small-hf",  # Lightweight & fast
+            torch_dtype=torch.float16,
+            device="cpu"
         )
         print("✅ Depth model loaded")
         
