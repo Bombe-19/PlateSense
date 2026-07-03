@@ -93,27 +93,32 @@ def get_analyzer(nutrition_dataset_path: Optional[str] = None):
             
             plate_diameter = float(os.getenv("PLATE_DIAMETER_CM", "25"))
             
-            # Handle nutrition dataset path
+            # Handle nutrition dataset path — auto-detect if not provided
             nutrition_path = None
+            
+            # Always search well-known locations (env var + Docker path + relative paths)
+            well_known_paths = [
+                os.getenv("NUTRITION_DATASET_PATH", ""),         # Env variable
+                "/app/Indian_Food_Nutrition_Processed.csv",      # HF Spaces Docker path
+                "/app/indian_Food_Nutrition_Processed.csv",      # lowercase variant
+                "Indian_Food_Nutrition_Processed.csv",           # Same directory
+                "indian_Food_Nutrition_Processed.csv",           # lowercase variant
+                str(Path(__file__).parent.parent.parent / "Indian_Food_Nutrition_Processed.csv"),
+                str(Path(__file__).parent.parent.parent.parent / "Indian_Food_Nutrition_Processed.csv"),
+            ]
+            
+            # If caller provided a specific path, add it at the front
             if nutrition_dataset_path:
-                # Check if it's an absolute path
-                if Path(nutrition_dataset_path).is_absolute():
-                    nutrition_path = nutrition_dataset_path
-                else:
-                    # Look for nutrition dataset in multiple locations
-                    possible_nutrition_paths = [
-                        nutrition_dataset_path,  # As provided
-                        str(Path(__file__).parent.parent.parent.parent / nutrition_dataset_path),  # Relative to Food folder
-                        str(Path(__file__).parent.parent.parent.parent / "Food_data" / nutrition_dataset_path),
-                        "indian_Food_Nutrition_Processed.csv",  # Default name
-                        str(Path(__file__).parent.parent.parent.parent / "indian_Food_Nutrition_Processed.csv"),
-                    ]
-                    
-                    for path in possible_nutrition_paths:
-                        if Path(path).exists():
-                            nutrition_path = path
-                            print(f"Found nutrition dataset at: {path}")
-                            break
+                well_known_paths.insert(0, nutrition_dataset_path)
+            
+            for path in well_known_paths:
+                if path and Path(path).exists():
+                    nutrition_path = path
+                    print(f"Found nutrition dataset at: {path}")
+                    break
+            
+            if not nutrition_path:
+                print("⚠️ Nutrition dataset not found — nutritional data will be unavailable")
             
             ANALYZER = FoodVolumeAnalyzer(
                 yolo_model_path=model_path,

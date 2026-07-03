@@ -173,10 +173,13 @@ const Dashboard = () => {
                 {/* Scans for Selected Date */}
                 <div className="space-y-3 max-h-[400px] overflow-y-auto scrollbar-hide">
                   {(() => {
-                    const dateStr = selectedDate.toLocaleDateString();
+                    // Normalize date to YYYY-MM-DD in local timezone to avoid UTC vs local mismatch
+                    const toLocalDateStr = (d: Date) =>
+                      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                    const dateStr = toLocalDateStr(selectedDate);
                     const scansForDate = analysisHistory.filter((analysis: any) => {
                       const analysisDate = new Date(analysis.date || analysis.analysis_date);
-                      return analysisDate.toLocaleDateString() === dateStr;
+                      return toLocalDateStr(analysisDate) === dateStr;
                     });
 
                     if (scansForDate.length === 0) {
