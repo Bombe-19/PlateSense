@@ -12,6 +12,17 @@ import { apiClient } from "@/services/apiClient";
 
 const COLORS = ["hsl(145, 63%, 42%)", "hsl(260, 50%, 65%)", "hsl(220, 70%, 55%)", "hsl(30, 90%, 55%)"];
 
+// Parse backend UTC dates correctly — append 'Z' so JS converts to local timezone
+const parseUTCDate = (dateStr: string): Date => {
+  if (!dateStr) return new Date();
+  // Add Z if no timezone info present so JS treats it as UTC (not local)
+  if (!dateStr.endsWith('Z') && !dateStr.includes('+') && !dateStr.includes('-', 10)) {
+    return new Date(dateStr + 'Z');
+  }
+  return new Date(dateStr);
+};
+
+
 const categoryData = [
   { name: "Protein", value: 40 },
   { name: "Carbs", value: 30 },
@@ -178,7 +189,7 @@ const Dashboard = () => {
                       `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
                     const dateStr = toLocalDateStr(selectedDate);
                     const scansForDate = analysisHistory.filter((analysis: any) => {
-                      const analysisDate = new Date(analysis.date || analysis.analysis_date);
+                      const analysisDate = parseUTCDate(analysis.date || analysis.analysis_date);
                       return toLocalDateStr(analysisDate) === dateStr;
                     });
 
@@ -187,7 +198,7 @@ const Dashboard = () => {
                     }
 
                     return scansForDate.map((analysis: any) => {
-                      const analysisTime = new Date(analysis.date || analysis.analysis_date);
+                      const analysisTime = parseUTCDate(analysis.date || analysis.analysis_date);
                       const timeStr = analysisTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                       return (
                         <div key={analysis.id} className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/60 transition-colors cursor-pointer group">
@@ -447,12 +458,12 @@ const Dashboard = () => {
 
             {/* Full Width Table - Total Calories Breakdown by Time of Day */}
             {analysisHistory.length > 0 && (() => {
-              const latestDate = new Date(analysisHistory[0].date || analysisHistory[0].analysis_date);
+              const latestDate = parseUTCDate(analysisHistory[0].date || analysisHistory[0].analysis_date);
               const latestDateStr = latestDate.toLocaleDateString();
               
               // Get all analyses for the latest date
               const latestDateAnalyses = analysisHistory.filter((analysis: any) => {
-                const analysisDate = new Date(analysis.date || analysis.analysis_date);
+                const analysisDate = parseUTCDate(analysis.date || analysis.analysis_date);
                 return analysisDate.toLocaleDateString() === latestDateStr;
               });
 
@@ -475,7 +486,7 @@ const Dashboard = () => {
 
               let totalCaloriesLatestDate = 0;
               latestDateAnalyses.forEach((analysis: any) => {
-                const date = new Date(analysis.date || analysis.analysis_date);
+                const date = parseUTCDate(analysis.date || analysis.analysis_date);
                 const period = getTimePeriod(date);
                 const calories = analysis.total_calories || 0;
                 caloriesByPeriod[period as keyof typeof caloriesByPeriod].calories += calories;
@@ -580,7 +591,7 @@ const Dashboard = () => {
                       </thead>
                       <tbody>
                         {latestDateAnalyses.map((analysis: any) => {
-                          const analysisDate = new Date(analysis.date || analysis.analysis_date);
+                          const analysisDate = parseUTCDate(analysis.date || analysis.analysis_date);
                           const period = getTimePeriod(analysisDate);
                           const periodEmoji = { morning: '🌅', afternoon: '☀️', evening: '🌆', night: '🌙' }[period];
                           return (
