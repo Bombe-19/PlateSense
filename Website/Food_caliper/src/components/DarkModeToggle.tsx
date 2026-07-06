@@ -41,7 +41,7 @@ export const DarkModeToggle: React.FC = () => {
       transition={{ duration: 0.3 }}
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.95 }}
-      className="fixed bottom-24 right-6 z-[9999] pointer-events-auto"
+      className="no-print fixed bottom-24 right-6 z-[9999] pointer-events-auto"
       aria-label="Toggle theme"
     >
       <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 shadow-lg border border-orange-400/50 flex items-center justify-center hover:shadow-orange-500/50 transition-all duration-300">
