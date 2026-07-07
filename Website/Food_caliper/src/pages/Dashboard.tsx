@@ -112,7 +112,7 @@ const Dashboard = () => {
     <BackgroundLayout>
       <Navbar isAuthenticated />
 
-      <div className="container py-8">
+      <div className="container py-8 px-4 md:px-8 max-w-6xl mx-auto">
         {loading ? (
           <div className="flex items-center justify-center min-h-[400px]">
             <Loader className="h-8 w-8 animate-spin text-primary" />
@@ -310,7 +310,7 @@ const Dashboard = () => {
                 </div>
 
                 {/* Activity & Food Categories - Side by Side */}
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   {/* Activity Chart */}
                   <div className="glass-card p-6">
                     <div className="flex items-center gap-2 mb-4">

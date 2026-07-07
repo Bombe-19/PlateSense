@@ -150,7 +150,7 @@ const Index = () => {
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="absolute top-8 left-8 glass-card p-5 rounded-2xl flex items-center gap-4 shadow-xl"
+            className="hidden sm:flex absolute top-8 left-8 glass-card p-5 rounded-2xl items-center gap-4 shadow-xl"
           >
             <div className="bg-cyan-500/20 p-2 rounded-lg">
               <Scale className="text-cyan-400" size={24} />
@@ -166,7 +166,7 @@ const Index = () => {
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="absolute bottom-8 right-8 glass-card p-5 rounded-2xl flex items-center gap-4 shadow-xl"
+            className="hidden sm:flex absolute bottom-8 right-8 glass-card p-5 rounded-2xl items-center gap-4 shadow-xl"
           >
             <div className="bg-cyan-500/20 p-2 rounded-lg">
               <Ruler className="text-cyan-400" size={24} />

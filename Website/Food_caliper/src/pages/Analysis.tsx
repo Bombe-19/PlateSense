@@ -317,7 +317,7 @@ const Analysis = () => {
     <BackgroundLayout>
       <Navbar isAuthenticated />
 
-      <div className="container py-8">
+      <div className="container py-8 px-4 md:px-8 max-w-6xl mx-auto">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <h1 className="text-3xl font-bold text-foreground">Food Analysis Report</h1>
           <p className="text-muted-foreground mt-1">AI-powered volume and weight estimation results</p>
@@ -515,7 +515,7 @@ const Analysis = () => {
                     );
                   })}
                 </div>
-                <div className="mt-4 grid grid-cols-4 gap-3">
+                <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div className="metric-green metric-badge"><Layers className="h-3.5 w-3.5" /> {result.totalItems} items</div>
                   <div className="metric-violet metric-badge"><Ruler className="h-3.5 w-3.5" /> {result.totalVolume} ml</div>
                   <div className="metric-blue metric-badge"><Scale className="h-3.5 w-3.5" /> {result.totalWeight} g</div>
@@ -660,24 +660,24 @@ const Analysis = () => {
                 <thead>
                   <tr className="border-b border-border">
                     {["Food Name", "Volume (ml)", "Weight (g)", "Area (cm²)", "Height (cm)", "Confidence", "Calories", "Protein (g)", "Carbs (g)", "Fat (g)", "Components"].map(h => (
-                      <th key={h} className="text-left py-3 px-3 text-muted-foreground font-medium">{h}</th>
+                      <th key={h} className="text-left py-3 px-3 text-muted-foreground font-medium whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {filteredFoods.map((f: FoodItem) => (
                     <tr key={f.name} className="border-b border-border/50 hover:bg-muted/50 transition-colors">
-                      <td className="py-3 px-3">
+                      <td className="py-3 px-3 whitespace-nowrap">
                         <div className="font-medium text-foreground">{f.name}</div>
                         {f.nutrition?.matched_food_name && f.nutrition.matched_food_name !== f.name && (
                           <div className="text-xs text-muted-foreground mt-1">Matched: {f.nutrition.matched_food_name}</div>
                         )}
                       </td>
-                      <td className="py-3 px-3 text-foreground">{f.volume.toFixed(2)}</td>
-                      <td className="py-3 px-3 text-foreground">{f.weight.toFixed(2)}</td>
-                      <td className="py-3 px-3 text-foreground">{f.area.toFixed(2)}</td>
-                      <td className="py-3 px-3 text-foreground">{f.height.toFixed(2)}</td>
-                      <td className="py-3 px-3">
+                      <td className="py-3 px-3 text-foreground whitespace-nowrap">{f.volume.toFixed(2)}</td>
+                      <td className="py-3 px-3 text-foreground whitespace-nowrap">{f.weight.toFixed(2)}</td>
+                      <td className="py-3 px-3 text-foreground whitespace-nowrap">{f.area.toFixed(2)}</td>
+                      <td className="py-3 px-3 text-foreground whitespace-nowrap">{f.height.toFixed(2)}</td>
+                      <td className="py-3 px-3 whitespace-nowrap">
                         <span className={`px-2 py-1 rounded text-xs font-medium ${
                           f.confidence > 0.8 ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
                           f.confidence > 0.6 ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' :
@@ -686,35 +686,35 @@ const Analysis = () => {
                           {(f.confidence * 100).toFixed(0)}%
                         </span>
                       </td>
-                      <td className="py-3 px-3 text-foreground">
+                      <td className="py-3 px-3 text-foreground whitespace-nowrap">
                         {f.nutrition?.calories ? (
                           <span className="font-medium">{f.nutrition.calories.toFixed(0)} kcal</span>
                         ) : (
                           <span className="text-muted-foreground text-xs">No data</span>
                         )}
                       </td>
-                      <td className="py-3 px-3 text-foreground">
+                      <td className="py-3 px-3 text-foreground whitespace-nowrap">
                         {f.nutrition?.protein_g ? (
                           <span>{f.nutrition.protein_g.toFixed(1)}g</span>
                         ) : (
                           <span className="text-muted-foreground text-xs">-</span>
                         )}
                       </td>
-                      <td className="py-3 px-3 text-foreground">
+                      <td className="py-3 px-3 text-foreground whitespace-nowrap">
                         {f.nutrition?.carbohydrates_g ? (
                           <span>{f.nutrition.carbohydrates_g.toFixed(1)}g</span>
                         ) : (
                           <span className="text-muted-foreground text-xs">-</span>
                         )}
                       </td>
-                      <td className="py-3 px-3 text-foreground">
+                      <td className="py-3 px-3 text-foreground whitespace-nowrap">
                         {f.nutrition?.fat_g ? (
                           <span>{f.nutrition.fat_g.toFixed(1)}g</span>
                         ) : (
                           <span className="text-muted-foreground text-xs">-</span>
                         )}
                       </td>
-                      <td className="py-3 px-3">
+                      <td className="py-3 px-3 whitespace-nowrap">
                         {f.components && f.components.length > 0 ? (
                           <div className="flex flex-wrap gap-1">
                             {f.components.slice(0, 2).map(c => (

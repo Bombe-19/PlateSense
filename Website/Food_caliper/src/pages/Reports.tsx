@@ -560,29 +560,40 @@ const Reports = () => {
             <motion.button
               whileHover={{ x: -4 }}
               onClick={() => navigate("/dashboard")}
-              className="cursor-pointer inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors bg-card/45 border border-border/40 hover:border-border px-3.5 py-1.5 rounded-xl"
+              className="cursor-pointer inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors bg-card/45 border border-border/40 hover:border-border px-2.5 py-1.5 sm:px-3.5 sm:py-1.5 rounded-xl"
             >
               <ArrowLeft className="h-4 w-4" />
-              <span className="text-sm font-semibold">Back to Dashboard</span>
+              <span className="text-xs sm:text-sm font-semibold">
+                <span className="hidden sm:inline">Back to Dashboard</span>
+                <span className="sm:hidden">Back</span>
+              </span>
             </motion.button>
 
             {/* Action Buttons on Right */}
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-1.5 sm:gap-2.5">
               <button
                 onClick={handlePrint}
-                className="cursor-pointer inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground bg-card hover:bg-muted border border-border/80 hover:border-border px-3 py-2 rounded-xl transition-all"
+                className="cursor-pointer inline-flex items-center gap-1 text-xs font-bold text-muted-foreground hover:text-foreground bg-card hover:bg-muted border border-border/80 hover:border-border px-2.5 py-2 sm:px-3 sm:py-2 rounded-xl transition-all"
                 title="Export Report to PDF"
               >
                 <Printer size={13} />
-                <span>Export PDF</span>
+                <span className="hidden sm:inline">Export PDF</span>
+                <span className="sm:hidden">PDF</span>
               </button>
               <button
                 onClick={handleShare}
-                className="cursor-pointer inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground bg-card hover:bg-muted border border-border/80 hover:border-border px-3 py-2 rounded-xl transition-all"
+                className="cursor-pointer inline-flex items-center gap-1 text-xs font-bold text-muted-foreground hover:text-foreground bg-card hover:bg-muted border border-border/80 hover:border-border px-2.5 py-2 sm:px-3 sm:py-2 rounded-xl transition-all"
                 title="Copy report shareable URL"
               >
                 {copied ? <Check size={13} className="text-emerald-500" /> : <Share2 size={13} />}
-                <span>{copied ? "Copied!" : "Copy Link"}</span>
+                <span>
+                  {copied ? "Copied!" : (
+                    <>
+                      <span className="hidden sm:inline">Copy Link</span>
+                      <span className="sm:hidden">Link</span>
+                    </>
+                  )}
+                </span>
               </button>
             </div>
           </div>
@@ -672,7 +683,7 @@ const Reports = () => {
                     </div>
                   )}
                   {user?.dietary_preferences && (
-                    <div className="bg-muted/10 dark:bg-muted/5 border border-border/30 rounded-xl p-3 flex items-center justify-between">
+                    <div className="col-span-2 md:col-span-1 bg-muted/10 dark:bg-muted/5 border border-border/30 rounded-xl p-3 flex items-center justify-between">
                       <div className="truncate max-w-full">
                         <p className="text-[10px] uppercase font-bold text-muted-foreground">Diet</p>
                         <p className="text-base font-extrabold text-foreground truncate max-w-full">{user.dietary_preferences}</p>
@@ -851,11 +862,11 @@ const Reports = () => {
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     
                     {/* Left: Table */}
-                    <div className="lg:col-span-7">
+                    <div className="lg:col-span-7 w-full min-w-0">
                       <div className="border border-border/80 rounded-2xl overflow-hidden shadow-sm grid grid-cols-10 text-xs md:text-sm">
                         {/* Table Header Row */}
-                        <div className="col-span-10 bg-muted/80 dark:bg-slate-800/80 border-b border-border/80 grid grid-cols-10 font-bold text-muted-foreground text-[10px] md:text-xs uppercase tracking-wider py-3.5 px-4 text-center">
-                          <div className="col-span-4 text-left font-bold text-foreground">Food Item</div>
+                        <div className="col-span-10 bg-muted/80 dark:bg-slate-800/80 border-b border-border/80 grid grid-cols-10 font-bold text-muted-foreground text-[9px] md:text-xs uppercase tracking-wider py-3 px-2 sm:px-4 text-center">
+                          <div className="col-span-4 text-left font-bold text-foreground truncate">Food Item</div>
                           <div className="col-span-2 text-red-600 dark:text-red-400">Protein</div>
                           <div className="col-span-2 text-orange-600 dark:text-orange-400">Carbs</div>
                           <div className="col-span-2 text-yellow-600 dark:text-yellow-400">Fats</div>
@@ -864,16 +875,16 @@ const Reports = () => {
                         {/* Table Body Rows */}
                         {latestAnalysis.foods.map((food: any, idx: number) => (
                           <div key={idx} className="col-span-10 grid grid-cols-10 border-b border-border/40 last:border-b-0 hover:bg-muted/10 transition-colors">
-                            <div className="col-span-4 py-3.5 px-4 flex items-center text-left font-bold text-foreground truncate" title={food.name}>
+                            <div className="col-span-4 py-3 px-2 sm:px-4 flex items-center text-left font-bold text-foreground truncate" title={food.name}>
                               {food.name}
                             </div>
-                            <div className="col-span-2 py-3.5 px-4 flex items-center justify-center text-center font-bold text-red-600 dark:text-red-400 bg-red-500/5 dark:bg-red-500/10 border-l border-border/30">
+                            <div className="col-span-2 py-3 px-1 sm:px-4 flex items-center justify-center text-center font-bold text-red-600 dark:text-red-400 bg-red-500/5 dark:bg-red-500/10 border-l border-border/30">
                               {food.protein_g && food.protein_g > 0 ? `${food.protein_g.toFixed(1)}g` : "—"}
                             </div>
-                            <div className="col-span-2 py-3.5 px-4 flex items-center justify-center text-center font-bold text-orange-600 dark:text-orange-400 bg-orange-500/5 dark:bg-orange-500/10 border-l border-border/30">
+                            <div className="col-span-2 py-3 px-1 sm:px-4 flex items-center justify-center text-center font-bold text-orange-600 dark:text-orange-400 bg-orange-500/5 dark:bg-orange-500/10 border-l border-border/30">
                               {food.carbohydrates_g && food.carbohydrates_g > 0 ? `${food.carbohydrates_g.toFixed(1)}g` : "—"}
                             </div>
-                            <div className="col-span-2 py-3.5 px-4 flex items-center justify-center text-center font-bold text-yellow-600 dark:text-yellow-400 bg-yellow-500/5 dark:bg-yellow-500/10 border-l border-border/30">
+                            <div className="col-span-2 py-3 px-1 sm:px-4 flex items-center justify-center text-center font-bold text-yellow-600 dark:text-yellow-400 bg-yellow-500/5 dark:bg-yellow-500/10 border-l border-border/30">
                               {food.fat_g && food.fat_g > 0 ? `${food.fat_g.toFixed(1)}g` : "—"}
                             </div>
                           </div>
@@ -883,7 +894,7 @@ const Reports = () => {
 
                     {/* Right: Pie Chart */}
                     {hasMacros && (
-                      <div className="lg:col-span-5 flex flex-col items-center justify-center bg-muted/10 dark:bg-muted/5 border border-border/40 rounded-2xl p-4 shadow-inner">
+                      <div className="lg:col-span-5 flex flex-col items-center justify-center bg-muted/10 dark:bg-muted/5 border border-border/40 rounded-2xl p-4 shadow-inner w-full min-w-0">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-4">Macronutrient Ratio (g)</span>
                         <div className="h-48 w-full flex items-center justify-center">
                           <ResponsiveContainer width="100%" height="100%">

@@ -68,7 +68,6 @@ function CarouselItem({ item, index, itemWidth, round, trackItemOffset, x, trans
     </motion.div>
   );
 }
-
 export default function Carousel({
   items = DEFAULT_ITEMS,
   baseWidth = 300,
@@ -78,8 +77,17 @@ export default function Carousel({
   loop = false,
   round = false
 }) {
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const actualBaseWidth = Math.min(baseWidth, windowWidth - 48);
   const containerPadding = 16;
-  const itemWidth = baseWidth - containerPadding * 2;
+  const itemWidth = actualBaseWidth - containerPadding * 2;
   const trackItemOffset = itemWidth + GAP;
   const itemsForRender = useMemo(() => {
     if (!loop) return items;
@@ -200,14 +208,13 @@ export default function Carousel({
 
   const activeIndex =
     items.length === 0 ? 0 : loop ? (position - 1 + items.length) % items.length : Math.min(position, items.length - 1);
-
   return (
     <div
       ref={containerRef}
       className={`carousel-container ${round ? 'round' : ''}`}
       style={{
-        width: `${baseWidth}px`,
-        ...(round && { height: `${baseWidth}px`, borderRadius: '50%' })
+        width: `${actualBaseWidth}px`,
+        ...(round && { height: `${actualBaseWidth}px`, borderRadius: '50%' })
       }}
     >
       <motion.div

@@ -1,7 +1,8 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, Menu, X, Home, Microscope, BarChart4, FileText, AlertCircle, Zap, Layers, Cpu } from "lucide-react";
+import { createPortal } from "react-dom";
 import logo from "@/assets/logo.png";
 import { apiClient } from "@/services/apiClient";
 
@@ -9,6 +10,7 @@ const Navbar = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
@@ -63,9 +65,11 @@ const Navbar = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
   ];
 
   return (
-    <motion.header
-      initial={{ y: -20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
+    <>
+      <motion.header
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.4 }}
       className="flex items-center justify-between whitespace-nowrap border-b border-slate-200 dark:border-slate-900 px-6 md:px-20 py-5 bg-white/90 dark:bg-slate-950/95 backdrop-blur-md sticky top-0 z-50 transition-colors duration-300"
     >
       <div className="flex items-center gap-2 text-slate-900 dark:text-white">
@@ -157,8 +161,131 @@ const Navbar = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
           </>
         )}
       </div>
-      <button className="md:hidden material-symbols-outlined text-slate-900 dark:text-white">menu</button>
+      <button 
+        onClick={() => setShowMobileMenu(!showMobileMenu)} 
+        className="md:hidden text-slate-900 dark:text-white cursor-pointer p-1 focus:outline-none"
+      >
+        {showMobileMenu ? <X size={24} /> : <Menu size={24} />}
+      </button>
     </motion.header>
+
+    {/* Mobile Drawer Menu */}
+    <AnimatePresence>
+        {showMobileMenu && (
+          <>
+            {/* Backdrop Overlay */}
+            <motion.div
+              key="drawer-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowMobileMenu(false)}
+              className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40 pointer-events-auto"
+            />
+
+            {/* Side Drawer Container */}
+            <motion.div
+              key="drawer-panel"
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", bounce: 0, duration: 0.35 }}
+              className="md:hidden fixed top-0 right-0 h-full w-80 max-w-full bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl border-l border-slate-200/50 dark:border-slate-900/50 z-50 shadow-2xl p-6 flex flex-col pointer-events-auto"
+            >
+              {/* Drawer Header - Close Button Only */}
+              <div className="flex items-center justify-end pb-4 border-b border-slate-100 dark:border-slate-900 mb-6">
+                <button 
+                  onClick={() => setShowMobileMenu(false)} 
+                  className="cursor-target p-2 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors focus:outline-none"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Drawer Links */}
+              <div className="flex-1 flex flex-col gap-2 overflow-y-auto pr-1">
+                {isAuthenticated ? (
+                  <>
+                    {[
+                      { to: "/dashboard", label: "Dashboard", icon: <BarChart4 size={20} /> },
+                      { to: "/analysis", label: "New Analysis", icon: <Microscope size={20} /> },
+                      { to: "/reports", label: "Reports", icon: <FileText size={20} /> },
+                    ].map((link) => {
+                      const isActive = location.pathname === link.to;
+                      return (
+                        <Link
+                          key={link.to}
+                          to={link.to}
+                          onClick={() => setShowMobileMenu(false)}
+                          className={`flex items-center gap-3 px-4 py-3 rounded-xl text-base font-bold transition-all ${
+                            isActive
+                              ? "bg-primary text-white shadow-md shadow-primary/20"
+                              : "text-slate-600 dark:text-slate-300 hover:bg-muted hover:text-foreground"
+                          }`}
+                        >
+                          <span className={isActive ? "text-white" : "text-primary"}>
+                            {link.icon}
+                          </span>
+                          {link.label}
+                        </Link>
+                      );
+                    })}
+                    <div className="w-full border-t border-slate-100 dark:border-slate-900 my-4" />
+                    <Link
+                      to="/profile"
+                      onClick={() => setShowMobileMenu(false)}
+                      className="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-bold text-slate-600 dark:text-slate-300 hover:bg-muted hover:text-foreground transition-all"
+                    >
+                      <User size={20} className="text-primary" />
+                      View Profile
+                    </Link>
+                    <button
+                      onClick={() => {
+                        setShowMobileMenu(false);
+                        handleLogout();
+                      }}
+                      className="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-bold text-red-500 hover:bg-red-500/10 transition-all text-left w-full cursor-target"
+                    >
+                      <LogOut size={20} />
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {[
+                      { href: "#", label: "Home", icon: <Home size={20} /> },
+                      { href: "#product", label: "Problem", icon: <AlertCircle size={20} /> },
+                      { href: "#solutions", label: "Solutions", icon: <Zap size={20} /> },
+                      { href: "#platform", label: "Platform", icon: <Layers size={20} /> },
+                      { href: "#features", label: "Technology", icon: <Cpu size={20} /> },
+                    ].map((link) => (
+                      <a
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => setShowMobileMenu(false)}
+                        className="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-bold text-slate-600 dark:text-slate-300 hover:bg-muted hover:text-foreground transition-all"
+                      >
+                        <span className="text-primary">{link.icon}</span>
+                        {link.label}
+                      </a>
+                    ))}
+                    <button 
+                      onClick={() => {
+                        setShowMobileMenu(false);
+                        navigate("/login");
+                      }}
+                      className="cursor-target flex items-center justify-center gap-2 rounded-xl h-12 bg-orange-600 text-white text-base font-bold shadow-lg shadow-orange-600/20 hover:bg-orange-700 transition-colors w-full mt-6"
+                    >
+                      Let's Caliper
+                    </button>
+                  </>
+                )}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 

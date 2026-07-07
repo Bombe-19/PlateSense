@@ -318,15 +318,15 @@ const Profile = () => {
         ) : (
           <>
             <div className="flex items-center justify-between gap-4 mb-10">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 sm:gap-4">
                 <button
                   onClick={() => navigate("/")}
-                  className="cursor-pointer flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-all bg-card/40 border border-border/40 hover:border-border px-3 py-1.5 rounded-lg"
+                  className="cursor-pointer flex items-center gap-1.5 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground transition-all bg-card/40 border border-border/40 hover:border-border px-2 py-1.5 sm:px-3 sm:py-1.5 rounded-lg"
                 >
-                  <ArrowLeft size={16} />
-                  Back
+                  <ArrowLeft size={14} className="sm:w-4 sm:h-4" />
+                  <span>Back</span>
                 </button>
-                <h1 className="text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">My Profile</h1>
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">My Profile</h1>
               </div>
               <button
                 onClick={fetchUserProfile}
@@ -548,7 +548,7 @@ const Profile = () => {
                     Health & Body Metrics
                   </h3>
 
-                  <div className="grid grid-cols-3 gap-4 mb-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                     <div className="bg-card/60 dark:bg-card/20 rounded-2xl p-4 border border-border/60 flex flex-col relative overflow-hidden">
                       <div className="flex items-center justify-between text-muted-foreground mb-2">
                         <span className="text-xs font-bold uppercase tracking-wider">Height</span>
