@@ -317,7 +317,7 @@ const Analysis = () => {
     <BackgroundLayout>
       <Navbar isAuthenticated />
 
-      <div className="container py-8 px-4 md:px-8 max-w-6xl mx-auto">
+      <div className="container pt-8 pb-36 px-4 md:px-8 max-w-6xl mx-auto">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <h1 className="text-3xl font-bold text-foreground">Food Analysis Report</h1>
           <p className="text-muted-foreground mt-1">AI-powered volume and weight estimation results</p>

@@ -112,7 +112,7 @@ const Dashboard = () => {
     <BackgroundLayout>
       <Navbar isAuthenticated />
 
-      <div className="container py-8 px-4 md:px-8 max-w-6xl mx-auto">
+      <div className="container pt-8 pb-36 px-4 md:px-8 max-w-6xl mx-auto">
         {loading ? (
           <div className="flex items-center justify-center min-h-[400px]">
             <Loader className="h-8 w-8 animate-spin text-primary" />
