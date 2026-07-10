@@ -70,6 +70,18 @@ app.include_router(auth.router)
 app.include_router(analysis.router)
 app.include_router(user.router)
 
+# Pre-initialize heavy AI models at startup in background thread
+@app.on_event("startup")
+async def startup_event():
+    print("⏳ Pre-initializing Food Volume Analyzer at startup...")
+    try:
+        import threading
+        from app.routes.analysis import get_analyzer
+        threading.Thread(target=get_analyzer, daemon=True).start()
+        print("✓ Pre-initialization started in background thread")
+    except Exception as e:
+        print(f"⚠️ Warning: Could not pre-initialize analyzer: {e}")
+
 # Health check endpoint
 @app.get("/health")
 async def health_check():

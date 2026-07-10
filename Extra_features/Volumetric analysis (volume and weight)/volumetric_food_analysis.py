@@ -9,6 +9,12 @@ from transformers import pipeline
 import warnings
 warnings.filterwarnings('ignore')
 
+# Set optimal CPU thread count — use half of available logical cores (balance speed vs memory)
+import multiprocessing as _mp
+_optimal_threads = max(2, _mp.cpu_count() // 2)
+torch.set_num_threads(_optimal_threads)
+print(f"⚡ torch threads set to {_optimal_threads} (of {_mp.cpu_count()} logical cores)")
+
 
 class FoodVolumeAnalyzer:
     """
@@ -183,14 +189,26 @@ class FoodVolumeAnalyzer:
     
     def estimate_depth(self, image):
         """
-        Estimate depth map for the image
+        Estimate depth map for the image.
+        OPTIMIZATION: Downscale image to max 640px before passing to pipeline to
+        drastically reduce transformer computation time on CPU.
         """
         from PIL import Image as PILImage
         
         h, w = image.shape[:2]
         
+        # Down-scale before depth inference
+        MAX_DIM = 640
+        scale = min(1.0, MAX_DIM / max(h, w))
+        if scale < 1.0:
+            new_w = int(w * scale)
+            new_h = int(h * scale)
+            img_small = cv2.resize(image, (new_w, new_h), interpolation=cv2.INTER_AREA)
+        else:
+            img_small = image
+            
         # Convert BGR to RGB
-        img_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        img_rgb = cv2.cvtColor(img_small, cv2.COLOR_BGR2RGB)
         
         # Convert to PIL Image for depth estimator
         pil_image = PILImage.fromarray(img_rgb)
@@ -199,7 +217,7 @@ class FoodVolumeAnalyzer:
         depth_result = self.depth_estimator(pil_image)
         depth_map = np.array(depth_result['depth'])
         
-        # Resize to match image
+        # Resize back to original image dimensions
         depth_map = cv2.resize(depth_map, (w, h))
         
         # Normalize to 0-1 range

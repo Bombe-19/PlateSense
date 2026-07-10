@@ -16,18 +16,12 @@ export const FeedbackButton: React.FC = () => {
     const isCompleted = localStorage.getItem('foodCaliperFeedbackCompleted') === 'true';
     
     if (!isCompleted) {
-      // Show mandatory modal after 4 seconds delay
-      const modalTimer = setTimeout(() => {
-        setShowModal(true);
-      }, 4000);
-
-      // Show pulsing helper tooltip after 2 seconds delay
+      // Show pulsing helper tooltip after 4 seconds delay to invite feedback (non-intrusive)
       const tooltipTimer = setTimeout(() => {
         setShowTooltip(true);
-      }, 2000);
+      }, 4000);
 
       return () => {
-        clearTimeout(modalTimer);
         clearTimeout(tooltipTimer);
       };
     }
@@ -35,7 +29,7 @@ export const FeedbackButton: React.FC = () => {
 
   const handleOpenFeedback = () => {
     window.open(FEEDBACK_LINK, '_blank', 'noopener,noreferrer');
-    // Save completion flag in browser to unlock user session
+    // Save completion flag in browser
     localStorage.setItem('foodCaliperFeedbackCompleted', 'true');
     setShowModal(false);
     setShowTooltip(false);
@@ -54,9 +48,9 @@ export const FeedbackButton: React.FC = () => {
               initial={{ opacity: 0, scale: 0.8, x: 20 }}
               animate={{ opacity: 1, scale: 1, x: 0 }}
               exit={{ opacity: 0, scale: 0.8, x: 20 }}
-              className="bg-orange-500 text-white text-xs font-bold px-3 py-2 rounded-xl shadow-lg border border-orange-400 flex items-center gap-1.5 whitespace-nowrap"
+              className="bg-indigo-600 text-white text-xs font-bold px-3 py-2 rounded-xl shadow-lg border border-indigo-500 flex items-center gap-1.5 whitespace-nowrap"
             >
-              <span>📝 Feedback Required!</span>
+              <span>📝 Share Your Feedback!</span>
               <button 
                 onClick={(e) => {
                   e.stopPropagation();
@@ -84,7 +78,7 @@ export const FeedbackButton: React.FC = () => {
           <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg border border-indigo-400/40 flex items-center justify-center hover:shadow-indigo-500/50 transition-all duration-300">
             <ClipboardSignature size={24} className="text-white" />
             
-            {/* Small red exclamation alert indicator */}
+            {/* Small red exclamation alert indicator if pending */}
             {localStorage.getItem('foodCaliperFeedbackCompleted') !== 'true' && (
               <span className="absolute -top-1 -right-1 flex h-4 w-4">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
@@ -99,12 +93,13 @@ export const FeedbackButton: React.FC = () => {
       <AnimatePresence>
         {showModal && (
           <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
-            {/* Dark blur backdrop */}
+            {/* Dark blur backdrop (clicking outside closes the modal since it is optional) */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-slate-950/80 backdrop-blur-md"
+              onClick={() => setShowModal(false)}
+              className="absolute inset-0 bg-slate-950/85 backdrop-blur-sm cursor-pointer"
             />
 
             {/* Prompt Card */}
@@ -112,8 +107,17 @@ export const FeedbackButton: React.FC = () => {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative glass-card max-w-md w-full p-8 text-center border border-white/20 shadow-2xl relative overflow-hidden bg-slate-900/90 dark:bg-slate-950/95"
+              className="relative glass-card max-w-md w-full p-8 text-center border border-white/20 shadow-2xl relative overflow-hidden bg-slate-900/95 dark:bg-slate-950/98"
             >
+              {/* Close button at top right */}
+              <button
+                onClick={() => setShowModal(false)}
+                className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors focus:outline-none"
+                aria-label="Close modal"
+              >
+                <X size={20} />
+              </button>
+
               {/* Background gradient blur glow decoration */}
               <div className="absolute -top-24 -left-24 w-48 h-48 rounded-full bg-indigo-500/20 blur-3xl pointer-events-none" />
               <div className="absolute -bottom-24 -right-24 w-48 h-48 rounded-full bg-orange-500/20 blur-3xl pointer-events-none" />
@@ -125,19 +129,19 @@ export const FeedbackButton: React.FC = () => {
                 </div>
 
                 <h3 className="text-2xl font-black text-white mb-3">
-                  We Need Your Feedback! 🌟
+                  We Value Your Feedback! 🌟
                 </h3>
                 
                 <p className="text-slate-300 text-sm leading-relaxed mb-6">
-                  Thank you for reviewing the <strong>FoodCaliper</strong> platform. To complete the review process, filling out our quick 1-minute feedback questionnaire is <strong>mandatory</strong>.
+                  Thank you for using the <strong>FoodCaliper</strong> platform. Please take 1 minute to fill out our quick questionnaire to help us improve the experience.
                 </p>
 
-                {/* Pulsing Form Link CTA */}
+                {/* Form Link CTA */}
                 <motion.button
                   onClick={handleOpenFeedback}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="cursor-target w-full py-4 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold text-base shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 flex items-center justify-center gap-2 group transition-all"
+                  className="cursor-target w-full py-4 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold text-base shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 flex items-center justify-center gap-2 group transition-all"
                 >
                   Complete Feedback Form
                   <motion.span 
@@ -149,9 +153,13 @@ export const FeedbackButton: React.FC = () => {
                   </motion.span>
                 </motion.button>
                 
-                <p className="text-[10px] text-slate-500 mt-4">
-                  * Opens in a new tab. Completing the form will instantly unlock the platform.
-                </p>
+                {/* Cancel/Later Button */}
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="mt-4 text-xs font-semibold text-slate-400 hover:text-white transition-colors focus:outline-none"
+                >
+                  Maybe Later
+                </button>
               </div>
             </motion.div>
           </div>
