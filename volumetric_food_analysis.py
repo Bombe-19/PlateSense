@@ -226,12 +226,18 @@ class FoodVolumeAnalyzer:
             'burger': 2.0,
             'pancakes': 2.0,
             
-            # Beverages
-            'filter_coffee': 0.0,
-            'masala_chai': 0.0,
-            'buttermilk': 0.0,
-            'lassi': 0.0,
-            'milkshake': 0.0,
+            # Beverages — use realistic liquid fill height in a typical cup/glass
+            # A standard tumbler/cup is ~8–10 cm tall, filled 80% → ~7 cm liquid column
+            # Using bounding-box height = cup outer height, liquid fill ≈ 70% of that
+            'filter_coffee': 7.0,
+            'masala_chai': 7.0,
+            'buttermilk': 8.0,
+            'lassi': 9.0,
+            'milkshake': 10.0,
+            'coffee': 7.0,
+            'tea': 7.0,
+            'juice': 8.0,
+            'water': 8.0,
             
             # Default for unknown items
             'default': 2.0
@@ -390,23 +396,28 @@ class FoodVolumeAnalyzer:
             'burger': 0.45,
             'pancakes': 0.35,
             
-            # Beverages (should be mostly ignored with height=0)
+            # Beverages — liquid density ≈ water (1.0 g/ml)
             'filter_coffee': 1.00,
             'masala_chai': 1.00,
             'buttermilk': 1.02,
             'lassi': 1.05,
             'milkshake': 0.95,
+            'coffee': 1.00,
+            'tea': 1.00,
+            'juice': 1.05,
+            'water': 1.00,
             
             # Default
             'default': 0.85
         }
         
         # Food name mapping for better nutritional data matching
+        # Keys = YOLO class names; Values = search terms to look up in nutrition DB
         self.food_name_mapping = {
             # Rice varieties
             'rice': ['rice', 'white rice', 'steamed rice', 'plain rice'],
             'jeera_rice': ['jeera rice', 'cumin rice'],
-            'lemon_rice': ['lemon rice', 'nimmakaya rice'],
+            'lemon_rice': ['lemon rice', 'nimmakaya rice', 'pulihora'],
             'tamarind_rice': ['tamarind rice', 'puliyogare'],
             'tomato_rice': ['tomato rice'],
             'curd_rice': ['curd rice', 'yogurt rice', 'dahi chawal'],
@@ -415,28 +426,40 @@ class FoodVolumeAnalyzer:
             'kashmiri_pulao': ['kashmiri pulao', 'kashmir pulao'],
             'fried_rice': ['fried rice', 'friedrice'],
             'pongal': ['pongal', 'pongal dish', 'pongal rice'],
-            
-            # Breads
-            'roti': ['roti', 'chapati', 'indian bread'],
-            'chapati': ['chapati', 'roti'],
-            'naan': ['naan', 'nana bread'],
-            'paratha': ['paratha', 'stuffed paratha', 'aloo paratha', 'parotta'],
+            'khichdi': ['khichdi', 'khichri', 'kedgeree'],
+            'rajma_chawal': ['kidney bean curry (rajmah curry)', 'kidney bean curry'],
+
+            # Breads & Flatbreads
+            'roti': ['roti', 'chapati', 'plain chapati', 'indian bread'],
+            'chapati': ['plain chapati', 'chapati', 'roti'],
+            'naan': ['naan', 'plain naan'],
+            'paratha': ['plain parantha', 'paratha', 'stuffed paratha', 'aloo paratha'],
+            # parotta — DB: 'plain parantha/paratha'
+            'parotta': ['plain parantha/paratha', 'plain parantha'],
+            'kerala_parotta': ['plain parantha/paratha', 'plain parantha'],
             'bhatura': ['bhatura', 'bhature'],
             'puri': ['puri', 'poori'],
-            'kulcha': ['kulcha', 'kulchaa'],
+            # kulcha — DB has no direct match; use plain naan as closest
+            'kulcha': ['naan', 'plain naan', 'kulcha'],
+            'masala_kulcha': ['stuffed kulcha', 'naan'],
             'bread': ['bread', 'white bread'],
-            'french_toast': ['french toast', 'frenchtoast', 'french-toast'],
-            'sandwich': ['sandwich', 'sandwhich'],
-            
+            # french toast — DB has no direct entry; use plain omelette as closest
+            'french_toast': ['stuffed egg omelette', 'plain omelette', 'french toast'],
+            'sandwich': ['sandwich', 'plain sandwich'],
+            'vada_pav': ['vada pav', 'batata vada', 'vada'],
+
             # South Indian
-            'dosa': ['dosa', 'dosai', 'plain dosa'],
+            'dosa': ['dosa', 'plain dosa', 'dosai'],
             'uttapam': ['uttapam', 'uthappam'],
-            'idli': ['idli', 'idly', 'steamed rice cake'],
+            'idli': ['idli', 'plain idli', 'idly', 'steamed rice cake'],
             'idiyappam': ['idiyappam', 'string hoppers'],
             'appam': ['appam', 'aappam'],
             'puttu': ['puttu', 'puttoo'],
-            
-            # Curries
+            'medu_vada': ['plain urad dal vada', 'medu vada', 'urad dal vada'],
+            'meduvada': ['plain urad dal vada', 'medu vada'],
+            'kuzhi_paniyaram': ['kuzhi paniyaram', 'paniyaram'],
+
+            # Curries & Gravies
             'curry': ['curry', 'gravy', 'vegetable curry'],
             'chicken_curry': ['chicken curry', 'chicken gravy'],
             'mutton_curry': ['mutton curry', 'mutton gravy', 'goat curry'],
@@ -444,12 +467,16 @@ class FoodVolumeAnalyzer:
             'egg_curry': ['egg curry'],
             'sambar': ['sambar', 'sambhar', 'lentil curry'],
             'rasam': ['rasam', 'pepper water', 'tomato rasam'],
-            'dal_makhani': ['dal makhani', 'dal makhni', 'creamy dal'],
+            'dal_makhani': ['dal makhani', 'dal makhni'],
             'dal_tadka': ['dal tadka', 'dal tadak'],
-            'dal': ['dal', 'lentils', 'toor dal', 'moong dal'],
+            'dal': ['dal', 'toor dal', 'moong dal', 'lentils'],
             'chana_masala': ['chana masala', 'chole masala', 'chickpea curry'],
-            'rajma': ['rajma', 'kidney beans curry'],
-            
+            'rajma': ['kidney bean curry', 'rajmah curry', 'rajma'],
+            'salna': ['salna', 'plain salna'],
+            'kadala_curry': ['black chickpea curry', 'kadala curry', 'chana curry'],
+            'malai_kofta': ['malai kofta', 'kofta curry'],
+            'matar_panner': ['matar paneer', 'peas paneer', 'mutter paneer'],
+
             # Paneer & Vegetable Curries
             'butter_chicken': ['butter chicken', 'murgh makhni'],
             'paneer_butter_masala': ['paneer butter masala', 'paneer makhni'],
@@ -457,94 +484,117 @@ class FoodVolumeAnalyzer:
             'kadai_paneer': ['kadai paneer', 'kadahi paneer'],
             'palak_paneer': ['palak paneer', 'spinach paneer'],
             'paneer_tikka': ['paneer tikka'],
-            
-            # Vegetables
-            'aloo_gobi': ['aloo gobi', 'potato cauliflower'],
-            'aloo_capsicum': ['aloo capsicum', 'potato capsicum'],
+
+            # vegetables
+            'aloo_gobi': ['potato cauliflower (aloo gobhi)', 'potato cauliflower'],
+            'aloo_capsicum': ['potato capsicum (shimla mirch aloo)', 'potato capsicum'],
             'aloo_tikki': ['aloo tikki', 'potato patty'],
             'methi_aloo': ['methi aloo', 'fenugreek potato'],
-            'karela_fry': ['karela fry', 'bitter gourd fry'],
-            'bhindi_fry': ['bhindi fry', 'okra fry', 'ladyfinger fry'],
+            'karela_fry': ['stuffed bittergourd (dry) (bharwa karela)', 'karela'],
+            'bhindi_fry': ["okra/lady's fingers fry (bhindi sabzi/sabji/subji)", 'bhindi sabzi'],
             'lauki_sabzi': ['lauki sabzi', 'bottle gourd'],
-            'baingan_bharta': ['baingan bharta', 'eggplant curry'],
-            'kootu': ['kootu', 'mixed vegetable'],
-            'avial': ['avial', 'mixed vegetables'],
+            'baingan_bharta': ['baingan bharta', 'brinjal curry', 'eggplant'],
+            # kootu — DB has no direct match; use mixed vegetable
+            'kootu': ['mixed vegetable curry', 'avial', 'vegetable curry'],
+            'avial': ['avial', 'mixed vegetables with coconut'],
             'pav_bhaji': ['pav bhaji', 'pav-bhaji'],
             'poha': ['poha', 'flattened rice'],
             'sabudana_khichdi': ['sabudana khichdi', 'tapioca khichdi'],
-            'upma': ['upma', 'semolina dish'],
-            
+            'upma': ['upma', 'semolina upma'],
+            # aloo_methi
+            'aloo_methi': ['methi aloo', 'fenugreek potato'],
+            # sabzi generics
+            'sabzi': ['potato cauliflower (aloo gobhi)', 'potato curry', 'vegetable curry'],
+            'gobi_masala': ['potato cauliflower (aloo gobhi)', 'cauliflower'],
+
             # Pickles & Condiments
-            'pickle': ['pickle', 'achar', 'mango pickle', 'achaar'],
-            'chutney': ['chutney', 'coconut chutney', 'mint chutney', 'red chutney'],
-            'raita': ['raita', 'cucumber raita', 'onion raita', 'yogurt curry'],
+            'pickle': ['pickle', 'mango pickle', 'achar'],
+            'chutney': ['coconut chutney', 'mint chutney', 'green chutney'],
+            'coconut_chutney': ['coconut chutney'],
+            'red_chutney': ['tomato chutney', 'red chutney'],
+            'raita': ['raita', 'cucumber raita', 'onion raita'],
             'salad': ['salad', 'vegetable salad'],
             'papad': ['papad', 'papadum', 'appalam'],
-            'red_chutney': ['red chutney', 'redchutney'],
-            'green_mayo': ['green mayo', 'green mayonnaise'],
-            'mayonise': ['mayonnaise', 'mayo', 'mayonise'],
-            
-            # Sweets
+            'sauce': ['tomato sauce', 'ketchup'],
+            'green_mayo': ['green chutney', 'mint chutney'],
+            'mayonise': ['mayonnaise', 'mayo'],
+            'mayonnaise': ['mayonnaise', 'mayo'],
+
+            # Sweets & Desserts
             'gulab_jamun': ['gulab jamun', 'gulab-jamun'],
             'jalebi': ['jalebi', 'jalebee'],
-            'laddu': ['laddu', 'laddoo', 'laddus'],
-            'barfi': ['barfi', 'burfi', 'barfee'],
-            'basundi': ['basundi', 'rabri'],
-            'kheer': ['kheer', 'rice pudding', 'payasam'],
-            'payasam': ['payasam', 'kheer'],
+            # laddu — DB has NO laddoo/laddu entry; use semolina halwa as the closest sweet match
+            'laddu': ['semolina halwa (suji ka halwa)', 'halwa'],
+            'barfi': ['barfi', 'burfi', 'milk barfi'],
+            'basundi': ['basundi'],
+            'kheer': ['kheer', 'rice pudding'],
+            'payasam': ['payasam', 'kheer', 'semolina payasam'],
             'rasmalai': ['rasmalai', 'ras malai'],
-            'rasgulla': ['rasgulla', 'rassgulla', 'ros osgolla'],
+            'rasgulla': ['rasgulla', 'rosogolla'],
             'mysore_pak': ['mysore pak', 'mysore-pak'],
-            'adhirasam': ['adhirasam', 'adyirasam'],
-            'kulfi': ['kulfi', 'kulfee', 'indian ice cream'],
+            'adhirasam': ['adhirasam'],
+            'kulfi': ['kulfi', 'kulfee'],
             'phirni': ['phirni', 'firni'],
             'rabdi': ['rabdi', 'rabree'],
-            'halwa': ['halwa', 'halva', 'carrot halwa', 'sooji halwa'],
-            
-            # Proteins
-            'chicken_65': ['chicken 65', 'chicken65', 'chicken fry'],
-            'chicken_tandoori': ['chicken tandoori', 'tandoori chicken'],
-            'chicken_chettinad': ['chicken chettinad', 'chettinad chicken'],
-            'chicken_tikka': ['chicken tikka', 'tikka chicken'],
-            'andhra_chicken': ['andhra chicken', 'chicken andhra'],
+            'halwa': ['halwa', 'carrot halwa', 'suji halwa', 'sooji halwa'],
+            'kachori': ['kachori'],
+            'boondi': ['boondi', 'boondi raita'],
+
+            # Proteins & Non-Veg
+            'chicken_65': ['chicken 65', 'chicken fry'],
+            'chicken_tandoori': ['tandoori chicken', 'chicken tandoori'],
+            'chicken_chettinad': ['chicken chettinad', 'chettinad chicken curry'],
+            'chicken_tikka': ['chicken tikka'],
+            'andhra_chicken': ['andhra chicken', 'chicken curry'],
             'fish_fry': ['fish fry', 'fried fish'],
-            'tandoori_fish': ['tandoori fish'],
-            'prawn_fry': ['prawn fry', 'shrimp fry'],
-            'prawn_masala': ['prawn masala', 'shrimp masala'],
-            'mutton_sukka': ['mutton sukka', 'dry mutton', 'mutton fry'],
-            'egg_bhurji': ['egg bhurji', 'scrambled eggs'],
-            'omlette': ['omlette', 'omelet', 'omelette'],
-            'bread_omelette': ['bread omelette', 'bread omelet'],
-            
-            # Snacks
-            'samosa': ['samosa', 'samosas'],
-            'pakoda': ['pakoda', 'pakora', 'pakoras'],
-            'paneer_65': ['paneer 65', 'paneer65'],
-            'kachori': ['kachori', 'kachoree'],
+            'tandoori_fish': ['tandoori fish', 'grilled fish'],
+            # prawn_fry — DB: 'Prawn curry (with coconut) (Jhinga curry)'
+            'prawn_fry': ['prawn curry (with coconut) (jhinga curry)', 'prawn curry'],
+            'prawn_masala': ['prawn masala', 'prawn curry', 'jhinga'],
+            'mutton_sukka': ['mutton sukka', 'dry mutton fry'],
+            # bhurji — DB: Scrambled egg (Ande ki bhurji)
+            'bhurji': ['scrambled egg', 'egg bhurji', 'ande ki bhurji'],
+            'egg_bhurji': ['scrambled egg', 'egg bhurji'],
+            'omlette': ['plain omelette', 'omelet'],
+            'bread_omlette': ['bread omelette', 'stuffed egg omelette'],
+            'bread_omelette': ['bread omelette', 'stuffed egg omelette'],
+
+            # Snacks & Street Food
+            'samosa': ['samosa'],
+            'pakoda': ['pakoda', 'pakora'],
+            'paneer_65': ['paneer 65'],
+            'panner_65': ['paneer 65'],
+            'kachori': ['kachori'],
             'pani_puri': ['pani puri', 'gol gappa', 'puchka'],
-            'french_fries': ['french fries', 'fries', 'chips'],
-            'pizza': ['pizza', 'pizzas'],
-            'pancakes': ['pancakes', 'pancake'],
-            
+            'french_fries': ['french fries', 'fried potato'],
+            'pizza': ['pizza'],
+            'pancakes': ['pancake'],
+
             # Beverages
-            'filter_coffee': ['filter coffee', 'coffee', 'south indian coffee'],
-            'masala_chai': ['masala chai', 'chai', 'tea'],
-            'buttermilk': ['buttermilk'],
-            'lassi': ['lassi', 'lassee'],
-            'milkshake': ['milkshake', 'milk shake'],
-            
-            # Common variations
+            # filter_coffee — DB has 'instant coffee', 'espreso coffee'
+            'filter_coffee': ['filter coffee', 'south indian coffee', 'instant coffee'],
+            # masala_chai — DB: Hot tea (Garam Chai)
+            'masala_chai': ['hot tea', 'garam chai', 'masala chai', 'tea'],
+            'chai': ['hot tea', 'garam chai', 'tea'],
+            'coffee': ['instant coffee', 'filter coffee', 'espresso coffee'],
+            # buttermilk — DB only has "Buttermilk biscuit" (322 kcal) which is WRONG
+            # Use chaas / salted lassi as proxy (low calorie)
+            'buttermilk': ['chaas', 'buttermilk', 'salted lassi'],
+            'lassi': ['lassi', 'sweet lassi', 'mango lassi'],
+            'milkshake': ['milkshake', 'milk shake', 'fruit milkshake'],
+            'tea': ['hot tea', 'garam chai', 'plain tea'],
+            'juice': ['fruit juice', 'orange juice', 'mixed fruit juice'],
+
+            # Common class name variations from YOLO
             'panner': ['paneer', 'cottage cheese'],
-            'gobi': ['cauliflower', 'gobi masala'],
-            'boondi': ['boondi', 'boundi'],
-            'rice': ['rice', 'white rice'],
-            
-            # Others
-            'carmel': ['caramel', 'carmel'],
-            'cupcakes': ['cupcakes', 'cupcake'],
-            'ice_cream': ['ice cream', 'icecream'],
-            'waffles': ['waffles', 'waffle'],
-            'burger': ['burger', 'burgers'],
+            'panner_65': ['paneer 65'],
+            'gobi': ['cauliflower curry', 'gobi masala'],
+            'boondi': ['boondi'],
+            'carmel': ['caramel'],
+            'cupcakes': ['cupcake'],
+            'ice_cream': ['ice cream', 'vanilla ice cream'],
+            'waffles': ['waffle'],
+            'burger': ['burger', 'hamburger'],
         }
         
         print("✅ Analyzer with Nutritional Analysis ready!\n")
@@ -800,7 +850,17 @@ class FoodVolumeAnalyzer:
         for mapped_key, variants in self.food_name_mapping.items():
             if mapped_key == original_name or mapped_key == clean_food_name:
                 for variant in variants:
+                    # Try exact match first
                     variant_match = self.nutrition_data[self.nutrition_data['cleaned_name'] == variant.lower()]
+                    if not variant_match.empty:
+                        result = self._extract_nutrition_info(variant_match.iloc[0])
+                        self._nutrition_cache[cache_key] = result
+                        return result
+                    
+                    # Try substring match (contains) as fallback
+                    variant_match = self.nutrition_data[
+                        self.nutrition_data['cleaned_name'].str.contains(variant.lower(), na=False, regex=False)
+                    ]
                     if not variant_match.empty:
                         result = self._extract_nutrition_info(variant_match.iloc[0])
                         self._nutrition_cache[cache_key] = result
@@ -1093,6 +1153,17 @@ class FoodVolumeAnalyzer:
         elif food_class in ['pickle', 'chutney']:
             # Condiments: 0.8 to 2.5 cm
             final_height_cm = np.clip(final_height_cm, 0.8, 2.5)
+
+        elif food_class in [
+            'filter_coffee', 'masala_chai', 'buttermilk', 'lassi',
+            'milkshake', 'coffee', 'tea', 'juice', 'water'
+        ]:
+            # Beverages: height represents the liquid column inside the cup
+            # Bounding box captures the whole cup (8-12 cm), liquid fills ~60–80%
+            # We use the base_height_cm (set to 7–10 cm in food_height_estimates)
+            # and override depth blending — depth map reads the cup surface, not liquid level
+            final_height_cm = base_height_cm * 0.70  # 70% fill factor for liquid column
+            final_height_cm = np.clip(final_height_cm, 4.0, 9.0)
             
         else:
             # General foods: 0.5 to 5.0 cm
@@ -1164,54 +1235,91 @@ class FoodVolumeAnalyzer:
         weight_grams = volume_ml * density
         
         # IMPROVEMENT: Food-specific weight validation
-        # Based on typical real-world portions
+        # Based on portion scalability (single items vs. scalable dishes/platters)
         if food_class in ['roti', 'chapati']:
-            # Single roti: typically 35-75g
+            # Single flatbread: typically 25g to 100g
             weight_grams = np.clip(weight_grams, 25, 100)
             
-        elif food_class in ['paratha']:
-            # Single paratha: typically 50-90g (heavier than roti)
-            weight_grams = np.clip(weight_grams, 35, 120)
+        elif food_class in ['paratha', 'parotta', 'kerala_parotta']:
+            # Single paratha: typically 35g to 180g
+            weight_grams = np.clip(weight_grams, 35, 180)
             
         elif food_class in ['dosa']:
-            # Dosa: typically 60-120g
-            weight_grams = np.clip(weight_grams, 40, 150)
+            # Single dosa: typically 40g to 180g
+            weight_grams = np.clip(weight_grams, 40, 180)
             
         elif food_class in ['idli']:
-            # Single idli: typically 30-60g
-            weight_grams = np.clip(weight_grams, 20, 80)
-            
-        elif food_class in ['rice', 'white_rice', 'brown_rice']:
-            # Rice portion: typically 80-250g
-            weight_grams = np.clip(weight_grams, 50, 350)
-            
-        elif food_class in ['biryani', 'pulao', 'fried_rice']:
-            # Rice dish portion: typically 100-300g
-            weight_grams = np.clip(weight_grams, 60, 400)
-            
-        elif food_class in ['curry', 'dal', 'sambar']:
-            # Curry/dal portion: typically 100-250g
-            weight_grams = np.clip(weight_grams, 60, 350)
-            
-        elif food_class in ['pickle']:
-            # Pickle: small portions 10-30g
-            weight_grams = np.clip(weight_grams, 5, 50)
-            
-        elif food_class in ['chutney']:
-            # Chutney: small portions 15-40g
-            weight_grams = np.clip(weight_grams, 10, 60)
+            # Single idli: typically 20g to 80g per piece
+            weight_grams = np.clip(weight_grams, 20, 120)
             
         elif food_class in ['papad']:
-            # Papad: very light 5-15g
-            weight_grams = np.clip(weight_grams, 3, 25)
+            # Papad: very light 3g to 30g
+            weight_grams = np.clip(weight_grams, 3, 30)
+
+        elif food_class in ['burger', 'sandwich']:
+            # Single assembled sandwich/burger: 80g to 500g
+            weight_grams = np.clip(weight_grams, 80, 500)
+
+        elif food_class in ['pizza']:
+            # Pizza (personal to medium size): 100g to 800g
+            weight_grams = np.clip(weight_grams, 100, 800)
+
+        elif food_class in ['samosa']:
+            # Samosa: typically 30g to 120g
+            weight_grams = np.clip(weight_grams, 30, 150)
+
+        # SCALABLE ITEMS (platters, bowls, cups, loose heaps)
+        # We allow much higher upper bounds so family portion sizes calculate correctly.
+        elif food_class in ['rice', 'white_rice', 'brown_rice', 'jeera_rice', 'lemon_rice', 'tamarind_rice', 'tomato_rice', 'curd_rice']:
+            # Rice portion: scalable from small cup (50g) to family platter (1500g)
+            weight_grams = np.clip(weight_grams, 50, 1500)
             
-        elif food_class in ['chicken', 'mutton', 'fish']:
-            # Protein portion: typically 80-200g
-            weight_grams = np.clip(weight_grams, 50, 300)
+        elif food_class in ['biryani', 'pulao', 'fried_rice', 'kashmiri_pulao']:
+            # Rice dish platter: scalable up to 1500g
+            weight_grams = np.clip(weight_grams, 60, 1500)
             
+        elif food_class in ['curry', 'dal', 'sambar', 'rasam', 'gravy', 'salna', 'kadala_curry', 'paneer_butter_masala', 'dal_makhani', 'dal_tadka', 'chana_masala', 'rajma', 'butter_chicken', 'chicken_tikka_masala', 'kadai_paneer', 'palak_paneer', 'malai_kofta', 'matar_panner']:
+            # Liquid/semi-liquid curries: scalable up to 1500g
+            weight_grams = np.clip(weight_grams, 50, 1500)
+            
+        elif food_class in ['pickle', 'chutney', 'coconut_chutney', 'red_chutney', 'green_mayo', 'mayonise', 'mayonnaise', 'sauce']:
+            # Condiments: scalable up to 400g
+            weight_grams = np.clip(weight_grams, 5, 400)
+
+        elif food_class in ['laddu', 'gulab_jamun', 'rasgulla', 'rasmalai', 'barfi', 'mysore_pak', 'kheer', 'payasam', 'halwa', 'basundi', 'phirni', 'rabdi', 'jalebi', 'sweet']:
+            # Sweets: scalable from single piece (20g) to a large bowl/platter (1500g)
+            weight_grams = np.clip(weight_grams, 15, 1500)
+
+        elif food_class in ['medu_vada', 'meduvada', 'vada', 'kuzhi_paniyaram']:
+            # Vada/Paniyaram platter: scalable up to 600g
+            weight_grams = np.clip(weight_grams, 40, 600)
+
+        elif food_class in ['bread_omelette', 'bread_omlette', 'omlette', 'egg_bhurji', 'bhurji']:
+            # Egg / scramble dishes: scalable up to 600g
+            weight_grams = np.clip(weight_grams, 60, 600)
+
+        elif food_class in ['french_toast']:
+            # French toast platter: scalable up to 600g
+            weight_grams = np.clip(weight_grams, 60, 600)
+            
+        elif food_class in ['chicken', 'mutton', 'fish', 'chicken_65', 'chicken_tandoori', 'chicken_chettinad', 'chicken_tikka', 'andhra_chicken', 'fish_fry', 'tandoori_fish', 'prawn_fry', 'prawn_masala', 'mutton_sukka']:
+            # Protein / meat platters: scalable up to 1500g
+            weight_grams = np.clip(weight_grams, 50, 1500)
+
+        elif food_class in ['aloo_gobi', 'aloo_capsicum', 'aloo_tikki', 'methi_aloo', 'karela_fry', 'bhindi_fry', 'lauki_sabzi', 'baingan_bharta', 'kootu', 'avial', 'pav_bhaji', 'poha', 'sabudana_khichdi', 'upma', 'sabzi', 'gobi_masala', 'french_fries', 'aloo_methi']:
+            # Vegetable dishes / Fries / Poha / Upma: scalable up to 1500g
+            weight_grams = np.clip(weight_grams, 40, 1500)
+
+        elif food_class in [
+            'filter_coffee', 'masala_chai', 'buttermilk', 'lassi',
+            'milkshake', 'coffee', 'tea', 'juice', 'water', 'chai'
+        ]:
+            # Beverages: single cup (60g) to large jug/bottle (1000g)
+            weight_grams = np.clip(weight_grams, 50, 1000)
+
         else:
-            # General validation: 10g to 500g
-            weight_grams = np.clip(weight_grams, 10, 500)
+            # General fallback: 10g to 2000g
+            weight_grams = np.clip(weight_grams, 10, 2000)
         
         # ====================================================================
         # STEP 6: NUTRITION CALCULATION
@@ -1332,8 +1440,10 @@ class FoodVolumeAnalyzer:
         h, w = image.shape[:2]
         
         # Step 1: Run YOLO detection
+        # Use conf=0.20 (lower than default 0.25) to catch secondary items
+        # like cups/beverages beside main dishes without introducing too much noise
         print("📦 Step 1/4: Running object detection...")
-        results = self.yolo_model(image, verbose=False)
+        results = self.yolo_model(image, verbose=False, conf=0.20, iou=0.45)
         detections = results[0].boxes
         
         if len(detections) == 0:

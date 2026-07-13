@@ -229,6 +229,17 @@ const Reports = () => {
             <p className="text-foreground font-medium">Loading your reports...</p>
           </div>
         </div>
+        {/* Navigation Dock */}
+        <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pointer-events-none">
+          <div className="pointer-events-auto">
+            <Dock 
+              items={dockItems}
+              panelHeight={68}
+              baseItemSize={50}
+              magnification={70}
+            />
+          </div>
+        </div>
       </BackgroundLayout>
     );
   }

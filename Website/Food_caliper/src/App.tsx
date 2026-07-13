@@ -4,8 +4,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import TargetCursor from "@/components/TargetCursor";
-import DarkModeToggle from "@/components/DarkModeToggle";
-import FeedbackButton from "@/components/FeedbackButton";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -39,10 +37,6 @@ const App = () => (
             <Route path="/reports" element={<Reports />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-          {/* Dark Mode Toggle - Available on all pages */}
-          <DarkModeToggle />
-          {/* User Feedback Button - Mandatory prompt and floating helper */}
-          <FeedbackButton />
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
