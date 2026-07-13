@@ -23,12 +23,16 @@ interface DockItem {
 
 interface DockProps {
   items: DockItem[];
+  panelHeight?: number;
+  baseItemSize?: number;
+  magnification?: number;
 }
 
 const FEEDBACK_LINK = "https://docs.google.com/forms/d/e/1FAIpQLSf_ASUakna27D9PG_AAXAfrvgUZnukg55IWfYtDUsWlJtoypA/viewform?usp=header";
 
 // Helper to get matching professional outline icons based on labels (mimicking the screenshot design)
 const getOverrideIcon = (label: string, isActive: boolean) => {
+  if (!label) return null;
   const cleanLabel = label.toLowerCase();
   const strokeWidth = 1.5;
   const size = 20;
@@ -52,7 +56,7 @@ const getOverrideIcon = (label: string, isActive: boolean) => {
   return null;
 };
 
-export default function Dock({ items }: DockProps) {
+export default function Dock({ items = [] }: DockProps) {
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
   
@@ -62,7 +66,9 @@ export default function Dock({ items }: DockProps) {
   // Initialize state based on the current URL
   const [activeIndex, setActiveIndex] = useState<number>(() => {
     const path = location.pathname.toLowerCase();
-    const exactMatch = items.findIndex(item => {
+    const safeItems = items || [];
+    const exactMatch = safeItems.findIndex(item => {
+      if (!item || !item.label) return false;
       const label = item.label.toLowerCase();
       if (path === '/' && label === 'home') return true;
       if (path.includes('analysis') && label === 'analyze') return true;
@@ -75,7 +81,9 @@ export default function Dock({ items }: DockProps) {
   // Sync activeIndex with URL pathname changes (crucial if Dock is persistent or transitions are delayed)
   useEffect(() => {
     const path = location.pathname.toLowerCase();
-    const exactMatch = items.findIndex(item => {
+    const safeItems = items || [];
+    const exactMatch = safeItems.findIndex(item => {
+      if (!item || !item.label) return false;
       const label = item.label.toLowerCase();
       if (path === '/' && label === 'home') return true;
       if (path.includes('analysis') && label === 'analyze') return true;
@@ -113,13 +121,14 @@ export default function Dock({ items }: DockProps) {
         >
           {/* Navigation Items */}
           {items.map((item, index) => {
+            if (!item) return null;
             const isActive = activeIndex === index;
             const customIcon = getOverrideIcon(item.label, isActive);
             
             return (
               <button
                 type="button"
-                key={item.label}
+                key={item.label || index}
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -127,7 +136,7 @@ export default function Dock({ items }: DockProps) {
                   if (item.onClick) item.onClick();
                 }}
                 className="relative flex items-center justify-center h-12 rounded-full outline-none group px-3"
-                aria-label={item.label}
+                aria-label={item.label || "nav item"}
               >
                 {/* Active Background Pill */}
                 {isActive && (
@@ -145,7 +154,7 @@ export default function Dock({ items }: DockProps) {
                   </motion.span>
 
                   <AnimatePresence mode="popLayout">
-                    {isActive && (
+                    {isActive && item.label && (
                       <motion.span
                         layout
                         initial={{ opacity: 0, width: 0, filter: "blur(4px)" }}

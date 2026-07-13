@@ -2,13 +2,14 @@ import { motion } from "framer-motion";
 import { Search, Layers, Ruler, Scale, Target, Eye, TrendingUp, Home, Microscope, BarChart4, Settings, User, Loader, ChevronLeft, ChevronRight, Pencil, CheckCircle2, Circle, Flame, Zap, Droplet, Activity, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, ReferenceLine } from "recharts";
 import Navbar from "@/components/Navbar";
 import BackgroundLayout from "@/components/BackgroundLayout";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import Dock from "@/components/Dock";
 import { Link } from "react-router-dom";
 import { apiClient } from "@/services/apiClient";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const COLORS = ["hsl(145, 63%, 42%)", "hsl(260, 50%, 65%)", "hsl(220, 70%, 55%)", "hsl(30, 90%, 55%)"];
 
@@ -32,6 +33,7 @@ const categoryData = [
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { theme } = useTheme();
   const [user, setUser] = useState<any>(null);
   const [analysisHistory, setAnalysisHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,7 +53,7 @@ const Dashboard = () => {
     const startOfYear = new Date(today.getFullYear(), 0, 1);
     
     // Generate all dates from start of year to today
-    let currentDate = new Date(startOfYear);
+    const currentDate = new Date(startOfYear);
     while (currentDate <= today) {
       dates.push(new Date(currentDate));
       currentDate.setDate(currentDate.getDate() + 1);
@@ -309,65 +311,144 @@ const Dashboard = () => {
                 </div>
                 </div>
 
-                {/* Activity & Food Categories - Side by Side */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {/* Activity Chart */}
-                  <div className="glass-card p-6">
-                    <div className="flex items-center gap-2 mb-4">
-                      <TrendingUp className="w-5 h-5 text-primary" />
-                      <h2 className="font-semibold text-foreground">Activity</h2>
-                    </div>
-                    {analysisHistory.length > 0 ? (
-                      <ResponsiveContainer width="100%" height={200}>
-                        <BarChart data={analysisHistory.slice(0, 4).reverse().map((item: any) => ({
-                          ...item,
-                          shortName: item.image_filename?.substring(0, 8) + (item.image_filename?.length > 8 ? '...' : '') || 'Analysis'
-                        }))} margin={{ top: 20, right: 30, left: 0, bottom: 40 }}>
-                          <XAxis 
-                            dataKey="shortName" 
-                            tick={{ fontSize: 12 }}
-                          />
-                          <YAxis tick={{ fontSize: 12 }} />
-                          <Tooltip 
-                            contentStyle={{ backgroundColor: "rgba(15, 23, 42, 0.9)", border: "1px solid rgba(255, 255, 255, 0.1)" }}
-                            labelStyle={{ color: "#fff" }}
-                          />
-                          <Bar 
-                            dataKey="total_volume_ml" 
-                            fill="hsl(145, 63%, 42%)" 
-                            radius={[8, 8, 0, 0]}
-                            name="Volume (ml)"
-                          />
-                          <Bar 
-                            dataKey="total_weight_grams" 
-                            fill="hsl(30, 90%, 55%)" 
-                            radius={[8, 8, 0, 0]}
-                            name="Weight (g)"
-                          />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    ) : (
-                      <div className="flex items-center justify-center h-48 text-muted-foreground">
-                        <p className="text-sm">No activity data yet</p>
-                      </div>
-                    )}
-                  </div>
+                {/* Weekly Calorie Intake — minimal, theme-aware */}
+                {(() => {
+                  const history = analysisHistory || [];
+                  const chartData: { name: string; calories: number }[] = [];
+                  const todayDate = new Date();
+                  let todayCalories = 0;
+                  let weekTotal = 0;
+                  let peakDay = { name: '', calories: 0 };
 
-                  {/* Category Distribution */}
-                  <div className="glass-card p-6">
-                    <h2 className="font-semibold text-foreground mb-4">Food Categories</h2>
-                    <ResponsiveContainer width="100%" height={200}>
-                      <PieChart>
-                        <Pie data={categoryData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={75} innerRadius={40} label>
-                          {categoryData.map((_, i) => (
-                            <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
+                  for (let i = 6; i >= 0; i--) {
+                    const d = new Date();
+                    d.setDate(todayDate.getDate() - i);
+                    const dateStr = d.toLocaleDateString();
+                    const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+                    const dayCalories = history
+                      .filter((a: any) => {
+                        if (!a) return false;
+                        const ad = parseUTCDate(a.date || a.analysis_date);
+                        return ad.toLocaleDateString() === dateStr;
+                      })
+                      .reduce((sum: number, a: any) => sum + Number(a?.total_calories || 0), 0);
+                    const rounded = Math.round(dayCalories);
+                    chartData.push({ name: dayName, calories: rounded });
+                    weekTotal += rounded;
+                    if (rounded > peakDay.calories) peakDay = { name: dayName, calories: rounded };
+                    if (i === 0) todayCalories = rounded;
+                  }
+
+                  const target = 2000;
+                  const todayPct = Math.min(Math.round((todayCalories / target) * 100), 100);
+
+                  return (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.35 }}
+                      className="rounded-2xl border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-slate-900/40 p-5 space-y-4"
+                    >
+                      {/* Header row */}
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <p className="text-[11px] uppercase tracking-widest font-semibold text-slate-400 dark:text-slate-500">7-Day Calorie Trend</p>
+                          <p className="text-2xl font-bold text-slate-800 dark:text-white mt-0.5">
+                            {weekTotal.toLocaleString()}
+                            <span className="text-sm font-normal text-slate-400 dark:text-slate-500 ml-1.5">kcal this week</span>
+                          </p>
+                        </div>
+                        {/* Today badge */}
+                        <div className="text-right shrink-0">
+                          <p className="text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Today</p>
+                          <div className="flex items-center justify-end gap-1.5">
+                            <Flame className="w-3.5 h-3.5 text-orange-500" />
+                            <span className="text-sm font-bold text-orange-500">{todayCalories} kcal</span>
+                          </div>
+                          {/* progress bar */}
+                          <div className="mt-2 w-24 h-[3px] bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden ml-auto">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${todayPct}%` }}
+                              transition={{ duration: 1, ease: 'easeOut' }}
+                              className="h-full bg-orange-500 rounded-full"
+                            />
+                          </div>
+                          <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">{todayPct}% of {target.toLocaleString()} goal</p>
+                        </div>
+                      </div>
+
+                      {/* Chart */}
+                      <ResponsiveContainer width="100%" height={140}>
+                        <AreaChart data={chartData} margin={{ top: 6, right: 4, left: -28, bottom: 0 }}>
+                          <defs>
+                            <linearGradient id="calGrad" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#f97316" stopOpacity={0.25} />
+                              <stop offset="100%" stopColor="#f97316" stopOpacity={0} />
+                            </linearGradient>
+                          </defs>
+                          {/* Subtle horizontal grid lines only */}
+                          <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.12)" />
+                          <XAxis
+                            dataKey="name"
+                            axisLine={false}
+                            tickLine={false}
+                            tick={{ fill: theme === 'dark' ? 'rgba(255, 255, 255, 0.75)' : 'rgba(71, 85, 105, 0.8)', fontSize: 11, fontWeight: 500 }}
+                          />
+                          <YAxis
+                            axisLine={false}
+                            tickLine={false}
+                            tick={{ fill: theme === 'dark' ? 'rgba(255, 255, 255, 0.75)' : 'rgba(71, 85, 105, 0.8)', fontSize: 10 }}
+                            tickCount={4}
+                          />
+                          <ReferenceLine
+                            y={target}
+                            stroke="rgba(239,68,68,0.45)"
+                            strokeDasharray="4 3"
+                            strokeWidth={1}
+                          />
+                          <Tooltip
+                            cursor={{ stroke: 'rgba(249,115,22,0.25)', strokeWidth: 1 }}
+                            contentStyle={{
+                              backgroundColor: theme === 'dark' ? 'rgba(9, 11, 20, 0.95)' : 'rgba(255, 255, 255, 0.97)',
+                              border: theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(203, 213, 225, 0.9)',
+                              borderRadius: '10px',
+                              fontSize: '12px',
+                              color: theme === 'dark' ? '#f1f5f9' : '#1e293b',
+                              boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                              padding: '8px 12px'
+                            }}
+                            labelStyle={{ color: '#f97316', fontWeight: 700, marginBottom: 2 }}
+                            formatter={(v: any) => [`${Number(v).toLocaleString()} kcal`, '']}
+                          />
+                          <Area
+                            type="monotone"
+                            dataKey="calories"
+                            stroke="#f97316"
+                            strokeWidth={1.5}
+                            fill="url(#calGrad)"
+                            dot={false}
+                            activeDot={{ r: 4, fill: '#f97316', stroke: 'transparent' }}
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
+
+                      {/* Footer */}
+                      <div className="flex items-center gap-3 pt-2 border-t border-slate-200 dark:border-white/[0.06]">
+                        <div className="flex items-center gap-1.5 text-[11px] text-slate-400 dark:text-slate-500">
+                          <span className="w-4 h-px bg-red-400/60 inline-block rounded" />
+                          Target: {target.toLocaleString()} kcal/day
+                        </div>
+                        {peakDay.calories > 0 && (
+                          <div className="flex items-center gap-1 text-[11px] text-slate-400 dark:text-slate-500 ml-auto">
+                            Peak:
+                            <span className="font-semibold text-slate-600 dark:text-slate-300 ml-1">{peakDay.name} · {peakDay.calories.toLocaleString()} kcal</span>
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  );
+                })()}
               </motion.div>
 
               {/* RIGHT – Latest Analysis */}

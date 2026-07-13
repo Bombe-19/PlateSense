@@ -66,6 +66,12 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Chart tokens — light mode */
+    --chart-tick: rgba(71, 85, 105, 0.8);
+    --tooltip-bg: rgba(255, 255, 255, 0.97);
+    --tooltip-border: rgba(203, 213, 225, 0.9);
+    --tooltip-color: #1e293b;
   }
 
   .dark {
@@ -99,6 +105,12 @@
 
     --gradient-hero: linear-gradient(135deg, hsl(0 0% 15%) 0%, hsl(0 0% 10%) 100%);
     --gradient-cta: linear-gradient(135deg, hsl(0 0% 20%) 0%, hsl(0 0% 15%) 100%);
+    
+    /* Chart tokens */
+    --chart-tick: rgba(255, 255, 255, 0.75);
+    --tooltip-bg: rgba(9, 11, 20, 0.95);
+    --tooltip-border: rgba(255, 255, 255, 0.08);
+    --tooltip-color: #f1f5f9;
 
     --glass-bg: hsla(0, 0%, 15%, 0.5);
     --glass-border: hsla(0, 0%, 40%, 0.3);
