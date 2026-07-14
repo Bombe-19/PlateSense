@@ -1,18 +1,24 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { Ruler, Scale, Brain, BarChart3, Zap, Target, Upload, Home, BarChart4, Settings, User, Eye, Utensils, TrendingUp, Database, Hospital, Activity, Users, FlaskConical, Play, Cpu, FileText } from "lucide-react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Navbar from "@/components/Navbar";
 import ScanAnimation from "@/components/ScanAnimation";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import Dock from "@/components/Dock";
-import Carousel from "@/components/Carousel";
+
 import ScrollReveal from "@/components/ScrollReveal";
 import LogoLoop from "@/components/LogoLoop";
 import PlatformSection from "@/components/PlatformSection";
 import heroFood from "@/assets/hero-food.jpg";
 import logo from "@/assets/logo.png";
 import bgTexture from "@/assets/bg-texture.jpg";
+import { useLenis } from "lenis/react";
+import CinematicLoader from "@/components/CinematicLoader";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const mockMetrics = { volume: 342, weight: 285, items: 4 };
 
@@ -25,14 +31,134 @@ const features = [
 
 const Index = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const lenis = useLenis();
   const [isScanning, setIsScanning] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
+  const [hoveredIngredient, setHoveredIngredient] = useState<string | null>(null);
+  const [loading, setLoading] = useState(() => {
+    return !sessionStorage.getItem("loaderRun");
+  });
 
-  const tabContents = {
-    overview: "FoodCaliper is an AI-powered food analysis platform that estimates the volume and weight of food using image-based analysis. By combining computer vision techniques with calibrated food density data, the system converts a simple food image into measurable information such as portion size, estimated weight, calorie estimation, and basic nutritional insights.",
-    specs: "Advanced deep learning models trained on 10,000+ food items. Real-time processing with sub-second analysis. Medical-grade accuracy (±12-18% error margin). Support for 116 distinct food types. Cloud-based infrastructure with 99.9% uptime.",
-    usecases: "Perfect for health tracking, nutrition research, hospital dietary management, smart kitchen applications, and fitness enthusiasts. Integrates with nutrition apps and health platforms for comprehensive dietary monitoring and analysis.",
+  // Interactive Left Bento Card States
+  const [calcFood, setCalcFood] = useState<"steak" | "potato" | "broccoli">("steak");
+  const [calcVolume, setCalcVolume] = useState(250);
+  const [meshMode, setMeshMode] = useState<"point" | "wire" | "surface">("wire");
+  const [meshRes, setMeshRes] = useState<"low" | "med" | "high">("med");
+
+  const FOOD_PROFILES = {
+    steak: { name: "Sirloin Steak", density: 1.04, calPerGram: 2.0, color: "text-cyan-400 bg-cyan-500/10 border-cyan-500/20" },
+    potato: { name: "Baked Potato", density: 0.85, calPerGram: 0.93, color: "text-orange-400 bg-orange-500/10 border-orange-500/20" },
+    broccoli: { name: "Broccoli Florets", density: 0.35, calPerGram: 0.34, color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" }
   };
+
+  const selectedProfile = FOOD_PROFILES[calcFood];
+  const calculatedWeight = Math.round(calcVolume * selectedProfile.density);
+  const calculatedCalories = Math.round(calculatedWeight * selectedProfile.calPerGram);
+
+  const handleLoaderComplete = () => {
+    setLoading(false);
+    sessionStorage.setItem("loaderRun", "true");
+  };
+
+  useEffect(() => {
+    if (loading) {
+      lenis?.stop();
+    } else {
+      lenis?.start();
+    }
+  }, [loading, lenis]);
+
+  const heroImageRef = useRef<HTMLDivElement>(null);
+  const horizontalSectionRef = useRef<HTMLDivElement>(null);
+  const horizontalContainerRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to section post-navigation
+  useEffect(() => {
+    if (location.state && (location.state as any).scrollTo) {
+      const target = (location.state as any).scrollTo;
+      setTimeout(() => {
+        if (target === "#") {
+          lenis?.scrollTo(0);
+        } else {
+          const el = document.querySelector(target);
+          if (el) lenis?.scrollTo(el, { offset: -80 });
+        }
+      }, 300);
+      
+      // Clear navigation state
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, lenis, navigate]);
+
+  useEffect(() => {
+    // Media Query Check: Only run horizontal scroll on screens larger than 768px (desktop)
+    const isDesktop = window.innerWidth >= 768;
+
+    const ctx = gsap.context(() => {
+      // 1. Clip-Path Expansion Reveal on hero showcase image
+      if (heroImageRef.current) {
+        gsap.fromTo(heroImageRef.current,
+          { clipPath: "inset(12% 16% round 40px)" },
+          {
+            clipPath: "inset(0% 0% round 24px)",
+            ease: "none",
+            scrollTrigger: {
+              trigger: heroImageRef.current,
+              start: "top 95%",
+              end: "top 30%",
+              scrub: true
+            }
+          }
+        );
+      }
+
+      // 2. Parallax floating background orbs
+      gsap.to(".parallax-orb-1", {
+        yPercent: -50,
+        ease: "none",
+        scrollTrigger: {
+          trigger: "body",
+          start: "top top",
+          end: "bottom top",
+          scrub: true
+        }
+      });
+
+      gsap.to(".parallax-orb-2", {
+        yPercent: 30,
+        ease: "none",
+        scrollTrigger: {
+          trigger: "body",
+          start: "top top",
+          end: "bottom top",
+          scrub: true
+        }
+      });
+
+      // 3. Horizontal Scroll Pinning (only on desktop)
+      if (isDesktop && horizontalSectionRef.current && horizontalContainerRef.current) {
+        const scrollWidth = horizontalContainerRef.current.scrollWidth;
+        const windowWidth = window.innerWidth;
+        
+        gsap.to(horizontalContainerRef.current, {
+          x: () => -(scrollWidth - windowWidth),
+          ease: "none",
+          scrollTrigger: {
+            trigger: horizontalSectionRef.current,
+            pin: true,
+            scrub: 1.2,
+            start: "top top",
+            end: () => `+=${scrollWidth - windowWidth}`,
+            invalidateOnRefresh: true,
+            anticipatePin: 1
+          }
+        });
+      }
+    });
+
+    return () => ctx.revert();
+  }, []);
 
   const handleDemoAnalyze = () => {
     setIsScanning(true);
@@ -45,17 +171,23 @@ const Index = () => {
     { 
       icon: <Home size={20} />, 
       label: 'Home', 
-      onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' }) 
-    },
-    { 
-      icon: <Eye size={20} />, 
-      label: 'Analyze', 
-      onClick: () => navigate('/analysis') 
+      onClick: () => {
+        if (location.pathname === "/") {
+          lenis?.scrollTo(0);
+        } else {
+          navigate('/', { state: { scrollTo: '#' } });
+        }
+      }
     },
     { 
       icon: <BarChart4 size={20} />, 
       label: 'Dashboard', 
       onClick: () => navigate('/dashboard') 
+    },
+    { 
+      icon: <Utensils size={20} />, 
+      label: 'Scan', 
+      onClick: () => navigate('/analysis') 
     },
     { 
       icon: <FileText size={20} />, 
@@ -77,7 +209,14 @@ const Index = () => {
   ];
 
   return (
-    <div className="relative min-h-screen bg-background-light dark:bg-background-dark transition-colors duration-300 ease-out">
+    <>
+      <AnimatePresence>
+        {loading && (
+          <CinematicLoader onComplete={handleLoaderComplete} />
+        )}
+      </AnimatePresence>
+
+      <div className="relative min-h-screen bg-background-light dark:bg-background-dark transition-colors duration-300 ease-out">
       {/* Background Texture Layer */}
       <div className="fixed inset-0 z-0 opacity-20 pointer-events-none" style={{
         backgroundImage: `url(${bgTexture})`,
@@ -94,7 +233,12 @@ const Index = () => {
         maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0) 100%)',
         WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0) 100%)',
       }} />
-      <Navbar />
+
+      {/* Floating Parallax Orbs */}
+      <div className="absolute top-[25vh] left-[10vw] w-96 h-96 bg-purple-500/10 rounded-full blur-[120px] pointer-events-none parallax-orb-1 z-0" />
+      <div className="absolute top-[35vh] right-[10vw] w-[450px] h-[450px] bg-orange-500/10 rounded-full blur-[130px] pointer-events-none parallax-orb-2 z-0" />
+
+      {!loading && <Navbar />}
 
       {/* Hero Section - Centered */}
       <section className="relative px-6 py-12 md:py-24 flex flex-col items-center min-h-[60vh] justify-center">
@@ -102,22 +246,24 @@ const Index = () => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="max-w-4xl text-center mb-16"
+          className="text-center max-w-4xl"
         >
-          <h1 className="text-5xl md:text-7xl font-black leading-tight tracking-tighter mb-6 text-foreground">
-            Precision meets <span className="text-orange-500">Appetite</span>
+          <h1 className="text-6xl md:text-8xl font-black text-foreground tracking-tight leading-none">
+            Precision meets <br />
+            <span className="bg-gradient-to-r from-orange-400 via-orange-500 to-orange-600 bg-clip-text text-transparent">Appetite.</span>
           </h1>
-          <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto font-medium">
-            High-definition volume and depth estimation for medical-grade nutritional accuracy through advanced computer vision.
+          <p className="text-muted-foreground text-lg mt-6 max-w-xl mx-auto leading-relaxed">
+            The world's first volumetric food intelligence system. Track portion sizes, density factor quotients, and exact macros in under a second.
           </p>
         </motion.div>
 
         {/* Hero Image with Overlays */}
         <motion.div
+          ref={heroImageRef}
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="relative w-full max-w-5xl aspect-video rounded-3xl overflow-hidden shadow-2xl border-8 border-white/20 dark:border-slate-800"
+          className="relative w-full max-w-5xl aspect-video rounded-3xl overflow-hidden shadow-2xl border-8 border-white/20 dark:border-slate-800 mt-16"
         >
           {/* Hero Image */}
           <div 
@@ -209,95 +355,358 @@ const Index = () => {
       </section>
 
       {/* Product Section - Redesigned */}
-      <section id="product" className="px-6 py-32 bg-white/40 dark:bg-background-dark/40 backdrop-blur-sm border-y border-border relative z-20">
+      <section id="product" className="px-6 py-32 bg-white/40 dark:bg-background-dark/40 border-y border-border relative z-20">
         <div className="max-w-7xl mx-auto">
           {/* Section Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
+          <div className="text-center mb-16">
             <ScrollReveal
               enableBlur
               textClassName="text-5xl md:text-6xl font-black text-foreground"
             >
               What is FoodCaliper?
             </ScrollReveal>
-            <div className="w-24 h-1.5 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full mx-auto" />
-          </motion.div>
+            <div className="w-24 h-1.5 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full mx-auto mt-4" />
+          </div>
 
-          {/* Description Paragraph */}
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center text-lg text-muted-foreground max-w-3xl mx-auto mb-16 leading-relaxed"
-          >
-            FoodCaliper is an AI-powered food analysis platform that estimates the volume and weight of food in image analysis. By combining computer vision techniques with calibrated food density data, the system converts a simple food image into measurable such as portion weight, calorie estimation, and basic nutritional insights. This platform is designed to simplify food measurement and provide a faster, more consistent way to analyze meals across different environments.
-          </motion.p>
-
-          {/* Two Card Grid */}
-          <div className="grid lg:grid-cols-2 gap-8">
-            {/* Left Card - Carousel Full Width */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="relative overflow-hidden rounded-3xl bg-slate-900 dark:bg-slate-950 shadow-2xl border border-slate-800 hover:border-slate-700 transition-all group min-h-96 flex items-center justify-center p-0"
-            >
-              {/* Background Gradient */}
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          {/* Asymmetrical Bento Grid */}
+          <div className="grid lg:grid-cols-12 gap-8 items-stretch">
+            {/* Left Column (span-5) — interactive widgets */}
+            <div className="lg:col-span-5 flex flex-col gap-6">
               
-              {/* Mesh Pattern */}
-              <div 
-                className="absolute inset-0 opacity-30"
-                style={{
-                  backgroundImage: 'radial-gradient(circle, rgba(249,115,22,0.15) 1px, transparent 1px)',
-                  backgroundSize: '25px 25px',
-                }}
-              />
+              {/* Widget 1: USDA portion density calculator */}
+              <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-4">
+                <div>
+                  <span className="inline-block text-[9px] font-bold text-orange-500 uppercase tracking-widest bg-orange-500/10 px-2.5 py-1 rounded-md border border-orange-500/20 mb-2">
+                    USDA Density Simulator
+                  </span>
+                  <h4 className="text-foreground font-black text-sm">Calibrate portion mass equations</h4>
+                </div>
 
-              {/* Carousel Section - Full Width */}
-              <div className="relative z-10 w-full flex justify-center">
-                <Carousel
-                  baseWidth={400}
-                  autoplay={false}
-                  autoplayDelay={3000}
-                  pauseOnHover={false}
-                  loop={true}
-                  round={false}
-                />
+                {/* Ingredient selectors */}
+                <div className="flex gap-2">
+                  {(Object.keys(FOOD_PROFILES) as Array<keyof typeof FOOD_PROFILES>).map((key) => (
+                    <button
+                      key={key}
+                      onClick={() => setCalcFood(key)}
+                      className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold border transition-all ${
+                        calcFood === key
+                          ? "bg-orange-500 text-white border-orange-600 shadow-sm"
+                          : "bg-slate-50 dark:bg-slate-950 text-muted-foreground border-slate-200 dark:border-slate-800 hover:text-foreground"
+                      }`}
+                    >
+                      {FOOD_PROFILES[key].name.split(" ")[1]}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Calibrated stats */}
+                <div className="grid grid-cols-2 gap-3 text-[10px] font-mono">
+                  <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                    <span className="text-muted-foreground block text-[8px] uppercase">Calibrated Density</span>
+                    <span className="text-foreground font-extrabold">{selectedProfile.density} g/cm³</span>
+                  </div>
+                  <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                    <span className="text-muted-foreground block text-[8px] uppercase font-bold text-orange-500">Expected Weight</span>
+                    <span className="text-orange-500 font-extrabold">{calculatedWeight}g</span>
+                  </div>
+                </div>
+
+                {/* Volume slider */}
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-[9px] font-mono text-muted-foreground">
+                    <span>Portion Volume</span>
+                    <span className="text-foreground font-bold">{calcVolume} cm³</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="50"
+                    max="500"
+                    step="10"
+                    value={calcVolume}
+                    onChange={(e) => setCalcVolume(Number(e.target.value))}
+                    className="w-full accent-orange-500 cursor-pointer h-1.5 bg-slate-100 dark:bg-slate-950 rounded-lg appearance-none"
+                  />
+                </div>
+
+                {/* Real-time Calories output */}
+                <div className="p-3 rounded-xl bg-orange-500/5 border border-orange-500/10 flex justify-between items-center">
+                  <span className="text-[10px] font-bold text-muted-foreground">Estimated Energy:</span>
+                  <span className="text-xs font-black text-orange-500 font-mono">{calculatedCalories} kcal</span>
+                </div>
               </div>
 
-              {/* Decorative Elements */}
-              <div className="absolute top-0 right-0 w-40 h-40 bg-orange-500/5 rounded-full blur-3xl group-hover:bg-orange-500/10 transition-all" />
-            </motion.div>
+              {/* Widget 2: Holographic AI Wireframe Controller */}
+              <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-4 flex-1">
+                <div>
+                  <span className="inline-block text-[9px] font-bold text-cyan-500 uppercase tracking-widest bg-cyan-500/10 px-2.5 py-1 rounded-md border border-cyan-500/20 mb-2">
+                    AI Mesh Visualizer
+                  </span>
+                  <h4 className="text-foreground font-black text-sm">Interactive 3D Topological Grid</h4>
+                </div>
 
-            {/* Right Card - Watch in Action */}
+                {/* Holographic Wireframe Canvas Visualizer */}
+                <div className="relative h-32 w-full bg-slate-50 dark:bg-slate-950 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 flex items-center justify-center">
+                  
+                  {/* Dynamic mesh svg */}
+                  <svg className={`w-full h-full text-cyan-500/30 fill-none stroke-current z-10 transition-opacity duration-300 ${
+                    meshMode === "point" ? "stroke-[1.5]" : "stroke-[0.6]"
+                  }`} viewBox="0 0 100 60">
+                    {/* Render grid coordinates */}
+                    {meshMode === "point" && (
+                      <>
+                        {[10, 20, 30, 40, 50, 60, 70, 80, 90].map((x) => 
+                          [10, 20, 30, 40, 50].map((y) => (
+                            <circle key={`${x}-${y}`} cx={x} cy={y} r="0.75" className="fill-cyan-500/60" />
+                          ))
+                        )}
+                      </>
+                    )}
+
+                    {meshMode === "wire" && (
+                      <>
+                        {[10, 20, 30, 40, 50].map((y, idx) => (
+                          <motion.path
+                            key={`y-${y}`}
+                            d={`M 10,${y} Q 30,${y - (meshRes === "high" ? 6 : meshRes === "low" ? 2 : 4)} 50,${y} T 90,${y}`}
+                            animate={{
+                              d: [
+                                `M 10,${y} Q 30,${y - (meshRes === "high" ? 6 : meshRes === "low" ? 2 : 4)} 50,${y} T 90,${y}`,
+                                `M 10,${y} Q 30,${y - (meshRes === "high" ? -6 : meshRes === "low" ? -2 : -4)} 50,${y} T 90,${y}`,
+                                `M 10,${y} Q 30,${y - (meshRes === "high" ? 6 : meshRes === "low" ? 2 : 4)} 50,${y} T 90,${y}`
+                              ]
+                            }}
+                            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: idx * 0.15 }}
+                          />
+                        ))}
+                        {[20, 40, 60, 80].map((x, idx) => (
+                          <motion.path
+                            key={`x-${x}`}
+                            d={`M ${x},10 Q ${x - 4},25 ${x},50`}
+                            animate={{
+                              d: [
+                                `M ${x},10 Q ${x - 4},25 ${x},50`,
+                                `M ${x},10 Q ${x + 4},25 ${x},50`,
+                                `M ${x},10 Q ${x - 4},25 ${x},50`
+                              ]
+                            }}
+                            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: idx * 0.15 }}
+                          />
+                        ))}
+                      </>
+                    )}
+
+                    {meshMode === "surface" && (
+                      <>
+                        <path d="M 10,15 L 90,15 L 80,45 L 20,45 Z" fill="rgba(6, 182, 212, 0.08)" stroke="rgba(6, 182, 212, 0.3)" />
+                        <path d="M 20,25 L 80,25 L 70,38 L 30,38 Z" fill="rgba(6, 182, 212, 0.12)" stroke="rgba(6, 182, 212, 0.5)" />
+                      </>
+                    )}
+                  </svg>
+
+                  {/* Mode tag indicator */}
+                  <div className="absolute top-2.5 left-3 px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[8px] font-mono text-cyan-500 uppercase tracking-widest">
+                    {meshMode} / {meshRes} res
+                  </div>
+                </div>
+
+                {/* View modes controls */}
+                <div className="grid grid-cols-2 gap-4 text-[10px] font-mono">
+                  <div className="space-y-1">
+                    <span className="text-muted-foreground text-[8px] uppercase">Render Mode</span>
+                    <div className="flex rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 p-0.5 bg-slate-50 dark:bg-slate-950">
+                      {(["point", "wire", "surface"] as const).map((m) => (
+                        <button
+                          key={m}
+                          onClick={() => setMeshMode(m)}
+                          className={`flex-1 py-1 rounded text-[8px] font-bold capitalize ${
+                            meshMode === m ? "bg-cyan-500 text-white" : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          {m === "point" ? "Dots" : m === "wire" ? "Mesh" : "Solid"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <span className="text-muted-foreground text-[8px] uppercase">Mesh Density</span>
+                    <div className="flex rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 p-0.5 bg-slate-50 dark:bg-slate-950">
+                      {(["low", "med", "high"] as const).map((r) => (
+                        <button
+                          key={r}
+                          onClick={() => setMeshRes(r)}
+                          className={`flex-1 py-1 rounded text-[8px] font-bold uppercase ${
+                            meshRes === r ? "bg-cyan-500 text-white" : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          {r}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column (span-7) */}
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="relative overflow-hidden rounded-3xl bg-slate-900 dark:bg-slate-950 shadow-2xl border border-slate-800 hover:border-slate-700 transition-all group min-h-96"
+              className="lg:col-span-7 relative overflow-hidden rounded-3xl bg-slate-900 dark:bg-slate-950 shadow-2xl border border-slate-200 dark:border-slate-800 hover:border-cyan-500/20 transition-all group min-h-[640px] flex flex-col justify-between"
             >
-              {/* Background Gradient */}
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-              
-              {/* Video Element */}
-              <video
-                className="w-full h-full object-cover relative z-10"
-                controls
-                controlsList="nodownload"
-                autoPlay={false}
-              >
-                <source src="/videos/food_caliper.mp4" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
+              {/* Simulated scan image */}
+              <div className="absolute inset-0 pointer-events-none">
+                <div 
+                  className="w-full h-full bg-cover bg-center opacity-65 transition-transform duration-700 group-hover:scale-105"
+                  style={{ backgroundImage: `url(${heroFood})` }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+              </div>
 
-              {/* Decorative Elements */}
-              <div className="absolute top-0 right-0 w-40 h-40 bg-cyan-500/5 rounded-full blur-3xl group-hover:bg-cyan-500/10 transition-all pointer-events-none" />
+              {/* Scanner radar mesh overlay */}
+              <div className="absolute inset-0 opacity-20 pointer-events-none" style={{
+                backgroundImage: 'radial-gradient(circle, rgba(6, 182, 212, 0.3) 1.5px, transparent 1.5px)',
+                backgroundSize: '20px 20px',
+              }} />
+
+              {/* Bounding Hotspots overlays */}
+              <div className="absolute inset-0 z-20">
+                {/* Protein Hotspot (Salmon/Steak) */}
+                <div 
+                  onMouseEnter={() => setHoveredIngredient("protein")}
+                  onMouseLeave={() => setHoveredIngredient(null)}
+                  className="absolute top-[22%] left-[25%] w-[45%] h-[35%] cursor-crosshair rounded-full border-2 border-dashed border-cyan-400/20 hover:border-cyan-400 hover:bg-cyan-500/10 transition-all flex items-center justify-center group/item"
+                >
+                  <span className="w-5 h-5 rounded-full bg-cyan-400 animate-ping absolute opacity-70" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 relative" />
+                </div>
+
+                {/* Carbs Hotspot (Potatoes/Rice) */}
+                <div 
+                  onMouseEnter={() => setHoveredIngredient("carbs")}
+                  onMouseLeave={() => setHoveredIngredient(null)}
+                  className="absolute bottom-[20%] right-[15%] w-[32%] h-[30%] cursor-crosshair rounded-full border-2 border-dashed border-orange-400/20 hover:border-orange-400 hover:bg-orange-500/10 transition-all flex items-center justify-center group/item"
+                >
+                  <span className="w-5 h-5 rounded-full bg-orange-400 animate-ping absolute opacity-70" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-orange-400 relative" />
+                </div>
+
+                {/* Veggies Hotspot (Salad) */}
+                <div 
+                  onMouseEnter={() => setHoveredIngredient("veggies")}
+                  onMouseLeave={() => setHoveredIngredient(null)}
+                  className="absolute bottom-[18%] left-[12%] w-[35%] h-[32%] cursor-crosshair rounded-full border-2 border-dashed border-emerald-400/20 hover:border-emerald-400 hover:bg-emerald-500/10 transition-all flex items-center justify-center group/item"
+                >
+                  <span className="w-5 h-5 rounded-full bg-emerald-400 animate-ping absolute opacity-70" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 relative" />
+                </div>
+              </div>
+
+              {/* Title Header */}
+              <div className="relative z-35 p-6 pointer-events-none">
+                <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest bg-cyan-500/10 px-2.5 py-1 rounded-md border border-cyan-500/20">
+                  Interactive AI Scanner
+                </span>
+                <p className="text-white text-xs mt-3 opacity-60">Hover hotspots on the plate to trigger spatial measurements.</p>
+              </div>
+
+              {/* Popover Live Data Panel */}
+              <div className="relative z-35 p-6 w-full mt-auto">
+                <AnimatePresence mode="wait">
+                  {hoveredIngredient ? (
+                    <motion.div
+                      key={hoveredIngredient}
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="p-5 rounded-2xl bg-slate-950/95 border border-white/10 shadow-2xl backdrop-blur-md"
+                    >
+                      <div className="flex justify-between items-center mb-3">
+                        <p className="text-white font-bold text-base">
+                          {hoveredIngredient === "protein" && "🥩 Sirloin Steak"}
+                          {hoveredIngredient === "carbs" && "🥔 Roasted Potatoes"}
+                          {hoveredIngredient === "veggies" && "🥗 Green Broccoli & Salad"}
+                        </p>
+                        <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
+                          98.6% match
+                        </span>
+                      </div>
+                      
+                      {/* Telemetry info */}
+                      <div className="grid grid-cols-3 gap-4 text-xs">
+                        <div className="space-y-1">
+                          <p className="text-white/40 uppercase tracking-wider font-semibold text-[10px]">Volume</p>
+                          <p className="text-white font-extrabold text-sm">
+                            {hoveredIngredient === "protein" && "245 cm³"}
+                            {hoveredIngredient === "carbs" && "185 cm³"}
+                            {hoveredIngredient === "veggies" && "310 cm³"}
+                          </p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-white/40 uppercase tracking-wider font-semibold text-[10px]">Weight</p>
+                          <p className="text-white font-extrabold text-sm">
+                            {hoveredIngredient === "protein" && "210 g"}
+                            {hoveredIngredient === "carbs" && "140 g"}
+                            {hoveredIngredient === "veggies" && "85 g"}
+                          </p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-white/40 uppercase tracking-wider font-semibold text-[10px]">Calories</p>
+                          <p className="text-orange-500 font-extrabold text-sm">
+                            {hoveredIngredient === "protein" && "420 kcal"}
+                            {hoveredIngredient === "carbs" && "210 kcal"}
+                            {hoveredIngredient === "veggies" && "45 kcal"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 pt-3 border-t border-white/5 flex justify-between text-[11px] text-white/50">
+                        <span>Macros:</span>
+                        <span className="font-semibold text-white/80">
+                          {hoveredIngredient === "protein" && "P: 38g  ·  C: 0g  ·  F: 22g"}
+                          {hoveredIngredient === "carbs" && "P: 4g  ·  C: 32g  ·  F: 3g"}
+                          {hoveredIngredient === "veggies" && "P: 2g  ·  C: 8g  ·  F: 1g"}
+                        </span>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="idle"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="p-5 rounded-2xl bg-slate-950/40 border border-white/[0.03] text-center"
+                    >
+                      <p className="text-white/40 text-xs font-semibold uppercase tracking-wider">AI Scanner Telemetry Offline</p>
+                      <p className="text-white/20 text-[11px] mt-1">Hover the target highlights to start calibration.</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </motion.div>
+          </div>
+
+          {/* Bottom Telemetry Metric Row */}
+          <div className="grid md:grid-cols-3 gap-6 mt-12">
+            {[
+              { title: "Visual Accuracy", val: "98.6%", desc: "Precise edge detection mapping" },
+              { title: "Reconstruction Time", val: "< 1.2s", desc: "Real-time volume calculation latency" },
+              { title: "Calibrated Profiles", val: "120,000+", desc: "Density lookups synced with USDA profiles" }
+            ].map((metric, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1 }}
+                className="p-6 rounded-2xl bg-white/40 dark:bg-slate-900/60 border border-slate-200 dark:border-white/[0.08] text-center"
+              >
+                <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">{metric.title}</p>
+                <p className="text-3xl font-black text-orange-500 mt-2">{metric.val}</p>
+                <p className="text-[11px] text-muted-foreground mt-1">{metric.desc}</p>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
@@ -470,104 +879,112 @@ const Index = () => {
       </section>
 
       {/* How It Works Section */}
-      <section id="features" className="px-6 py-32 bg-background-light dark:bg-background-dark transition-colors duration-300 ease-out">
-        <div className="max-w-7xl mx-auto">
-          {/* Section Header */}
-          <div className="text-center mb-16">
+      <section
+        ref={horizontalSectionRef}
+        id="features"
+        className="px-6 py-24 md:py-32 bg-background-light dark:bg-background-dark transition-colors duration-300 ease-out overflow-hidden md:h-screen md:flex md:flex-col md:justify-center relative z-20"
+      >
+        <div className="max-w-7xl mx-auto w-full md:absolute md:top-24 md:left-12 md:right-12 flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 md:mb-0">
+          <div>
             <ScrollReveal
               enableBlur
-              containerClassName="mb-6"
+              containerClassName="mb-4"
               textClassName="text-5xl md:text-6xl font-black text-foreground"
             >
               How It Works
             </ScrollReveal>
-            <div className="w-24 h-1.5 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full mx-auto" />
+            <div className="w-24 h-1.5 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full" />
           </div>
+          <p className="text-muted-foreground text-sm max-w-md font-medium leading-relaxed">
+            Our multi-stage pipeline turns simple images into precise volume, weight, and nutritional breakdowns in seconds.
+          </p>
+        </div>
 
-          {/* Grid Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Computer Vision */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="p-6 rounded-2xl backdrop-blur-xl bg-white/10 dark:bg-slate-800/50 border border-white/20 dark:border-slate-700/50 hover:border-orange-500/50 transition-all hover:bg-white/15 dark:hover:bg-slate-800/70 shadow-lg"
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <Eye className="text-orange-500" size={28} />
-                <h3 className="text-xl font-bold text-foreground">Computer Vision</h3>
+        {/* Horizontal scroll strip */}
+        <div className="w-full overflow-x-auto md:overflow-x-visible md:overflow-y-hidden select-none scrollbar-hide py-4 md:py-10">
+          <div
+            ref={horizontalContainerRef}
+            className="flex flex-col md:flex-row md:flex-nowrap gap-6 md:gap-8 px-0 md:px-12 w-full md:w-max"
+          >
+            {/* Step 1 */}
+            <div className="horizontal-panel w-full md:w-[380px] shrink-0 p-8 rounded-3xl backdrop-blur-xl bg-white/40 dark:bg-slate-900/60 border border-slate-200 dark:border-white/[0.08] shadow-lg hover:border-orange-500/30 transition-all flex flex-col justify-between h-[280px]">
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center">
+                    <Eye className="text-orange-500" size={26} />
+                  </div>
+                  <span className="text-4xl font-black text-slate-200 dark:text-slate-850 select-none">01</span>
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-3">Computer Vision</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Advanced segmentation models locate and outline every individual food item on your plate, capturing shapes and texture boundaries to separate overlapping foods.
+                </p>
               </div>
-              <p className="text-muted-foreground leading-relaxed">
-                The process begins with advanced computer vision models that detect and identify food items within an image. The system analyzes visual features such as shape, texture, and boundaries to accurately segment each food component. This step ensures that individual items on a plate are correctly recognized, forming a reliable foundation for further measurement and analysis.
-              </p>
-            </motion.div>
+            </div>
 
-            {/* Processing Pipeline */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="p-6 rounded-2xl backdrop-blur-xl bg-white/10 dark:bg-slate-800/50 border border-white/20 dark:border-slate-700/50 hover:border-orange-500/50 transition-all hover:bg-white/15 dark:hover:bg-slate-800/70 shadow-lg"
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <Cpu className="text-orange-500" size={28} />
-                <h3 className="text-xl font-bold text-foreground">Processing Pipeline</h3>
+            {/* Step 2 */}
+            <div className="horizontal-panel w-full md:w-[380px] shrink-0 p-8 rounded-3xl backdrop-blur-xl bg-white/40 dark:bg-slate-900/60 border border-slate-200 dark:border-white/[0.08] shadow-lg hover:border-orange-500/30 transition-all flex flex-col justify-between h-[280px]">
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center">
+                    <Cpu className="text-orange-500" size={26} />
+                  </div>
+                  <span className="text-4xl font-black text-slate-200 dark:text-slate-850 select-none">02</span>
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-3">Processing Pipeline</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  The segmented slices feed into our processing architecture, validating depth calibrations, camera angles, and scaling factors for accurate pixel-to-volume mapping.
+                </p>
               </div>
-              <p className="text-muted-foreground leading-relaxed">
-                All stages are integrated into a structured AI processing pipeline that manages detection, estimation, validation, and result generation. The pipeline ensures that each step is executed efficiently and consistently, minimizing errors while maintaining performance. This architecture enables FoodCaliper to deliver reliable results in real time, even for complex or mixed dishes.
-              </p>
-            </motion.div>
+            </div>
 
-            {/* Volume Estimation */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="p-6 rounded-2xl backdrop-blur-xl bg-white/10 dark:bg-slate-800/50 border border-white/20 dark:border-slate-700/50 hover:border-orange-500/50 transition-all hover:bg-white/15 dark:hover:bg-slate-800/70 shadow-lg"
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <Ruler className="text-orange-500" size={28} />
-                <h3 className="text-xl font-bold text-foreground">Volume Estimation</h3>
+            {/* Step 3 */}
+            <div className="horizontal-panel w-full md:w-[380px] shrink-0 p-8 rounded-3xl backdrop-blur-xl bg-white/40 dark:bg-slate-900/60 border border-slate-200 dark:border-white/[0.08] shadow-lg hover:border-orange-500/30 transition-all flex flex-col justify-between h-[280px]">
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center">
+                    <Ruler className="text-orange-500" size={26} />
+                  </div>
+                  <span className="text-4xl font-black text-slate-200 dark:text-slate-850 select-none">03</span>
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-3">Volume Estimation</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Generates an estimated three-dimensional mesh of each portion, calculating spatial volume in milliliters (ml) by estimating dish thickness and depth.
+                </p>
               </div>
-              <p className="text-muted-foreground leading-relaxed">
-                After detecting the food, the system estimates its physical dimensions and portion size using spatial analysis techniques. By interpreting depth cues and surface area, FoodCaliper approximates the three-dimensional structure of the food. This allows the platform to determine how much space the food occupies, which is essential for accurate portion measurement.
-              </p>
-            </motion.div>
-          </div>
+            </div>
 
-          {/* Centered Last Two Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto mt-6">
-            {/* Density Modeling */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="p-6 rounded-2xl backdrop-blur-xl bg-white/10 dark:bg-slate-800/50 border border-white/20 dark:border-slate-700/50 hover:border-orange-500/50 transition-all hover:bg-white/15 dark:hover:bg-slate-800/70 shadow-lg"
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <Scale className="text-orange-500" size={28} />
-                <h3 className="text-xl font-bold text-foreground">Density Modeling</h3>
+            {/* Step 4 */}
+            <div className="horizontal-panel w-full md:w-[380px] shrink-0 p-8 rounded-3xl backdrop-blur-xl bg-white/40 dark:bg-slate-900/60 border border-slate-200 dark:border-white/[0.08] shadow-lg hover:border-orange-500/30 transition-all flex flex-col justify-between h-[280px]">
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center">
+                    <Scale className="text-orange-500" size={26} />
+                  </div>
+                  <span className="text-4xl font-black text-slate-200 dark:text-slate-850 select-none">04</span>
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-3">Density Modeling</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Converts volumetric estimations into weight outputs (grams) by applying food Serving Density profiles, mapped across our extensive database of ingredient properties.
+                </p>
               </div>
-              <p className="text-muted-foreground leading-relaxed">
-                The estimated volume is then converted into weight using calibrated food density models. Each food category is associated with specific density values, allowing the system to translate volume into realistic weight measurements. This step ensures that the results reflect real-world serving sizes rather than generic approximations.
-              </p>
-            </motion.div>
+            </div>
 
-            {/* Nutrition Calculation */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="p-6 rounded-2xl backdrop-blur-xl bg-white/10 dark:bg-slate-800/50 border border-white/20 dark:border-slate-700/50 hover:border-orange-500/50 transition-all hover:bg-white/15 dark:hover:bg-slate-800/70 shadow-lg"
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <BarChart3 className="text-orange-500" size={28} />
-                <h3 className="text-xl font-bold text-foreground">Nutrition Calculation</h3>
+            {/* Step 5 */}
+            <div className="horizontal-panel w-full md:w-[380px] shrink-0 p-8 rounded-3xl backdrop-blur-xl bg-white/40 dark:bg-slate-900/60 border border-slate-200 dark:border-white/[0.08] shadow-lg hover:border-orange-500/30 transition-all flex flex-col justify-between h-[280px]">
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center">
+                    <BarChart3 className="text-orange-500" size={26} />
+                  </div>
+                  <span className="text-4xl font-black text-slate-200 dark:text-slate-850 select-none">05</span>
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-3">Nutrition Calculation</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Calculates calorie counts and exact macronutrient (proteins, carbs, fats) metrics by multiplying portion weight against validated nutritional index catalogs.
+                </p>
               </div>
-              <p className="text-muted-foreground leading-relaxed">
-                Finally, the calculated weight is mapped to structured nutritional datasets to estimate calories and key macronutrients such as protein, carbohydrates, and fats. The system scales nutritional values based on portion size, providing meaningful dietary insights. This allows users to understand not just how much they are eating, but also the nutritional impact of their meals.
-              </p>
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>
@@ -654,17 +1071,20 @@ const Index = () => {
       </footer>
 
       {/* Navigation Dock */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pointer-events-none">
-        <div className="pointer-events-auto">
-          <Dock 
-            items={dockItems}
-            panelHeight={68}
-            baseItemSize={50}
-            magnification={70}
-          />
+      {!loading && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pointer-events-none">
+          <div className="pointer-events-auto">
+            <Dock 
+              items={dockItems}
+              panelHeight={68}
+              baseItemSize={50}
+              magnification={70}
+            />
+          </div>
         </div>
-      </div>
+      )}
     </div>
+    </>
   );
 };
 

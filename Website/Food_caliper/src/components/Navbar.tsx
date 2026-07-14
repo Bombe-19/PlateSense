@@ -4,10 +4,12 @@ import { useState, useEffect } from "react";
 import { LogOut, User, Menu, X, BarChart4, Microscope, FileText } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { apiClient } from "@/services/apiClient";
+import { useLenis } from "lenis/react";
 
 const Navbar = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const lenis = useLenis();
   const [showDropdown, setShowDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [user, setUser] = useState<any>(null);
@@ -61,6 +63,27 @@ const Navbar = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
       .slice(0, 2) || "U";
   };
 
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, to: string) => {
+    if (to.startsWith("#")) {
+      e.preventDefault();
+      
+      // If we are on index page, scroll directly
+      if (location.pathname === "/") {
+        if (to === "#") {
+          lenis?.scrollTo(0);
+        } else {
+          const targetEl = document.querySelector(to);
+          if (targetEl) {
+            lenis?.scrollTo(targetEl, { offset: -80 });
+          }
+        }
+      } else {
+        // If on another page, navigate to homepage first, then scroll
+        navigate("/", { state: { scrollTo: to } });
+      }
+    }
+  };
+
   const navLinks = [
     { to: "/dashboard", label: "Dashboard" },
     { to: "/analysis", label: "New Analysis" },
@@ -69,7 +92,7 @@ const Navbar = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
 
   const publicNavLinks = [
     { to: "#", label: "Home" },
-    { to: "#product", label: "Problem" },
+    { to: "#product", label: "Product" },
     { to: "#solutions", label: "Solutions" },
     { to: "#platform", label: "Platform" },
     { to: "#features", label: "Technology" },
@@ -124,6 +147,7 @@ const Navbar = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
               <a
                 key={link.to}
                 href={link.to}
+                onClick={(e) => handleNavClick(e, link.to)}
                 className={`text-sm font-semibold transition-colors ${
                   isScrolled
                     ? "text-white/60 hover:text-white"
@@ -265,7 +289,10 @@ const Navbar = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
                     <a
                       key={link.to}
                       href={link.to}
-                      onClick={() => setShowMobileMenu(false)}
+                      onClick={(e) => {
+                        setShowMobileMenu(false);
+                        handleNavClick(e, link.to);
+                      }}
                       className="flex items-center gap-4 text-2xl font-bold text-white/70 hover:text-white transition-colors"
                     >
                       {link.label}

@@ -132,14 +132,36 @@
     width: 100%;
   }
 
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+
   html {
     background-color: #f8f6f6;
-    scroll-behavior: smooth;
+    scroll-behavior: auto !important;
   }
 
   html.dark {
     background-color: #0f0f0f;
     color-scheme: dark;
+  }
+
+  /* Lenis smooth scrolling rules */
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+
+  .lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+
+  .lenis.lenis-scrolling iframe {
+    pointer-events: none;
   }
 
   body {
@@ -176,6 +198,16 @@
     box-shadow: 0 12px 48px hsla(260, 30%, 50%, 0.08);
     border-color: hsla(0, 0%, 100%, 0.5);
     transform: translateY(-2px);
+  }
+
+  .premium-glass {
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
 
   .card-elevated {
