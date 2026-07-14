@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Ruler, Scale, Brain, BarChart3, Zap, Target, Upload, Home, BarChart4, Settings, User, Eye, Utensils, TrendingUp, Database, Hospital, Activity, Users, FlaskConical, Play, Cpu, FileText } from "lucide-react";
+import { Ruler, Scale, Brain, BarChart3, Zap, Target, Upload, Home, BarChart4, Settings, User, Eye, Utensils, TrendingUp, Database, Hospital, Activity, Users, FlaskConical, Play, Cpu, FileText, ChevronRight, Droplet, ArrowUpRight } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Navbar from "@/components/Navbar";
@@ -40,21 +40,36 @@ const Index = () => {
     return !sessionStorage.getItem("loaderRun");
   });
 
-  // Interactive Left Bento Card States
-  const [calcFood, setCalcFood] = useState<"steak" | "potato" | "broccoli">("steak");
-  const [calcVolume, setCalcVolume] = useState(250);
-  const [meshMode, setMeshMode] = useState<"point" | "wire" | "surface">("wire");
-  const [meshRes, setMeshRes] = useState<"low" | "med" | "high">("med");
+  // Interactive Left Bento Card States (linking to actual implemented features)
+  // Interactive Left Bento Card Accordion States
+  const [expandedStrip, setExpandedStrip] = useState<number | null>(0);
 
-  const FOOD_PROFILES = {
-    steak: { name: "Sirloin Steak", density: 1.04, calPerGram: 2.0, color: "text-cyan-400 bg-cyan-500/10 border-cyan-500/20" },
-    potato: { name: "Baked Potato", density: 0.85, calPerGram: 0.93, color: "text-orange-400 bg-orange-500/10 border-orange-500/20" },
-    broccoli: { name: "Broccoli Florets", density: 0.35, calPerGram: 0.34, color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" }
-  };
-
-  const selectedProfile = FOOD_PROFILES[calcFood];
-  const calculatedWeight = Math.round(calcVolume * selectedProfile.density);
-  const calculatedCalories = Math.round(calculatedWeight * selectedProfile.calPerGram);
+  const featuresList = [
+    {
+      title: "Volumetric AI Scanner",
+      desc: "Upload plate images or use the webcam to scan portion boundaries, calibrate camera angles, and calculate calorie breakdowns.",
+      action: "Open Scanner →",
+      path: "/analysis"
+    },
+    {
+      title: "Intake & Calorie Dashboard",
+      desc: "Monitor daily target budgets, view weekly Recharts calorie logs, and track daily hydration goals.",
+      action: "Open Dashboard →",
+      path: "/dashboard"
+    },
+    {
+      title: "Hydration Log Counter",
+      desc: "Log daily water cups directly in-app to track hydration targets alongside food records.",
+      action: "Log Hydration →",
+      path: "/dashboard"
+    },
+    {
+      title: "Notes & Report Exporter",
+      desc: "Write persistent database notes for any analysis, copy sharing links, or print summaries.",
+      action: "Open Reports →",
+      path: "/reports"
+    }
+  ];
 
   const handleLoaderComplete = () => {
     setLoading(false);
@@ -72,6 +87,8 @@ const Index = () => {
   const heroImageRef = useRef<HTMLDivElement>(null);
   const horizontalSectionRef = useRef<HTMLDivElement>(null);
   const horizontalContainerRef = useRef<HTMLDivElement>(null);
+  const productScanBeamRef = useRef<HTMLDivElement>(null);
+  const productPlateImageRef = useRef<HTMLDivElement>(null);
 
   // Scroll to section post-navigation
   useEffect(() => {
@@ -136,7 +153,41 @@ const Index = () => {
         }
       });
 
-      // 3. Horizontal Scroll Pinning (only on desktop)
+      // 3. What is FoodCaliper holographic scan beam sweep
+      if (productScanBeamRef.current) {
+        gsap.fromTo(productScanBeamRef.current,
+          { top: "0%" },
+          {
+            top: "100%",
+            ease: "none",
+            scrollTrigger: {
+              trigger: "#product",
+              start: "top 75%",
+              end: "bottom 75%",
+              scrub: true
+            }
+          }
+        );
+      }
+
+      // 4. Parallax zoom on the salmon plate image
+      if (productPlateImageRef.current) {
+        gsap.fromTo(productPlateImageRef.current,
+          { scale: 1.05 },
+          {
+            scale: 1.15,
+            ease: "none",
+            scrollTrigger: {
+              trigger: "#product",
+              start: "top 95%",
+              end: "bottom 35%",
+              scrub: true
+            }
+          }
+        );
+      }
+
+      // 5. Horizontal Scroll Pinning (only on desktop)
       if (isDesktop && horizontalSectionRef.current && horizontalContainerRef.current) {
         const scrollWidth = horizontalContainerRef.current.scrollWidth;
         const windowWidth = window.innerWidth;
@@ -252,8 +303,8 @@ const Index = () => {
             Precision meets <br />
             <span className="bg-gradient-to-r from-orange-400 via-orange-500 to-orange-600 bg-clip-text text-transparent">Appetite.</span>
           </h1>
-          <p className="text-muted-foreground text-lg mt-6 max-w-xl mx-auto leading-relaxed">
-            The world's first volumetric food intelligence system. Track portion sizes, density factor quotients, and exact macros in under a second.
+          <p className="text-muted-foreground text-lg mt-6 max-w-2xl mx-auto leading-relaxed">
+            High-definition volume and depth estimation delivering medical-grade nutritional accuracy through advanced computer vision.
           </p>
         </motion.div>
 
@@ -370,198 +421,169 @@ const Index = () => {
 
           {/* Asymmetrical Bento Grid */}
           <div className="grid lg:grid-cols-12 gap-8 items-stretch">
-            {/* Left Column (span-5) — interactive widgets */}
-            <div className="lg:col-span-5 flex flex-col gap-6">
+            {/* Left Column (span-5) — Horizontal Accordion Strips in Container */}
+            <motion.div
+              initial={{ opacity: 0, x: -40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.65, ease: "easeOut" }}
+              className="lg:col-span-5 relative overflow-hidden rounded-3xl bg-white dark:bg-slate-950/60 shadow-2xl border border-slate-200 dark:border-slate-800/85 hover:border-orange-500/20 transition-all p-8 flex flex-col justify-between min-h-[640px]"
+            >
               
-              {/* Widget 1: USDA portion density calculator */}
-              <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-4">
-                <div>
-                  <span className="inline-block text-[9px] font-bold text-orange-500 uppercase tracking-widest bg-orange-500/10 px-2.5 py-1 rounded-md border border-orange-500/20 mb-2">
-                    USDA Density Simulator
-                  </span>
-                  <h4 className="text-foreground font-black text-sm">Calibrate portion mass equations</h4>
-                </div>
+              {/* Short and sweet project paragraph */}
+              <p className="text-sm text-muted-foreground leading-relaxed pb-6 border-b border-slate-200 dark:border-slate-800/55">
+                FoodCaliper is a spatial nutrition platform designed to estimate meal weights and nutritional breakdown from a single camera frame. By tracking calories, logging daily water intake, and generating printable logs, it simplifies tracking your dietary goals.
+              </p>
 
-                {/* Ingredient selectors */}
-                <div className="flex gap-2">
-                  {(Object.keys(FOOD_PROFILES) as Array<keyof typeof FOOD_PROFILES>).map((key) => (
-                    <button
-                      key={key}
-                      onClick={() => setCalcFood(key)}
-                      className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold border transition-all ${
-                        calcFood === key
-                          ? "bg-orange-500 text-white border-orange-600 shadow-sm"
-                          : "bg-slate-50 dark:bg-slate-950 text-muted-foreground border-slate-200 dark:border-slate-800 hover:text-foreground"
+              {/* Stacked feature strips with sliding layout animations */}
+              <div className="flex flex-col flex-1 justify-center divide-y divide-slate-200 dark:divide-slate-800/55 mt-4">
+                {featuresList.map((feat, idx) => {
+                  const isExpanded = expandedStrip === idx;
+                  
+                  // Setup custom neon theme parameters for each capability
+                  let activeBorder = "border-orange-500";
+                  let activeBg = "bg-orange-500/10";
+                  let activeText = "text-orange-500";
+                  let glowColor = "shadow-[0_0_20px_rgba(249,115,22,0.2)]";
+
+                  if (idx === 0) { // Scanner
+                    activeBorder = "border-cyan-500/60";
+                    activeBg = "bg-cyan-500/10";
+                    activeText = "text-cyan-400";
+                    glowColor = "shadow-[0_0_20px_rgba(6,182,212,0.2)]";
+                  } else if (idx === 2) { // Hydration
+                    activeBorder = "border-blue-500/60";
+                    activeBg = "bg-blue-500/10";
+                    activeText = "text-blue-400";
+                    glowColor = "shadow-[0_0_20px_rgba(59,130,246,0.2)]";
+                  } else if (idx === 3) { // Reports
+                    activeBorder = "border-emerald-500/60";
+                    activeBg = "bg-emerald-500/10";
+                    activeText = "text-emerald-400";
+                    glowColor = "shadow-[0_0_20px_rgba(16,185,129,0.2)]";
+                  }
+
+                  return (
+                    <motion.div 
+                      key={feat.title}
+                      layout
+                      onClick={() => setExpandedStrip(isExpanded ? null : idx)}
+                      className={`transition-colors duration-300 cursor-pointer min-h-[96px] flex items-center py-5 px-3 relative overflow-hidden select-none group rounded-xl ${
+                        isExpanded ? "bg-white/[0.02] dark:bg-slate-900/20" : "hover:bg-white/[0.01]"
                       }`}
                     >
-                      {FOOD_PROFILES[key].name.split(" ")[1]}
-                    </button>
-                  ))}
-                </div>
+                      <div className="flex items-center justify-between w-full gap-6">
+                        
+                        {/* Left Slot: Holds the arrow when collapsed */}
+                        <div className="w-12 h-12 flex items-center justify-center shrink-0 relative">
+                          <AnimatePresence>
+                            {!isExpanded && (
+                              <motion.div
+                                layoutId={`arrow-circle-${idx}`}
+                                transition={{ duration: 0.45, ease: [0.25, 1, 0.5, 1] }}
+                                className="w-12 h-12 rounded-full border border-slate-300 dark:border-slate-700 flex items-center justify-center text-foreground group-hover:border-orange-500 group-hover:text-orange-500 transition-colors"
+                              >
+                                <ArrowUpRight size={20} />
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
 
-                {/* Calibrated stats */}
-                <div className="grid grid-cols-2 gap-3 text-[10px] font-mono">
-                  <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
-                    <span className="text-muted-foreground block text-[8px] uppercase">Calibrated Density</span>
-                    <span className="text-foreground font-extrabold">{selectedProfile.density} g/cm³</span>
-                  </div>
-                  <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
-                    <span className="text-muted-foreground block text-[8px] uppercase font-bold text-orange-500">Expected Weight</span>
-                    <span className="text-orange-500 font-extrabold">{calculatedWeight}g</span>
-                  </div>
-                </div>
+                        {/* Middle Slot: Holds the text content (stable width) */}
+                        <div className="flex-1 min-w-0">
+                          <AnimatePresence mode="wait">
+                            {!isExpanded ? (
+                              <motion.span
+                                key="title"
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 10 }}
+                                transition={{ duration: 0.25 }}
+                                className="text-base md:text-lg font-black text-foreground tracking-tight group-hover:text-orange-500 transition-colors block"
+                              >
+                                {feat.title}
+                              </motion.span>
+                            ) : (
+                              <motion.div
+                                key="desc"
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 10 }}
+                                transition={{ duration: 0.25 }}
+                                className="flex flex-col gap-2"
+                              >
+                                <span className={`text-[9px] font-mono uppercase tracking-widest font-black ${activeText}`}>
+                                  {feat.title}
+                                </span>
+                                <p className="text-xs md:text-sm text-foreground font-medium leading-relaxed max-w-sm">
+                                  {feat.desc}
+                                </p>
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate(feat.path);
+                                  }}
+                                  className={`text-[10px] font-bold font-mono text-left w-fit mt-1 flex items-center gap-1 hover:underline ${activeText}`}
+                                >
+                                  {feat.action}
+                                </button>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
 
-                {/* Volume slider */}
-                <div className="space-y-1.5">
-                  <div className="flex justify-between text-[9px] font-mono text-muted-foreground">
-                    <span>Portion Volume</span>
-                    <span className="text-foreground font-bold">{calcVolume} cm³</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="50"
-                    max="500"
-                    step="10"
-                    value={calcVolume}
-                    onChange={(e) => setCalcVolume(Number(e.target.value))}
-                    className="w-full accent-orange-500 cursor-pointer h-1.5 bg-slate-100 dark:bg-slate-950 rounded-lg appearance-none"
-                  />
-                </div>
+                        {/* Right Slot: Holds the arrow when expanded */}
+                        <div className="w-12 h-12 flex items-center justify-center shrink-0 relative">
+                          <AnimatePresence>
+                            {isExpanded && (
+                              <motion.div
+                                layoutId={`arrow-circle-${idx}`}
+                                transition={{ duration: 0.45, ease: [0.25, 1, 0.5, 1] }}
+                                className={`w-12 h-12 rounded-full border flex items-center justify-center shrink-0 transition-colors duration-300 ${activeBorder} ${activeBg} ${activeText} ${glowColor}`}
+                              >
+                                <motion.div 
+                                  animate={{ rotate: 45 }}
+                                  transition={{ duration: 0.4 }}
+                                  className="flex items-center justify-center"
+                                >
+                                  <ArrowUpRight size={20} />
+                                </motion.div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
 
-                {/* Real-time Calories output */}
-                <div className="p-3 rounded-xl bg-orange-500/5 border border-orange-500/10 flex justify-between items-center">
-                  <span className="text-[10px] font-bold text-muted-foreground">Estimated Energy:</span>
-                  <span className="text-xs font-black text-orange-500 font-mono">{calculatedCalories} kcal</span>
-                </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </div>
 
-              {/* Widget 2: Holographic AI Wireframe Controller */}
-              <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-4 flex-1">
-                <div>
-                  <span className="inline-block text-[9px] font-bold text-cyan-500 uppercase tracking-widest bg-cyan-500/10 px-2.5 py-1 rounded-md border border-cyan-500/20 mb-2">
-                    AI Mesh Visualizer
-                  </span>
-                  <h4 className="text-foreground font-black text-sm">Interactive 3D Topological Grid</h4>
-                </div>
-
-                {/* Holographic Wireframe Canvas Visualizer */}
-                <div className="relative h-32 w-full bg-slate-50 dark:bg-slate-950 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 flex items-center justify-center">
-                  
-                  {/* Dynamic mesh svg */}
-                  <svg className={`w-full h-full text-cyan-500/30 fill-none stroke-current z-10 transition-opacity duration-300 ${
-                    meshMode === "point" ? "stroke-[1.5]" : "stroke-[0.6]"
-                  }`} viewBox="0 0 100 60">
-                    {/* Render grid coordinates */}
-                    {meshMode === "point" && (
-                      <>
-                        {[10, 20, 30, 40, 50, 60, 70, 80, 90].map((x) => 
-                          [10, 20, 30, 40, 50].map((y) => (
-                            <circle key={`${x}-${y}`} cx={x} cy={y} r="0.75" className="fill-cyan-500/60" />
-                          ))
-                        )}
-                      </>
-                    )}
-
-                    {meshMode === "wire" && (
-                      <>
-                        {[10, 20, 30, 40, 50].map((y, idx) => (
-                          <motion.path
-                            key={`y-${y}`}
-                            d={`M 10,${y} Q 30,${y - (meshRes === "high" ? 6 : meshRes === "low" ? 2 : 4)} 50,${y} T 90,${y}`}
-                            animate={{
-                              d: [
-                                `M 10,${y} Q 30,${y - (meshRes === "high" ? 6 : meshRes === "low" ? 2 : 4)} 50,${y} T 90,${y}`,
-                                `M 10,${y} Q 30,${y - (meshRes === "high" ? -6 : meshRes === "low" ? -2 : -4)} 50,${y} T 90,${y}`,
-                                `M 10,${y} Q 30,${y - (meshRes === "high" ? 6 : meshRes === "low" ? 2 : 4)} 50,${y} T 90,${y}`
-                              ]
-                            }}
-                            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: idx * 0.15 }}
-                          />
-                        ))}
-                        {[20, 40, 60, 80].map((x, idx) => (
-                          <motion.path
-                            key={`x-${x}`}
-                            d={`M ${x},10 Q ${x - 4},25 ${x},50`}
-                            animate={{
-                              d: [
-                                `M ${x},10 Q ${x - 4},25 ${x},50`,
-                                `M ${x},10 Q ${x + 4},25 ${x},50`,
-                                `M ${x},10 Q ${x - 4},25 ${x},50`
-                              ]
-                            }}
-                            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: idx * 0.15 }}
-                          />
-                        ))}
-                      </>
-                    )}
-
-                    {meshMode === "surface" && (
-                      <>
-                        <path d="M 10,15 L 90,15 L 80,45 L 20,45 Z" fill="rgba(6, 182, 212, 0.08)" stroke="rgba(6, 182, 212, 0.3)" />
-                        <path d="M 20,25 L 80,25 L 70,38 L 30,38 Z" fill="rgba(6, 182, 212, 0.12)" stroke="rgba(6, 182, 212, 0.5)" />
-                      </>
-                    )}
-                  </svg>
-
-                  {/* Mode tag indicator */}
-                  <div className="absolute top-2.5 left-3 px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[8px] font-mono text-cyan-500 uppercase tracking-widest">
-                    {meshMode} / {meshRes} res
-                  </div>
-                </div>
-
-                {/* View modes controls */}
-                <div className="grid grid-cols-2 gap-4 text-[10px] font-mono">
-                  <div className="space-y-1">
-                    <span className="text-muted-foreground text-[8px] uppercase">Render Mode</span>
-                    <div className="flex rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 p-0.5 bg-slate-50 dark:bg-slate-950">
-                      {(["point", "wire", "surface"] as const).map((m) => (
-                        <button
-                          key={m}
-                          onClick={() => setMeshMode(m)}
-                          className={`flex-1 py-1 rounded text-[8px] font-bold capitalize ${
-                            meshMode === m ? "bg-cyan-500 text-white" : "text-muted-foreground hover:text-foreground"
-                          }`}
-                        >
-                          {m === "point" ? "Dots" : m === "wire" ? "Mesh" : "Solid"}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <span className="text-muted-foreground text-[8px] uppercase">Mesh Density</span>
-                    <div className="flex rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 p-0.5 bg-slate-50 dark:bg-slate-950">
-                      {(["low", "med", "high"] as const).map((r) => (
-                        <button
-                          key={r}
-                          onClick={() => setMeshRes(r)}
-                          className={`flex-1 py-1 rounded text-[8px] font-bold uppercase ${
-                            meshRes === r ? "bg-cyan-500 text-white" : "text-muted-foreground hover:text-foreground"
-                          }`}
-                        >
-                          {r}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            </motion.div>
 
             {/* Right Column (span-7) */}
             <motion.div
-              initial={{ opacity: 0, x: 30 }}
+              initial={{ opacity: 0, x: 40 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="lg:col-span-7 relative overflow-hidden rounded-3xl bg-slate-900 dark:bg-slate-950 shadow-2xl border border-slate-200 dark:border-slate-800 hover:border-cyan-500/20 transition-all group min-h-[640px] flex flex-col justify-between"
+              transition={{ duration: 0.65, ease: "easeOut" }}
+              className="lg:col-span-7 relative overflow-hidden rounded-3xl bg-white dark:bg-slate-955/60 shadow-2xl border border-slate-200 dark:border-slate-800 hover:border-cyan-500/20 transition-all group min-h-[640px] flex flex-col justify-between"
             >
               {/* Simulated scan image */}
-              <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl">
                 <div 
+                  ref={productPlateImageRef}
                   className="w-full h-full bg-cover bg-center opacity-65 transition-transform duration-700 group-hover:scale-105"
                   style={{ backgroundImage: `url(${heroFood})` }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                
+                {/* Holographic Laser Scan Line */}
+                <div 
+                  ref={productScanBeamRef}
+                  className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_15px_rgba(6,182,212,0.8)] pointer-events-none z-10"
+                  style={{ top: "0%" }}
+                />
               </div>
 
               {/* Scanner radar mesh overlay */}
@@ -687,24 +709,56 @@ const Index = () => {
             </motion.div>
           </div>
 
-          {/* Bottom Telemetry Metric Row */}
+          {/* Bottom Telemetry Metric Row - Updated to researched features */}
           <div className="grid md:grid-cols-3 gap-6 mt-12">
             {[
-              { title: "Visual Accuracy", val: "98.6%", desc: "Precise edge detection mapping" },
-              { title: "Reconstruction Time", val: "< 1.2s", desc: "Real-time volume calculation latency" },
-              { title: "Calibrated Profiles", val: "120,000+", desc: "Density lookups synced with USDA profiles" }
-            ].map((metric, idx) => (
+              {
+                title: "Multi-Source Media Inputs",
+                val: "Upload, Cam, Paste",
+                desc: "Capture webcam snapshots, drag-and-drop local files, or paste images directly from your clipboard to calibrate calibrations instantly.",
+                icon: Upload,
+                color: "text-cyan-500",
+                bgColor: "bg-cyan-500/10 border-cyan-500/20",
+                hoverGlow: "hover:border-cyan-500/35 hover:shadow-[0_0_20px_rgba(6,182,212,0.08)]"
+              },
+              {
+                title: "Serving Calibrations",
+                val: "Plate Diameter Slider",
+                desc: "Refine portion calculations by adjusting physical plate scale measurements (cm) and selecting custom nutrition reference databases.",
+                icon: Ruler,
+                color: "text-orange-500",
+                bgColor: "bg-orange-500/10 border-orange-500/20",
+                hoverGlow: "hover:border-orange-500/35 hover:shadow-[0_0_20px_rgba(249,115,22,0.08)]"
+              },
+              {
+                title: "Printable Nutrition Audits",
+                val: "PDF Report Exports",
+                desc: "Export historical food logs, daily stats, and macronutrient charts directly into clean, styled printed PDF sheets.",
+                icon: FileText,
+                color: "text-blue-500",
+                bgColor: "bg-blue-500/10 border-blue-500/20",
+                hoverGlow: "hover:border-blue-500/35 hover:shadow-[0_0_20px_rgba(59,130,246,0.08)]"
+              }
+            ].map((card, idx) => (
               <motion.div
                 key={idx}
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1 }}
-                className="p-6 rounded-2xl bg-white/40 dark:bg-slate-900/60 border border-slate-200 dark:border-white/[0.08] text-center"
+                className={`p-6 rounded-2xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 transition-all duration-300 flex flex-col justify-between items-start h-full hover:-translate-y-1 ${card.hoverGlow}`}
               >
-                <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">{metric.title}</p>
-                <p className="text-3xl font-black text-orange-500 mt-2">{metric.val}</p>
-                <p className="text-[11px] text-muted-foreground mt-1">{metric.desc}</p>
+                <div className="w-full">
+                  <div className="flex items-center justify-between w-full mb-4">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${card.bgColor} ${card.color}`}>
+                      <card.icon size={20} />
+                    </div>
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-muted-foreground">capability 0{idx + 1}</span>
+                  </div>
+                  <h4 className="text-xs text-muted-foreground uppercase font-black tracking-wider">{card.title}</h4>
+                  <p className="text-2xl font-black text-foreground mt-2 tracking-tight">{card.val}</p>
+                  <p className="text-xs text-muted-foreground mt-2 leading-relaxed">{card.desc}</p>
+                </div>
               </motion.div>
             ))}
           </div>
