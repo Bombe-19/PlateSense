@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Ruler, Scale, Brain, BarChart3, Zap, Target, Upload, Home, BarChart4, Settings, User, Eye, Utensils, TrendingUp, Database, Hospital, Activity, Users, FlaskConical, Play, Cpu, FileText, ChevronRight, Droplet, ArrowUpRight } from "lucide-react";
+import { Ruler, Scale, Brain, BarChart3, Zap, Target, Upload, Home, BarChart4, Settings, User, Eye, Utensils, TrendingUp, Database, Hospital, Activity, Users, FlaskConical, Play, Cpu, FileText, ChevronRight, Droplet, ArrowUpRight, ClipboardList, HeartPulse, Dumbbell, Package, Microscope, LineChart, Apple, ChefHat } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Navbar from "@/components/Navbar";
@@ -41,8 +41,43 @@ const Index = () => {
   });
 
   // Interactive Left Bento Card States (linking to actual implemented features)
-  // Interactive Left Bento Card Accordion States
   const [expandedStrip, setExpandedStrip] = useState<number | null>(0);
+  const [activeHowStep, setActiveHowStep] = useState(0);
+
+  const howItWorksSteps = [
+    {
+      num: "01",
+      title: "Computer Vision & Segmentation",
+      subtitle: "Multi-Food Polygon Tracing",
+      desc: "Deep convolutional models locate and outline every food item on your plate, capturing precise edge boundaries to separate overlapping ingredients.",
+      icon: Eye,
+      badge: "Segmentation AI"
+    },
+    {
+      num: "02",
+      title: "Spatial Depth & 3D Volumetric Mesh",
+      subtitle: "Voxel Elevation Mapping",
+      desc: "Generates an estimated 3D spatial mesh for each portion, calculating 3D volume in cubic centimeters (cm³) by measuring food dish depth.",
+      icon: Cpu,
+      badge: "3D Volumetrics"
+    },
+    {
+      num: "03",
+      title: "Physical Plate Scale Calibration",
+      subtitle: "Focal Distance Ratio",
+      desc: "Calibrates portion mass against reference physical scale dimensions (cm) to eliminate camera distortion and focal distance variance.",
+      icon: Ruler,
+      badge: "Scale Matrix"
+    },
+    {
+      num: "04",
+      title: "Calorie & Macronutrient Synthesis",
+      subtitle: "Medical Grade Data",
+      desc: "Cross-references estimated food mass with validated nutrition databases to output instant calories, protein, carbs, fat, and exportable PDF audits.",
+      icon: Scale,
+      badge: "Nutrition Audit"
+    }
+  ];
 
   const featuresList = [
     {
@@ -90,6 +125,82 @@ const Index = () => {
   const productScanBeamRef = useRef<HTMLDivElement>(null);
   const productPlateImageRef = useRef<HTMLDivElement>(null);
 
+  // Solutions section refs for center-big -> left expansion layout
+  const solutionsSectionRef = useRef<HTMLElement>(null);
+  const solutionCardRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // Solutions data with compact & detailed descriptions + 3 photo circles per solution
+  const solutionsData = [
+    {
+      num: "01",
+      label: "Healthcare",
+      sub: "Clinical Nutrition",
+      icon: Hospital,
+      accent: "rose",
+      rgb: "244,63,94",
+      smallDesc: "Precision dietary tracking for patient-centered care and clinical nutrition compliance.",
+      detailedDesc: "Enable hospitals, clinics, and dietitians to monitor patient dietary intake with computer-vision precision. Automated portion analysis eliminates manual guesswork in clinical meal planning while maintaining 99% regulatory compliance.",
+      pills: ["Dietary Compliance", "Portion Tracking", "Clinical Accuracy"],
+      photos: [
+        { icon: Hospital, label: "Patient Care" },
+        { icon: ClipboardList, label: "Nutrient Logs" },
+        { icon: HeartPulse, label: "Health Metrics" }
+      ]
+    },
+    {
+      num: "02",
+      label: "Nutrition Platforms",
+      sub: "Fitness & Wellness",
+      icon: Activity,
+      accent: "emerald",
+      rgb: "16,185,129",
+      smallDesc: "Automated portion & calorie data for fitness apps, diet trackers, and wellness tools.",
+      detailedDesc: "Empower your mobile health or fitness app with instant meal photo recognition. Users log calories, macronutrients, and volumetric food mass seamlessly through API endpoints optimized for scale.",
+      pills: ["Auto Calorie Logging", "Meal Insights", "API Integration"],
+      photos: [
+        { icon: Activity, label: "Live Tracking" },
+        { icon: Dumbbell, label: "Fitness Sync" },
+        { icon: Apple, label: "Macro Split" }
+      ]
+    },
+    {
+      num: "03",
+      label: "Food Service",
+      sub: "Operations & Scale",
+      icon: Utensils,
+      accent: "sky",
+      rgb: "14,165,233",
+      smallDesc: "Consistent portion control across restaurants, cloud kitchens & institutional services.",
+      detailedDesc: "Standardize serving sizes across multi-location restaurant chains and central kitchens. Real-time scanning ensures recipe consistency, reduces food waste by up to 30%, and streamlines kitchen inventory.",
+      pills: ["Portion Consistency", "Waste Reduction", "Multi-location"],
+      photos: [
+        { icon: Utensils, label: "Kitchen Ops" },
+        { icon: ChefHat, label: "Recipe Standard" },
+        { icon: Package, label: "Waste Audit" }
+      ]
+    },
+    {
+      num: "04",
+      label: "Research & Analytics",
+      sub: "Academia & Science",
+      icon: FlaskConical,
+      accent: "violet",
+      rgb: "139,92,246",
+      smallDesc: "Structured dietary data collection for academic studies and large-scale nutritional research.",
+      detailedDesc: "Accelerate nutritional research with high-fidelity, standardized food volume and mass datasets. Designed for clinical trials, epidemiology studies, and AI model benchmarking with exportable structured metrics.",
+      pills: ["Structured Datasets", "Scalable Studies", "High Accuracy"],
+      photos: [
+        { icon: FlaskConical, label: "Lab Datasets" },
+        { icon: Microscope, label: "Mass Analysis" },
+        { icon: LineChart, label: "Study Reports" }
+      ]
+    },
+  ];
+
+  const accentHex: Record<string, string> = {
+    rose: "#f43f5e", emerald: "#10b981", sky: "#0ea5e9", violet: "#8b5cf6",
+  };
+
   // Scroll to section post-navigation
   useEffect(() => {
     if (location.state && (location.state as any).scrollTo) {
@@ -108,14 +219,15 @@ const Index = () => {
     }
   }, [location, lenis, navigate]);
 
+  // Master GSAP ScrollTrigger Setup — Registered in exact DOM order to eliminate pin-spacing calculation conflicts
   useEffect(() => {
-    // Media Query Check: Only run horizontal scroll on screens larger than 768px (desktop)
     const isDesktop = window.innerWidth >= 768;
 
     const ctx = gsap.context(() => {
       // 1. Clip-Path Expansion Reveal on hero showcase image
       if (heroImageRef.current) {
-        gsap.fromTo(heroImageRef.current,
+        gsap.fromTo(
+          heroImageRef.current,
           { clipPath: "inset(12% 16% round 40px)" },
           {
             clipPath: "inset(0% 0% round 24px)",
@@ -124,8 +236,8 @@ const Index = () => {
               trigger: heroImageRef.current,
               start: "top 95%",
               end: "top 30%",
-              scrub: true
-            }
+              scrub: true,
+            },
           }
         );
       }
@@ -138,8 +250,8 @@ const Index = () => {
           trigger: "body",
           start: "top top",
           end: "bottom top",
-          scrub: true
-        }
+          scrub: true,
+        },
       });
 
       gsap.to(".parallax-orb-2", {
@@ -149,13 +261,14 @@ const Index = () => {
           trigger: "body",
           start: "top top",
           end: "bottom top",
-          scrub: true
-        }
+          scrub: true,
+        },
       });
 
-      // 3. What is FoodCaliper holographic scan beam sweep
+      // 3. Product scan beam & plate zoom (#product)
       if (productScanBeamRef.current) {
-        gsap.fromTo(productScanBeamRef.current,
+        gsap.fromTo(
+          productScanBeamRef.current,
           { top: "0%" },
           {
             top: "100%",
@@ -164,15 +277,15 @@ const Index = () => {
               trigger: "#product",
               start: "top 75%",
               end: "bottom 75%",
-              scrub: true
-            }
+              scrub: true,
+            },
           }
         );
       }
 
-      // 4. Parallax zoom on the salmon plate image
       if (productPlateImageRef.current) {
-        gsap.fromTo(productPlateImageRef.current,
+        gsap.fromTo(
+          productPlateImageRef.current,
           { scale: 1.05 },
           {
             scale: 1.15,
@@ -181,31 +294,105 @@ const Index = () => {
               trigger: "#product",
               start: "top 95%",
               end: "bottom 35%",
-              scrub: true
-            }
+              scrub: true,
+            },
           }
         );
       }
 
-      // 5. Horizontal Scroll Pinning (only on desktop)
-      if (isDesktop && horizontalSectionRef.current && horizontalContainerRef.current) {
-        const scrollWidth = horizontalContainerRef.current.scrollWidth;
-        const windowWidth = window.innerWidth;
-        
-        gsap.to(horizontalContainerRef.current, {
-          x: () => -(scrollWidth - windowWidth),
-          ease: "none",
-          scrollTrigger: {
-            trigger: horizontalSectionRef.current,
+      // 4. Solutions Section Pinned Animation (#solutions — DOM Position 4)
+      const solSection = solutionsSectionRef.current;
+      if (solSection) {
+        const cards = solutionCardRefs.current.filter(Boolean);
+        if (cards.length) {
+          const solTl = gsap.timeline();
+
+          cards.forEach((card, index) => {
+            if (!card) return;
+            const mainCard = card.querySelector<HTMLElement>(".sol-main-card");
+            const detailPanel = card.querySelector<HTMLElement>(".sol-detail-panel");
+            const photosPanel = card.querySelector<HTMLElement>(".sol-photos-panel");
+            const photoCircles = card.querySelectorAll<HTMLElement>(".sol-photo-circle");
+
+            if (index === 0) {
+              gsap.set(card, { autoAlpha: 1, scale: 1 });
+              if (mainCard) gsap.set(mainCard, { autoAlpha: 1, x: 0 });
+              if (detailPanel) gsap.set(detailPanel, { autoAlpha: 0, x: 50, scale: 0.95 });
+              if (photosPanel) gsap.set(photosPanel, { autoAlpha: 0, x: 50, scale: 0.95 });
+            } else {
+              gsap.set(card, { autoAlpha: 0, scale: 0.95 });
+              if (mainCard) gsap.set(mainCard, { autoAlpha: 1, x: 0 });
+              if (detailPanel) gsap.set(detailPanel, { autoAlpha: 0, x: 50, scale: 0.95 });
+              if (photosPanel) gsap.set(photosPanel, { autoAlpha: 0, x: 50, scale: 0.95 });
+            }
+
+            const seg = index * 10;
+
+            if (index > 0) {
+              solTl.to(card, {
+                autoAlpha: 1,
+                scale: 1,
+                duration: 1.2,
+                ease: "power2.out",
+              }, seg);
+            }
+
+            if (detailPanel && photosPanel) {
+              solTl.to(detailPanel, {
+                autoAlpha: 1,
+                x: 0,
+                scale: 1,
+                duration: 2.2,
+                ease: "power2.out",
+              }, seg + 1.2);
+
+              solTl.to(photosPanel, {
+                autoAlpha: 1,
+                x: 0,
+                scale: 1,
+                duration: 2.2,
+                ease: "power2.out",
+              }, seg + 1.4);
+
+              if (photoCircles.length) {
+                solTl.fromTo(
+                  photoCircles,
+                  { scale: 0.5, autoAlpha: 0 },
+                  { scale: 1, autoAlpha: 1, stagger: 0.2, duration: 1.5, ease: "back.out(1.7)" },
+                  seg + 1.8
+                );
+              }
+            }
+
+            solTl.to({}, { duration: 3.5 }, seg + 3.8);
+
+            if (index < cards.length - 1) {
+              solTl.to(card, {
+                autoAlpha: 0,
+                scale: 0.95,
+                y: -25,
+                duration: 1.5,
+                ease: "power2.in",
+              }, seg + 7.3);
+            }
+          });
+
+          ScrollTrigger.create({
+            trigger: solSection,
             pin: true,
-            scrub: 1.2,
             start: "top top",
-            end: () => `+=${scrollWidth - windowWidth}`,
+            end: "+=3600",
+            scrub: 1,
+            animation: solTl,
             invalidateOnRefresh: true,
-            anticipatePin: 1
-          }
-        });
+          });
+        }
       }
+
+      // Refresh ScrollTrigger after initializing all DOM order pinned sections
+      setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 100);
     });
 
     return () => ctx.revert();
@@ -765,115 +952,194 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Solutions Section */}
-      <section id="solutions" className="px-6 py-32 bg-background-light dark:bg-background-dark transition-colors duration-300 ease-out">
-        <div className="max-w-7xl mx-auto">
-          {/* Section Header */}
-          <div className="text-center mb-16">
-            <ScrollReveal
-              enableBlur
-              containerClassName="mb-6"
-              textClassName="text-5xl font-black text-black dark:text-white"
-            >
-              Solutions
-            </ScrollReveal>
-            <div className="w-24 h-1.5 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full mx-auto" />
-          </div>
+      {/* Solutions Section — Pinned Card Expansion */}
+      <section
+        id="solutions"
+        ref={solutionsSectionRef}
+        className="h-screen w-full bg-background-light dark:bg-background-dark transition-colors duration-300 flex flex-col justify-between py-6 sm:py-8 px-4 sm:px-6 relative overflow-hidden"
+      >
+        {/* Plain Clean Hero-matching Background Texture & Ambient Orbs (No dots) */}
+        <div
+          className="absolute inset-0 z-0 opacity-15 pointer-events-none"
+          style={{
+            backgroundImage: `url(${bgTexture})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+          }}
+        />
+        <div className="absolute top-[20%] left-[8vw] w-96 h-96 bg-purple-500/10 rounded-full blur-[120px] pointer-events-none z-0" />
+        <div className="absolute bottom-[20%] right-[8vw] w-[450px] h-[450px] bg-orange-500/10 rounded-full blur-[130px] pointer-events-none z-0" />
 
-          {/* Solution Cards Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Healthcare */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0 }}
-              className="group relative overflow-hidden rounded-3xl bg-white dark:bg-slate-900/80 p-8 shadow-lg border border-border hover:shadow-2xl transition-all duration-300 flex flex-col justify-between h-full"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="relative z-10 flex flex-col gap-4">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
-                    <Hospital className="text-red-500" size={24} />
-                  </div>
-                  <h3 className="text-xl font-bold text-foreground">Healthcare</h3>
-                </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  In healthcare environments, accurate dietary monitoring is essential for patient recovery and long-term health management. FoodCaliper helps hospitals and nutritionists estimate food portions and calorie intake more consistently by analyzing meal images. This enables healthcare professionals to track patient nutrition, maintain dietary compliance, and support better nutritional planning without relying on manual portion estimation.
-                </p>
-              </div>
-            </motion.div>
+        {/* Section Heading */}
+        <div className="text-center pt-2 sm:pt-4 mb-2 z-10">
+          <ScrollReveal
+            enableBlur
+            containerClassName="mb-1 sm:mb-2"
+            textClassName="text-3xl sm:text-4xl font-black text-foreground"
+          >
+            Solutions
+          </ScrollReveal>
+          <div className="w-16 sm:w-20 h-1 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full mx-auto mb-2" />
+          <p className="text-muted-foreground text-xs sm:text-sm font-medium tracking-wide max-w-md mx-auto">
+            Scroll to explore how FoodCaliper expands for every industry.
+          </p>
+        </div>
 
-            {/* Nutrition Platforms */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="group relative overflow-hidden rounded-3xl bg-white dark:bg-slate-900/80 p-8 shadow-lg border border-border hover:shadow-2xl transition-all duration-300 flex flex-col justify-between h-full"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="relative z-10 flex flex-col gap-4">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
-                    <Activity className="text-green-500" size={24} />
-                  </div>
-                  <h3 className="text-xl font-bold text-foreground">Nutrition Platforms</h3>
-                </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Digital nutrition and fitness platforms require reliable data to help users track their meals and manage dietary goals. FoodCaliper can integrate with these platforms to automatically estimate portion size, weight, and calories from food images. This simplifies meal tracking and allows users to monitor their nutritional intake with minimal effort while improving the accuracy of food logging.
-                </p>
-              </div>
-            </motion.div>
+        {/* Stage Container */}
+        <div className="w-full max-w-6xl mx-auto flex-1 min-h-[440px] sm:min-h-[480px] relative flex items-center justify-center my-auto z-10">
+          {solutionsData.map((sol, index) => {
+            const IconCmp = sol.icon;
+            const colorHex = accentHex[sol.accent];
+            return (
+              <div
+                key={sol.num}
+                ref={(el) => { solutionCardRefs.current[index] = el; }}
+                className="absolute inset-0 m-auto w-full max-w-6xl h-fit flex items-center justify-center pointer-events-auto"
+              >
+                <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch min-h-[440px]">
+                  
+                  {/* 1. Main Card (Translucent backdrop-blur glass styling matching What is FoodCaliper) */}
+                  <div
+                    className="sol-main-card lg:col-span-4 flex flex-col justify-between p-6 sm:p-7 rounded-3xl bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-slate-800/80 shadow-2xl relative overflow-hidden transition-all duration-300"
+                    style={{
+                      boxShadow: `0 20px 50px -10px rgba(${sol.rgb}, 0.2)`
+                    }}
+                  >
+                    {/* Top Accent Line */}
+                    <div
+                      className="absolute top-0 left-0 right-0 h-1.5"
+                      style={{ background: `linear-gradient(90deg, ${colorHex}, transparent)` }}
+                    />
 
-            {/* Food Service Operations */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="group relative overflow-hidden rounded-3xl bg-white dark:bg-slate-900/80 p-8 shadow-lg border border-border hover:shadow-2xl transition-all duration-300 flex flex-col justify-between h-full"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="relative z-10 flex flex-col gap-4">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
-                    <Utensils className="text-blue-500" size={24} />
-                  </div>
-                  <h3 className="text-xl font-bold text-foreground">Food Service Operations</h3>
-                </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  FoodCaliper helps food service providers maintain consistent portion sizes across meals and locations. Restaurants, cloud kitchens, and institutional food services can use the platform to monitor portion measurements, reduce food waste, and ensure quality control in meal preparation. By analyzing meal portions through images, the system supports operational efficiency and better resource management.
-                </p>
-              </div>
-            </motion.div>
+                    {/* Header Row: Icon & Number */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div
+                        className="w-12 h-12 rounded-xl flex items-center justify-center shadow-sm"
+                        style={{
+                          background: `rgba(${sol.rgb}, 0.12)`,
+                          border: `1px solid rgba(${sol.rgb}, 0.25)`,
+                        }}
+                      >
+                        <IconCmp size={26} color={colorHex} strokeWidth={2} />
+                      </div>
+                      <span
+                        className="text-xs font-black tracking-widest uppercase px-3 py-1 rounded-full border"
+                        style={{
+                          color: colorHex,
+                          borderColor: `rgba(${sol.rgb}, 0.3)`,
+                          background: `rgba(${sol.rgb}, 0.08)`,
+                        }}
+                      >
+                        {sol.num}
+                      </span>
+                    </div>
 
-            {/* Research & Analytics */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-              className="group relative overflow-hidden rounded-3xl bg-white dark:bg-slate-900/80 p-8 shadow-lg border border-border hover:shadow-2xl transition-all duration-300 flex flex-col justify-between h-full"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-violet-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="relative z-10 flex flex-col gap-4">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
-                    <FlaskConical className="text-purple-500" size={24} />
+                    {/* Title & Sub */}
+                    <div className="mb-4">
+                      <h3 className="text-2xl sm:text-3xl font-black text-foreground leading-tight mb-1">
+                        {sol.label}
+                      </h3>
+                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                        {sol.sub}
+                      </p>
+                    </div>
+
+                    {/* Small Description Box */}
+                    <div className="p-4 rounded-2xl bg-slate-100/50 dark:bg-slate-800/40 border border-border/50 shadow-sm mt-auto backdrop-blur-sm">
+                      <p className="text-xs text-muted-foreground leading-relaxed font-medium">
+                        {sol.smallDesc}
+                      </p>
+                    </div>
                   </div>
-                  <h3 className="text-xl font-bold text-foreground">Research &amp; Analytics</h3>
+
+                  {/* 2. Detailed Description Panel (Translucent backdrop-blur glass styling) */}
+                  <div className="sol-detail-panel hidden lg:flex lg:col-span-5 flex-col justify-between p-6 sm:p-7 rounded-3xl bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-slate-800/80 shadow-xl relative overflow-hidden">
+                    <div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="w-2.5 h-2.5 rounded-full" style={{ background: colorHex }} />
+                        <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                          Detailed Solution Breakdown
+                        </span>
+                      </div>
+
+                      <h4 className="text-lg sm:text-xl font-bold text-foreground mb-3 leading-snug">
+                        Enterprise AI {sol.label} Suite
+                      </h4>
+
+                      {/* Detailed Paragraph */}
+                      <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mb-6 font-normal">
+                        {sol.detailedDesc}
+                      </p>
+                    </div>
+
+                    {/* Feature Benefit Pills */}
+                    <div>
+                      <div className="h-px w-full bg-border/50 mb-4" />
+                      <div className="flex flex-wrap gap-2">
+                        {sol.pills.map((pill) => (
+                          <span
+                            key={pill}
+                            className="px-3.5 py-1.5 rounded-lg text-xs font-bold tracking-wide border"
+                            style={{
+                              background: `rgba(${sol.rgb}, 0.08)`,
+                              borderColor: `rgba(${sol.rgb}, 0.25)`,
+                              color: colorHex,
+                            }}
+                          >
+                            {pill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 3. Photos / Visuals Column (Translucent backdrop-blur glass styling) */}
+                  <div className="sol-photos-panel hidden lg:flex lg:col-span-3 flex-col justify-between items-center p-5 sm:p-6 rounded-3xl bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl border border-slate-200 dark:border-slate-800/80 shadow-lg">
+                    <div className="text-center w-full mb-1">
+                      <span className="text-[11px] font-black uppercase tracking-widest text-muted-foreground">
+                        Photos &amp; Visuals
+                      </span>
+                    </div>
+
+                    {/* 3 Photo Circles */}
+                    <div className="flex flex-col items-center justify-around gap-3 w-full my-auto py-1">
+                      {sol.photos.map((photo, pIdx) => {
+                        const PhotoIcon = photo.icon;
+                        return (
+                          <div
+                            key={pIdx}
+                            className="sol-photo-circle flex items-center gap-3 w-full p-2.5 rounded-2xl bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border border-border/70 shadow-sm transition-transform duration-300 hover:scale-105"
+                          >
+                            <div
+                              className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 shadow-inner"
+                              style={{
+                                background: `radial-gradient(circle at 30% 30%, rgba(${sol.rgb}, 0.25), rgba(${sol.rgb}, 0.08))`,
+                                border: `1.5px solid rgba(${sol.rgb}, 0.35)`,
+                                boxShadow: `0 4px 12px rgba(${sol.rgb}, 0.15)`,
+                              }}
+                            >
+                              <PhotoIcon size={19} color={colorHex} strokeWidth={2} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-bold text-foreground truncate">{photo.label}</p>
+                              <p className="text-[10px] text-muted-foreground font-medium">Visual preview</p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+
                 </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  In academic and nutritional research, collecting accurate food intake data is often difficult and time-consuming. FoodCaliper enables researchers to analyze food images and convert them into measurable dietary data such as portion size, weight, and calorie estimates. This allows research teams to gather structured food consumption data more efficiently and conduct large-scale dietary studies with improved data consistency.
-                </p>
               </div>
-            </motion.div>
-          </div>
+            );
+          })}
         </div>
       </section>
 
-      {/* Stats Section */}
+
       <section className="px-6 py-32 bg-white/50 dark:bg-background-dark/50 backdrop-blur-md border-y border-border relative z-20">
         <LogoLoop
           logos={stats}
@@ -932,14 +1198,27 @@ const Index = () => {
         </div>
       </section>
 
-      {/* How It Works Section */}
+      {/* How It Works Section — Redesigned 4-Stage Interactive AI Telemetry Pipeline */}
       <section
-        ref={horizontalSectionRef}
         id="features"
-        className="px-6 py-24 md:py-32 bg-background-light dark:bg-background-dark transition-colors duration-300 ease-out overflow-hidden md:h-screen md:flex md:flex-col md:justify-center relative z-20"
+        className="px-6 py-24 md:py-32 bg-background-light dark:bg-background-dark transition-colors duration-300 relative overflow-hidden z-20"
       >
-        <div className="max-w-7xl mx-auto w-full md:absolute md:top-24 md:left-12 md:right-12 flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 md:mb-0">
-          <div>
+        {/* Background Ambient Glow & Texture */}
+        <div
+          className="absolute inset-0 z-0 opacity-15 pointer-events-none"
+          style={{
+            backgroundImage: `url(${bgTexture})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+          }}
+        />
+        <div className="absolute top-1/3 left-[-5vw] w-96 h-96 bg-cyan-500/10 rounded-full blur-[130px] pointer-events-none z-0" />
+        <div className="absolute bottom-1/3 right-[-5vw] w-96 h-96 bg-orange-500/10 rounded-full blur-[130px] pointer-events-none z-0" />
+
+        <div className="max-w-7xl mx-auto relative z-10">
+          {/* Section Header */}
+          <div className="text-center mb-16">
             <ScrollReveal
               enableBlur
               containerClassName="mb-4"
@@ -947,98 +1226,338 @@ const Index = () => {
             >
               How It Works
             </ScrollReveal>
-            <div className="w-24 h-1.5 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full" />
+            <div className="w-24 h-1.5 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full mx-auto" />
+            <p className="mt-6 text-muted-foreground max-w-2xl mx-auto text-base font-medium leading-relaxed">
+              Our multi-stage pipeline turns simple meal photos into precise volume, weight, and nutritional breakdowns in seconds.
+            </p>
           </div>
-          <p className="text-muted-foreground text-sm max-w-md font-medium leading-relaxed">
-            Our multi-stage pipeline turns simple images into precise volume, weight, and nutritional breakdowns in seconds.
-          </p>
-        </div>
 
-        {/* Horizontal scroll strip */}
-        <div className="w-full overflow-x-auto md:overflow-x-visible md:overflow-y-hidden select-none scrollbar-hide py-4 md:py-10">
-          <div
-            ref={horizontalContainerRef}
-            className="flex flex-col md:flex-row md:flex-nowrap gap-6 md:gap-8 px-0 md:px-12 w-full md:w-max"
-          >
-            {/* Step 1 */}
-            <div className="horizontal-panel w-full md:w-[380px] shrink-0 p-8 rounded-3xl backdrop-blur-xl bg-white/40 dark:bg-slate-900/60 border border-slate-200 dark:border-white/[0.08] shadow-lg hover:border-orange-500/30 transition-all flex flex-col justify-between h-[280px]">
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center">
-                    <Eye className="text-orange-500" size={26} />
+          {/* Interactive Pipeline Stage Grid */}
+          <div className="grid lg:grid-cols-12 gap-8 items-start">
+            
+            {/* Left Column (lg:col-span-5) — 4 Step Interactive Timeline Cards */}
+            <div className="lg:col-span-5 space-y-4">
+              {howItWorksSteps.map((step, idx) => {
+                const StepIcon = step.icon;
+                const isActive = activeHowStep === idx;
+
+                return (
+                  <motion.div
+                    key={step.num}
+                    onClick={() => setActiveHowStep(idx)}
+                    whileHover={{ scale: 1.01 }}
+                    className={`p-6 rounded-3xl cursor-pointer transition-all duration-300 border relative overflow-hidden ${
+                      isActive
+                        ? "bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-orange-500/50 shadow-xl shadow-orange-500/10"
+                        : "bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-slate-200 dark:border-slate-800/80 hover:bg-white/60 dark:hover:bg-slate-900/60"
+                    }`}
+                  >
+                    {/* Active Accent Left Stripe */}
+                    {isActive && (
+                      <motion.div
+                        layoutId="active-step-bar"
+                        className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-orange-400 to-orange-600"
+                      />
+                    )}
+
+                    <div className="flex items-start gap-4">
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border ${
+                        isActive
+                          ? "bg-orange-500/10 border-orange-500/30 text-orange-500 shadow-sm"
+                          : "bg-slate-100 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-muted-foreground"
+                      }`}>
+                        <StepIcon size={24} />
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                            {step.badge}
+                          </span>
+                          <span className={`text-sm font-black ${isActive ? "text-orange-500" : "text-muted-foreground/60"}`}>
+                            {step.num}
+                          </span>
+                        </div>
+
+                        <h3 className="text-lg font-bold text-foreground leading-snug mb-1">
+                          {step.title}
+                        </h3>
+
+                        <p className="text-xs text-muted-foreground leading-relaxed font-normal">
+                          {step.desc}
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+
+            {/* Right Column (lg:col-span-7) — Live AI Telemetry Stage Showcase */}
+            <div className="lg:col-span-7 lg:sticky lg:top-32">
+              <div className="p-8 rounded-3xl bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-slate-800/80 shadow-2xl relative overflow-hidden min-h-[540px] flex flex-col justify-between">
+                
+                {/* Top Telemetry Header Bar */}
+                <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800/80 mb-6">
+                  <div className="flex items-center gap-3">
+                    <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">
+                      Pipeline Stage 0{activeHowStep + 1} Telemetry
+                    </span>
                   </div>
-                  <span className="text-4xl font-black text-slate-200 dark:text-slate-850 select-none">01</span>
+                  <span className="text-xs font-mono font-bold text-orange-500 bg-orange-500/10 px-3 py-1 rounded-full border border-orange-500/20">
+                    {howItWorksSteps[activeHowStep].badge}
+                  </span>
                 </div>
-                <h3 className="text-xl font-bold text-foreground mb-3">Computer Vision</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Advanced segmentation models locate and outline every individual food item on your plate, capturing shapes and texture boundaries to separate overlapping foods.
-                </p>
+
+                {/* Stage Dynamic Visual Panels */}
+                <div className="flex-1 flex items-center justify-center my-auto w-full">
+                  <AnimatePresence mode="wait">
+                    {/* Stage 01: Computer Vision & Segmentation */}
+                    {activeHowStep === 0 && (
+                      <motion.div
+                        key="stage-01"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.35 }}
+                        className="w-full space-y-6"
+                      >
+                        <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-950/80 aspect-video flex items-center justify-center p-4">
+                          <img
+                            src={heroFood}
+                            alt="Computer Vision Segmentation"
+                            className="w-full h-full object-cover rounded-xl opacity-75"
+                          />
+                          {/* Animated AI Scanning Line */}
+                          <div className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_15px_#06b6d4] animate-pulse top-1/2" />
+                          
+                          {/* Segmentation Hotspot Badges */}
+                          <div className="absolute top-6 left-6 px-3 py-1.5 rounded-lg bg-slate-950/90 border border-cyan-500/40 text-cyan-400 text-xs font-mono font-bold flex items-center gap-2 shadow-lg backdrop-blur-md">
+                            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                            Sirloin Steak (99.2% match)
+                          </div>
+                          <div className="absolute bottom-6 right-6 px-3 py-1.5 rounded-lg bg-slate-950/90 border border-emerald-500/40 text-emerald-400 text-xs font-mono font-bold flex items-center gap-2 shadow-lg backdrop-blur-md">
+                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                            Green Salad (98.4% match)
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-4 text-center">
+                          <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-border">
+                            <p className="text-[10px] text-muted-foreground font-bold uppercase">Object Bounding</p>
+                            <p className="text-sm font-black text-foreground mt-1">Multi-Polygon</p>
+                          </div>
+                          <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-border">
+                            <p className="text-[10px] text-muted-foreground font-bold uppercase">Classification</p>
+                            <p className="text-sm font-black text-cyan-500 mt-1">99.2% Accuracy</p>
+                          </div>
+                          <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-border">
+                            <p className="text-[10px] text-muted-foreground font-bold uppercase">Detection Latency</p>
+                            <p className="text-sm font-black text-emerald-500 mt-1">&lt;120 ms</p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* Stage 02: 3D Volumetric Mesh */}
+                    {activeHowStep === 1 && (
+                      <motion.div
+                        key="stage-02"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.35 }}
+                        className="w-full space-y-6"
+                      >
+                        <div className="relative rounded-2xl overflow-hidden border border-orange-500/30 bg-slate-950/90 p-6 flex flex-col justify-between min-h-[260px]">
+                          <div className="flex justify-between items-center mb-4">
+                            <div>
+                              <p className="text-xs font-mono text-orange-400 uppercase font-bold">Voxel Depth Topography</p>
+                              <p className="text-xl font-black text-white mt-1">342 cm³ Total Volume</p>
+                            </div>
+                            <span className="text-xs font-mono bg-orange-500/20 text-orange-400 px-3 py-1 rounded-md border border-orange-500/30">
+                              Elevation Mesh Active
+                            </span>
+                          </div>
+
+                          {/* Animated Wireframe Bars */}
+                          <div className="grid grid-cols-8 gap-2 items-end h-32 py-2">
+                            {[40, 65, 90, 100, 85, 60, 45, 30].map((h, i) => (
+                              <motion.div
+                                key={i}
+                                initial={{ height: 0 }}
+                                animate={{ height: `${h}%` }}
+                                transition={{ delay: i * 0.05, duration: 0.5 }}
+                                className="w-full bg-gradient-to-t from-orange-600 via-orange-500 to-amber-300 rounded-t-md shadow-[0_0_10px_rgba(249,115,22,0.3)]"
+                              />
+                            ))}
+                          </div>
+
+                          <div className="flex justify-between items-center pt-3 border-t border-white/10 text-xs font-mono text-white/60">
+                            <span>Voxel Resolution: 0.5mm³</span>
+                            <span>Peak Height: 4.8 cm</span>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="p-4 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-border">
+                            <p className="text-xs text-muted-foreground font-bold">Volume Error Margin</p>
+                            <p className="text-lg font-black text-foreground mt-1">±1.8%</p>
+                          </div>
+                          <div className="p-4 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-border">
+                            <p className="text-xs text-muted-foreground font-bold">Depth Point-Cloud</p>
+                            <p className="text-lg font-black text-orange-500 mt-1">45,000 Points</p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* Stage 03: Scale Calibration */}
+                    {activeHowStep === 2 && (
+                      <motion.div
+                        key="stage-03"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.35 }}
+                        className="w-full space-y-6"
+                      >
+                        <div className="relative rounded-2xl overflow-hidden border border-blue-500/30 bg-slate-950/90 p-6 flex flex-col justify-between min-h-[260px]">
+                          <div className="flex justify-between items-center mb-4">
+                            <div>
+                              <p className="text-xs font-mono text-blue-400 uppercase font-bold">Plate Diameter Reference</p>
+                              <p className="text-xl font-black text-white mt-1">26.5 cm Scale Standard</p>
+                            </div>
+                            <span className="text-xs font-mono bg-blue-500/20 text-blue-400 px-3 py-1 rounded-md border border-blue-500/30">
+                              Calibrated
+                            </span>
+                          </div>
+
+                          {/* Visual Ruler Scale Bar */}
+                          <div className="py-6 my-auto">
+                            <div className="relative h-12 w-full bg-slate-900 border border-blue-500/40 rounded-xl flex items-center justify-between px-4 overflow-hidden">
+                              <div className="absolute inset-x-0 top-0 bottom-0 flex justify-between px-2 items-center opacity-40">
+                                {Array.from({ length: 20 }).map((_, i) => (
+                                  <div key={i} className={`w-0.5 ${i % 5 === 0 ? "h-6 bg-blue-400" : "h-3 bg-blue-400/50"}`} />
+                                ))}
+                              </div>
+                              <span className="text-xs font-mono font-bold text-blue-400 z-10">0 cm</span>
+                              <span className="text-xs font-mono font-bold text-white z-10 bg-blue-600 px-2 py-0.5 rounded shadow">Scale Ratio: 1.18 px/mm</span>
+                              <span className="text-xs font-mono font-bold text-blue-400 z-10">26.5 cm</span>
+                            </div>
+                          </div>
+
+                          <div className="flex justify-between items-center pt-3 border-t border-white/10 text-xs font-mono text-white/60">
+                            <span>Camera Pitch: 45°</span>
+                            <span>Focal Distance: 35 cm</span>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="p-4 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-border">
+                            <p className="text-xs text-muted-foreground font-bold">Perspective Correction</p>
+                            <p className="text-lg font-black text-foreground mt-1">Affine Adjusted</p>
+                          </div>
+                          <div className="p-4 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-border">
+                            <p className="text-xs text-muted-foreground font-bold">Calculated Weight</p>
+                            <p className="text-lg font-black text-blue-500 mt-1">285 g Total Mass</p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* Stage 04: Calorie & Macro Synthesis */}
+                    {activeHowStep === 3 && (
+                      <motion.div
+                        key="stage-04"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.35 }}
+                        className="w-full space-y-6"
+                      >
+                        <div className="relative rounded-2xl overflow-hidden border border-emerald-500/30 bg-slate-950/90 p-6 flex flex-col justify-between min-h-[260px]">
+                          <div className="flex justify-between items-center mb-4">
+                            <div>
+                              <p className="text-xs font-mono text-emerald-400 uppercase font-bold">Nutritional Breakdown</p>
+                              <p className="text-2xl font-black text-white mt-1">675 <span className="text-sm font-normal text-white/60">kcal total</span></p>
+                            </div>
+                            <span className="text-xs font-mono bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-md border border-emerald-500/30">
+                              Audit Ready
+                            </span>
+                          </div>
+
+                          {/* Macro Progress Bars */}
+                          <div className="space-y-3 my-auto">
+                            <div>
+                              <div className="flex justify-between text-xs font-mono text-white mb-1">
+                                <span>🥩 Protein</span>
+                                <span className="font-bold text-emerald-400">44 g (42%)</span>
+                              </div>
+                              <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                                <div className="h-full bg-emerald-500 w-[42%]" />
+                              </div>
+                            </div>
+                            <div>
+                              <div className="flex justify-between text-xs font-mono text-white mb-1">
+                                <span>🥔 Carbohydrates</span>
+                                <span className="font-bold text-amber-400">40 g (38%)</span>
+                              </div>
+                              <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                                <div className="h-full bg-amber-500 w-[38%]" />
+                              </div>
+                            </div>
+                            <div>
+                              <div className="flex justify-between text-xs font-mono text-white mb-1">
+                                <span>🥗 Healthy Fats</span>
+                                <span className="font-bold text-cyan-400">26 g (20%)</span>
+                              </div>
+                              <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                                <div className="h-full bg-cyan-500 w-[20%]" />
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex justify-between items-center pt-4 border-t border-white/10">
+                            <span className="text-xs font-mono text-white/60">USDA Database Standard</span>
+                            <button
+                              onClick={() => navigate('/reports')}
+                              className="text-xs font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 transition-colors"
+                            >
+                              <span>Export PDF Report</span>
+                              <ChevronRight size={14} />
+                            </button>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* Bottom Step Indicator Navigation */}
+                <div className="pt-6 border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground font-semibold">
+                    Step {activeHowStep + 1} of 4
+                  </span>
+                  <div className="flex items-center gap-2">
+                    {howItWorksSteps.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setActiveHowStep(i)}
+                        className={`h-2 rounded-full transition-all ${
+                          activeHowStep === i
+                            ? "w-8 bg-orange-500"
+                            : "w-2 bg-slate-300 dark:bg-slate-700 hover:bg-slate-400"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+
               </div>
             </div>
 
-            {/* Step 2 */}
-            <div className="horizontal-panel w-full md:w-[380px] shrink-0 p-8 rounded-3xl backdrop-blur-xl bg-white/40 dark:bg-slate-900/60 border border-slate-200 dark:border-white/[0.08] shadow-lg hover:border-orange-500/30 transition-all flex flex-col justify-between h-[280px]">
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center">
-                    <Cpu className="text-orange-500" size={26} />
-                  </div>
-                  <span className="text-4xl font-black text-slate-200 dark:text-slate-850 select-none">02</span>
-                </div>
-                <h3 className="text-xl font-bold text-foreground mb-3">Processing Pipeline</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  The segmented slices feed into our processing architecture, validating depth calibrations, camera angles, and scaling factors for accurate pixel-to-volume mapping.
-                </p>
-              </div>
-            </div>
-
-            {/* Step 3 */}
-            <div className="horizontal-panel w-full md:w-[380px] shrink-0 p-8 rounded-3xl backdrop-blur-xl bg-white/40 dark:bg-slate-900/60 border border-slate-200 dark:border-white/[0.08] shadow-lg hover:border-orange-500/30 transition-all flex flex-col justify-between h-[280px]">
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center">
-                    <Ruler className="text-orange-500" size={26} />
-                  </div>
-                  <span className="text-4xl font-black text-slate-200 dark:text-slate-850 select-none">03</span>
-                </div>
-                <h3 className="text-xl font-bold text-foreground mb-3">Volume Estimation</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Generates an estimated three-dimensional mesh of each portion, calculating spatial volume in milliliters (ml) by estimating dish thickness and depth.
-                </p>
-              </div>
-            </div>
-
-            {/* Step 4 */}
-            <div className="horizontal-panel w-full md:w-[380px] shrink-0 p-8 rounded-3xl backdrop-blur-xl bg-white/40 dark:bg-slate-900/60 border border-slate-200 dark:border-white/[0.08] shadow-lg hover:border-orange-500/30 transition-all flex flex-col justify-between h-[280px]">
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center">
-                    <Scale className="text-orange-500" size={26} />
-                  </div>
-                  <span className="text-4xl font-black text-slate-200 dark:text-slate-850 select-none">04</span>
-                </div>
-                <h3 className="text-xl font-bold text-foreground mb-3">Density Modeling</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Converts volumetric estimations into weight outputs (grams) by applying food Serving Density profiles, mapped across our extensive database of ingredient properties.
-                </p>
-              </div>
-            </div>
-
-            {/* Step 5 */}
-            <div className="horizontal-panel w-full md:w-[380px] shrink-0 p-8 rounded-3xl backdrop-blur-xl bg-white/40 dark:bg-slate-900/60 border border-slate-200 dark:border-white/[0.08] shadow-lg hover:border-orange-500/30 transition-all flex flex-col justify-between h-[280px]">
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center">
-                    <BarChart3 className="text-orange-500" size={26} />
-                  </div>
-                  <span className="text-4xl font-black text-slate-200 dark:text-slate-850 select-none">05</span>
-                </div>
-                <h3 className="text-xl font-bold text-foreground mb-3">Nutrition Calculation</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Calculates calorie counts and exact macronutrient (proteins, carbs, fats) metrics by multiplying portion weight against validated nutritional index catalogs.
-                </p>
-              </div>
-            </div>
           </div>
         </div>
       </section>

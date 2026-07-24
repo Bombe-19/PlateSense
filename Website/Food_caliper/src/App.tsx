@@ -18,7 +18,7 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <ReactLenis root>
+  <ReactLenis root options={{ lerp: 0.1, duration: 1.2, smoothWheel: true, wheelMultiplier: 1 }}>
     <LenisGSAPBridge />
     <ThemeProvider>
       <QueryClientProvider client={queryClient}>
