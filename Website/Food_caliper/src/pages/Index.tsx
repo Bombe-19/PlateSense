@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Ruler, Scale, Brain, BarChart3, Zap, Target, Upload, Home, BarChart4, Settings, User, Eye, Utensils, TrendingUp, Database, Hospital, Activity, Users, FlaskConical, Play, Cpu, FileText, ChevronRight, Droplet, ArrowUpRight, ClipboardList, HeartPulse, Dumbbell, Package, Microscope, LineChart, Apple, ChefHat } from "lucide-react";
+import { Ruler, Scale, Brain, BarChart3, Zap, Target, Upload, Home, BarChart4, Settings, User, Eye, Utensils, TrendingUp, Database, Hospital, Activity, Users, FlaskConical, Play, Cpu, FileText, ChevronRight, Droplet, ArrowUpRight, ClipboardList, HeartPulse, Dumbbell, Package, Microscope, LineChart, Apple, ChefHat, Scan } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Navbar from "@/components/Navbar";
@@ -19,6 +19,7 @@ import { useLenis } from "lenis/react";
 import CinematicLoader from "@/components/CinematicLoader";
 
 gsap.registerPlugin(ScrollTrigger);
+ScrollTrigger.config({ limitCallbacks: true });
 
 const mockMetrics = { volume: 342, weight: 285, items: 4 };
 
@@ -124,6 +125,7 @@ const Index = () => {
   const horizontalContainerRef = useRef<HTMLDivElement>(null);
   const productScanBeamRef = useRef<HTMLDivElement>(null);
   const productPlateImageRef = useRef<HTMLDivElement>(null);
+  const platformSectionRef = useRef<HTMLElement>(null);
 
   // Solutions section refs for center-big -> left expansion layout
   const solutionsSectionRef = useRef<HTMLElement>(null);
@@ -392,7 +394,7 @@ const Index = () => {
       // Refresh ScrollTrigger after initializing all DOM order pinned sections
       setTimeout(() => {
         ScrollTrigger.refresh();
-      }, 100);
+      }, 150);
     });
 
     return () => ctx.revert();
@@ -423,8 +425,8 @@ const Index = () => {
       onClick: () => navigate('/dashboard') 
     },
     { 
-      icon: <Utensils size={20} />, 
-      label: 'Scan', 
+      icon: <Scan size={20} />, 
+      label: 'Analyze', 
       onClick: () => navigate('/analysis') 
     },
     { 
@@ -623,7 +625,10 @@ const Index = () => {
               </p>
 
               {/* Stacked feature strips with sliding layout animations */}
-              <div className="flex flex-col flex-1 justify-center divide-y divide-slate-200 dark:divide-slate-800/55 mt-4">
+              <div 
+                onMouseLeave={() => setExpandedStrip(null)}
+                className="flex flex-col flex-1 justify-center divide-y divide-slate-200 dark:divide-slate-800/55 mt-4"
+              >
                 {featuresList.map((feat, idx) => {
                   const isExpanded = expandedStrip === idx;
                   
@@ -654,6 +659,7 @@ const Index = () => {
                     <motion.div 
                       key={feat.title}
                       layout
+                      onMouseEnter={() => setExpandedStrip(idx)}
                       onClick={() => setExpandedStrip(isExpanded ? null : idx)}
                       className={`transition-colors duration-300 cursor-pointer min-h-[96px] flex items-center py-5 px-3 relative overflow-hidden select-none group rounded-xl ${
                         isExpanded ? "bg-white/[0.02] dark:bg-slate-900/20" : "hover:bg-white/[0.01]"
@@ -956,7 +962,7 @@ const Index = () => {
       <section
         id="solutions"
         ref={solutionsSectionRef}
-        className="h-screen w-full bg-background-light dark:bg-background-dark transition-colors duration-300 flex flex-col justify-between py-6 sm:py-8 px-4 sm:px-6 relative overflow-hidden"
+        className="h-screen w-full bg-background-light dark:bg-background-dark transition-colors duration-300 flex flex-col justify-start pt-20 pb-4 sm:pb-6 px-4 sm:px-6 relative overflow-hidden"
       >
         {/* Plain Clean Hero-matching Background Texture & Ambient Orbs (No dots) */}
         <div
@@ -972,7 +978,7 @@ const Index = () => {
         <div className="absolute bottom-[20%] right-[8vw] w-[450px] h-[450px] bg-orange-500/10 rounded-full blur-[130px] pointer-events-none z-0" />
 
         {/* Section Heading */}
-        <div className="text-center pt-2 sm:pt-4 mb-2 z-10">
+        <div className="text-center mb-3 sm:mb-4 z-10">
           <ScrollReveal
             enableBlur
             containerClassName="mb-1 sm:mb-2"
@@ -1162,41 +1168,43 @@ const Index = () => {
         />
       </section>
 
-      {/* Platform Section */}
+      {/* Platform Section — tall section, header scrolls away, card carousel is CSS sticky */}
       <section
         id="platform"
-        className="px-6 py-32 bg-white/40 dark:bg-background-dark/40 backdrop-blur-sm border-y border-border relative z-20"
+        ref={platformSectionRef as React.RefObject<HTMLElement>}
+        className="relative z-20 overflow-x-clip w-full max-w-full"
+        style={{ minHeight: "320vh" }}
       >
-        <div className="max-w-7xl mx-auto">
+        {/* Full-section background (not sticky — just fills the tall section) */}
+        <div className="absolute inset-0 bg-white/40 dark:bg-background-dark/40 backdrop-blur-sm border-y border-border pointer-events-none" />
 
-          {/* Section Header */}
-          <div className="text-center mb-16">
-            <ScrollReveal
-              enableBlur
+        {/* Section Header — scrolls with the page, disappears as you scroll down */}
+        <div className="relative z-10 max-w-7xl mx-auto px-6 pt-24 pb-12 text-center">
+          <ScrollReveal
+            enableBlur
+            containerClassName="mb-6"
+            textClassName="text-5xl md:text-6xl font-black text-foreground"
+          >
+            Platform
+          </ScrollReveal>
 
-              containerClassName="mb-6"
-              textClassName="text-5xl md:text-6xl font-black text-foreground"
-            >
-              Platform
-            </ScrollReveal>
+          <div className="w-24 h-1.5 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full mx-auto" />
 
-            <div className="w-24 h-1.5 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full mx-auto" />
+          <p className="mt-6 text-muted-foreground max-w-3xl mx-auto text-lg">
+            The FoodCaliper platform provides a complete AI-powered environment
+            for analyzing food images and extracting measurable insights such as
+            volume, weight, and nutritional data.
+          </p>
+        </div>
 
-            <p className="mt-6 text-muted-foreground max-w-3xl mx-auto text-lg">
-              The FoodCaliper platform provides a complete AI-powered environment
-              for analyzing food images and extracting measurable insights such as
-              volume, weight, and nutritional data. The system combines computer
-              vision with structured analytics to help organizations track food
-              measurements, monitor nutritional intake, and generate reliable
-              food analysis reports.
-            </p>
+        {/* Card Carousel — ONLY this is sticky. Sticks below the navbar as section scrolls. */}
+        <div className="sticky top-20 z-10 pb-8">
+          <div className="max-w-7xl mx-auto px-6">
+            <PlatformSection sectionRef={platformSectionRef as React.RefObject<HTMLElement>} />
           </div>
-
-          {/* Platform Component */}
-          <PlatformSection />
-
         </div>
       </section>
+
 
       {/* How It Works Section — Redesigned 4-Stage Interactive AI Telemetry Pipeline */}
       <section
@@ -1520,7 +1528,7 @@ const Index = () => {
                           </div>
 
                           <div className="flex justify-between items-center pt-4 border-t border-white/10">
-                            <span className="text-xs font-mono text-white/60">USDA Database Standard</span>
+                            <span className="text-xs font-mono text-white/60">FoodCaliper Nutrition Catalog</span>
                             <button
                               onClick={() => navigate('/reports')}
                               className="text-xs font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 transition-colors"

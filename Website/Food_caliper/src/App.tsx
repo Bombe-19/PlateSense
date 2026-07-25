@@ -18,7 +18,7 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <ReactLenis root options={{ lerp: 0.1, duration: 1.2, smoothWheel: true, wheelMultiplier: 1 }}>
+  <ReactLenis root options={{ lerp: 0.1, duration: 1.2, smoothWheel: true, touchMultiplier: 1.5 }}>
     <LenisGSAPBridge />
     <ThemeProvider>
       <QueryClientProvider client={queryClient}>
@@ -28,7 +28,7 @@ const App = () => (
           <TargetCursor 
             spinDuration={2}
             hideDefaultCursor={false}
-            parallaxOn
+            parallaxOn={false}
             hoverDuration={0.2}
           />
           <BrowserRouter>

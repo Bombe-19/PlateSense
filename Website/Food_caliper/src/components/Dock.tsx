@@ -41,7 +41,7 @@ const getOverrideIcon = (label: string, isActive: boolean) => {
   if (cleanLabel.includes('home')) {
     return <Home strokeWidth={strokeWidth} size={size} className={colorClass} />;
   }
-  if (cleanLabel.includes('analyze') || cleanLabel.includes('analysis') || cleanLabel.includes('search')) {
+  if (cleanLabel.includes('analyze') || cleanLabel.includes('analysis') || cleanLabel.includes('scan') || cleanLabel.includes('search')) {
     return <Scan strokeWidth={strokeWidth} size={size} className={colorClass} />;
   }
   if (cleanLabel.includes('dashboard') || cleanLabel.includes('stats') || cleanLabel.includes('analytics')) {
@@ -63,34 +63,29 @@ export default function Dock({ items = [] }: DockProps) {
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isFeedbackCompleted, setIsFeedbackCompleted] = useState(false);
   
-  // Initialize state based on the current URL
-  const [activeIndex, setActiveIndex] = useState<number>(() => {
-    const path = location.pathname.toLowerCase();
-    const safeItems = items || [];
+  // Helper for matching current path to dock item
+  const matchDockItemIndex = (safeItems: DockItem[], currentPath: string) => {
+    const path = currentPath.toLowerCase();
     const exactMatch = safeItems.findIndex(item => {
       if (!item || !item.label) return false;
       const label = item.label.toLowerCase();
       if (path === '/' && label === 'home') return true;
-      if (path.includes('analysis') && label === 'analyze') return true;
+      if (path.includes('analysis') && (label === 'analyze' || label === 'analysis' || label === 'scan')) return true;
       if (path.length > 1 && path.includes(label)) return true;
       return false;
     });
     return exactMatch !== -1 ? exactMatch : 0;
+  };
+
+  // Initialize state based on the current URL
+  const [activeIndex, setActiveIndex] = useState<number>(() => {
+    return matchDockItemIndex(items || [], location.pathname);
   });
 
-  // Sync activeIndex with URL pathname changes (crucial if Dock is persistent or transitions are delayed)
+  // Sync activeIndex with URL pathname changes
   useEffect(() => {
-    const path = location.pathname.toLowerCase();
     const safeItems = items || [];
-    const exactMatch = safeItems.findIndex(item => {
-      if (!item || !item.label) return false;
-      const label = item.label.toLowerCase();
-      if (path === '/' && label === 'home') return true;
-      if (path.includes('analysis') && label === 'analyze') return true;
-      if (path.length > 1 && path.includes(label)) return true;
-      return false;
-    });
-
+    const exactMatch = matchDockItemIndex(safeItems, location.pathname);
     if (exactMatch !== -1) {
       setActiveIndex(exactMatch);
     }
