@@ -2,6 +2,9 @@
 
 > **A State-of-the-Art 3D Volumetric Food Estimation, Computer Vision Portion Analysis, and Personal Nutrition Web Application.**
 
+<img width="1847" height="946" alt="image" src="https://github.com/user-attachments/assets/d3054327-7f7c-40fd-94cf-c3d12c14960c" />
+
+
 [![React](https://img.shields.io/badge/React-18.3-blue.svg?logo=react)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg?logo=typescript)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-5.4-purple.svg?logo=vite)](https://vitejs.dev/)
@@ -476,19 +479,19 @@ docker run -d \
 
 ---
 
-## 11. Troubleshooting & FAQ
+> 11. Troubleshooting & FAQ
 
-### Q1: The backend returns `YOLO model not found` during analysis.
-**Solution**: Ensure that `best.pt` exists in the project root directory and that `YOLO_MODEL_PATH=../best.pt` in `backend/.env` points to the correct absolute or relative file location.
+> ### Q1: The backend returns `YOLO model not found` during analysis.
+> **Solution**: Ensure that `best.pt` exists in the project root directory and that `YOLO_MODEL_PATH=../best.pt` in `backend/.env` points to the correct absolute or relative file location.
 
-### Q2: How can I change the default plate diameter for calibration?
-**Solution**: In the Scanner UI (`/analysis`), adjust the **Plate Diameter** slider. Alternatively, configure `PLATE_DIAMETER_CM=25` in `backend/.env`.
+> ### Q2: How can I change the default plate diameter for calibration?
+> **Solution**: In the Scanner UI (`/analysis`), adjust the **Plate Diameter** slider. Alternatively, configure `PLATE_DIAMETER_CM=25` in `backend/.env`.
 
-### Q3: Why does volume calculation show 0 for a custom food item?
-**Solution**: Ensure the detected item name exists in `Indian_Food_Nutrition_Processed.csv` or the `food_nutrition_database` table so density values ($\rho$) can be resolved.
+> ### Q3: Why does volume calculation show 0 for a custom food item?
+> **Solution**: Ensure the detected item name exists in `Indian_Food_Nutrition_Processed.csv` or the `food_nutrition_database` table so density values ($\rho$) can be resolved.
 
-### Q4: CORS errors occur when calling the API from the frontend.
-**Solution**: Ensure `FRONTEND_URL=http://localhost:5173` is set in `backend/.env` and matches the origin address where Vite is running.
+> ### Q4: CORS errors occur when calling the API from the frontend.
+> **Solution**: Ensure `FRONTEND_URL=http://localhost:5173` is set in `backend/.env` and matches the origin address where Vite is running.
 
 ---
 
