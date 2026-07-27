@@ -1,339 +1,663 @@
-# PlateSense
+# 🥗 PlateSense / Food Caliper - AI Volumetric Food & Nutrition Intelligence Platform
 
-> This section describes the model training process and the procedures involved in utilizing the trained model.
+> **End-to-End Platform Documentation: From Deep Learning Model Training (YOLOv8) to 3D Volumetric Computer Vision and Full-Stack Production Web Application.**
 
-This project is an application of machine learning to the task of identifying and recognizing which food items are present on a plate. We put together a system that looks at food images and which in turn is able to very accurately identify, classify and label each item.
-## Objective
-- The main goal of this project is to:
-   - Detect and classify different food items in an image.
-   - Provide bounding boxes and labels for each detected item.
-   - Deliver a fast and efficient solution using YOLOv8, suitable for both real-time and research use.
-## The Model to be used=YOLO?
-- **Fast and Real-Time** – Detects all items in one pass (single-stage detection).
-- **High Accuracy** – Excellent performance even with small datasets.
-- **Versatile** – Supports detection, segmentation, and classification.
-- **Easy to Train and Deploy** – Simple implementation using the Ultralytics library.
-## Tools and Technology 
-| Category                   | Tools/Frameworks                               |
-| -------------------------- | ---------------------------------------------- |
-| **Programming Language**   | Python                                         |
-| **Object Detection Model** | YOLOv8 (Ultralytics)                           |
-| **Libraries Used**         | OpenCV, NumPy, Pandas, Matplotlib, Ultralytics |
-| **Annotation Tool**        | LabelImg / Roboflow                            |
-## Dataset
-public datasets like Food-101, UECFOOD256, or create a custom dataset.
-  - https://datasetninja.com/food-recognition#download
-  - https://www.kaggle.com/datasets/trolukovich/food11-image-dataset
-  - https://www.kaggle.com/datasets/rkuo2000/uecfood256
-    
-Each image must contain:
-  - Bounding boxes around food items.
-  - Labels (e.g., Rice, Curry, Salad).
-  - Annotations can be done manually using tools like LabelImg.
-## Project Pipeline
-```bash
-Data Collection
-     ↓
-Data Annotation (Bounding Boxes & Labels)
-     ↓
-Data Preprocessing (Resize, Normalize, Split)
-     ↓
-Model Selection – YOLOv8
-     ↓
-Model Training (Custom Food Dataset)
-     ↓
-Object Detection & Bounding Box Prediction
-     ↓
-Post-Processing (Non-Max Suppression)
-     ↓
-Evaluation (mAP, Precision, Recall)
-     ↓
-Visualization & Deployment (Optional)
+[![React](https://img.shields.io/badge/React-18.3-blue.svg?logo=react)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg?logo=typescript)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-5.4-purple.svg?logo=vite)](https://vitejs.dev/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green.svg?logo=fastapi)](https://fastapi.tiangolo.com/)
+[![YOLOv8](https://img.shields.io/badge/YOLOv8-Ultralytics-orange.svg?logo=python)](https://docs.ultralytics.com/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-EE4C2C.svg?logo=pytorch)](https://pytorch.org/)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0+-blue.svg?logo=mysql)](https://www.mysql.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC.svg?logo=tailwind-css)](https://tailwindcss.com/)
+
+---
+
+## 📋 Table of Contents
+
+- [1. Executive Summary & Platform Overview](#1-executive-summary--platform-overview)
+- [2. System Architecture & End-to-End Data Flow](#2-system-architecture--end-to-end-data-flow)
+- [3. Complete Technology Stack Matrix](#3-complete-technology-stack-matrix)
+- [4. Three Core Platform Pillars](#4-three-core-platform-pillars)
+  - [4.1 Pillar 1: Full-Stack Web Application (`Website/Food_caliper`)](#41-pillar-1-full-stack-web-application-websitefood_caliper)
+  - [4.2 Pillar 2: High-Performance REST API Backend (`backend/`)](#42-pillar-2-high-performance-rest-api-backend-backend)
+  - [4.3 Pillar 3: AI Volumetric & Computer Vision Engine](#43-pillar-3-ai-volumetric--computer-vision-engine)
+- [5. Computer Vision & Mathematical Core](#5-computer-vision--mathematical-core)
+  - [5.1 YOLOv8 Detection & Polygon Segmentation](#51-yolov8-detection--polygon-segmentation)
+  - [5.2 Real-World Scale Calibration Matrix](#52-real-world-scale-calibration-matrix)
+  - [5.3 3D Volumetric Mesh & Height Estimation](#53-3d-volumetric-mesh--height-estimation)
+  - [5.4 Bulk Density & Mass Synthesis](#54-bulk-density--mass-synthesis)
+- [6. Repository Directory & Architecture Map](#6-repository-directory--architecture-map)
+- [7. PlateSense Model Training, Datasets & Active Learning](#7-platesense-model-training-datasets--active-learning)
+  - [7.1 Model Objective & YOLOv8 Features](#71-model-objective--yolov8-features)
+  - [7.2 Datasets & Annotation Tools](#72-datasets--annotation-tools)
+  - [7.3 Google Colab GPU Setup & Drive Mounting](#73-google-colab-gpu-setup--drive-mounting)
+  - [7.4 YOLOv8 Model Training & Preparation](#74-yolov8-model-training--preparation)
+  - [7.5 Model Evaluation Metrics](#75-model-evaluation-metrics)
+  - [7.6 Model Weight Saving & Fine-Tuning](#76-model-weight-saving--fine-tuning)
+  - [7.7 Active Learning Loop](#77-active-learning-loop)
+- [8. Real-Time Webcam Detection & Standalone Gradio UI](#8-real-time-webcam-detection--standalone-gradio-ui)
+  - [8.1 Live Webcam Detection & Keyboard Controls](#81-live-webcam-detection--keyboard-controls)
+  - [8.2 Standalone Gradio Volumetric Analysis UI](#82-standalone-gradio-volumetric-analysis-ui)
+  - [8.3 Output Formats & Sample JSON Schema](#83-output-formats--sample-json-schema)
+- [9. Complete Installation & Quick Start Guide](#9-complete-installation--quick-start-guide)
+  - [9.1 Prerequisites](#91-prerequisites)
+  - [9.2 Step 1: MySQL Database Setup](#92-step-1-mysql-database-setup)
+  - [9.3 Step 2: FastAPI Backend Setup](#93-step-2-fastapi-backend-setup)
+  - [9.4 Step 3: React Web Frontend Setup](#94-step-3-react-web-frontend-setup)
+  - [9.5 Step 4: Standalone Gradio / Volumetric Execution](#95-step-4-standalone-gradio--volumetric-execution)
+- [10. REST API Endpoint Reference](#10-rest-api-endpoint-reference)
+- [11. Production Deployment & Dockerization](#11-production-deployment--dockerization)
+- [12. Troubleshooting & FAQ](#12-troubleshooting--faq)
+
+---
+
+## 1. Executive Summary & Platform Overview
+
+**PlateSense / Food Caliper** is an end-to-end artificial intelligence platform built to solve portion size estimation and nutritional auditing without manual food weighing. Traditional dietary tracking apps rely on subjective human guesses, resulting in macro measurement errors of up to 40%. 
+
+This project bridges **deep learning object detection (Ultralytics YOLOv8)**, **3D spatial volume estimation**, **bulk density mapping**, and a **production-grade web application** built with React 18, Vite, FastAPI, and MySQL.
+
+### Core Capabilities:
+1. **Multi-Food Identification**: Accurately detects and classifies multiple distinct food items in a single image.
+2. **Volumetric Estimation**: Converts 2D pixel contours into 3D volume ($cm^3$ or $mL$) using physical plate calibration.
+3. **Weight & Macro Synthesis**: Estimates exact physical mass ($grams$), calories, protein, carbohydrates, fats, and micronutrients.
+4. **Interactive Web Portal**: Full-featured React web client with live webcam scanning, calibration sliders, daily calorie rings, macro trends, and downloadable CSV/PDF reports.
+
+---
+
+## 2. System Architecture & End-to-End Data Flow
+
+The diagram below illustrates how a user request flows through the full platform stack:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as User / Browser
+    participant React as React Web App (:5173)
+    participant API as FastAPI Backend (:8000)
+    participant ML as Volumetric Analysis Engine
+    participant YOLO as YOLOv8 Neural Model (best.pt)
+    participant DB as MySQL Database (food_caliper_db)
+
+    User->>React: Upload Meal Photo + Set Plate Diameter (e.g., 25cm)
+    React->>API: POST /api/v1/analysis/upload (FormData + user_id)
+    API->>ML: Forward image file & scale parameters
+    ML->>YOLO: Run inference on image tensor
+    YOLO-->>ML: Return Bounding Boxes, Polygon Contours & Class Scores
+    ML->>ML: 1. Calculate Pixel-to-CM Scale Ratio from Plate Diameter
+    ML->>ML: 2. Compute 2D Area (cm²) & Estimate Height (cm)
+    ML->>ML: 3. Estimate 3D Volume (cm³) using Geometric Mesh
+    ML->>ML: 4. Lookup Density (g/cm³) & Calculate Mass (g)
+    ML->>ML: 5. Query Nutritional Database for Cal/Protein/Carb/Fat
+    ML-->>API: Return Structured Analysis JSON Payload
+    API->>DB: Persist scan record in `analyses` & `analysis_items`
+    API-->>React: HTTP 200 OK + Analysis Results
+    React-->>User: Render Bounding Box Overlays, Volume (cm³), Weight (g) & Charts
 ```
-## Working Principle of YOLOv8
-- **Input Image** – The image is divided into grids.
-- **Feature Extraction** – The CNN backbone identifies features.
-- **Bounding Box Prediction** – The model predicts object locations and class probabilities.
-- **Non-Maximum Suppression (NMS)** – Removes overlapping bounding boxes.
-- **Output** – Displays food items with labels and confidence scores.
 
-## How to Run this project 
-- **Clone the Repository**
-  ```bash
-  git clone https://github.com/your-username/PlateSense.git
-  cd PlateSense
-  ```
-- **Setup Google colab**
-   - Open **Google Colab**\
-       <https://colab.research.google.com>
-   - Sign in with your **Google account**
-   - In Colab menu, click on file then **Upload notebook**
-   - Select the `.ipynb` file
-   > After navigate to code/Platesense(1).ipynb file download it and upload the file
+---
 
-- **Enable GPU (Mandatory)**
-   Training YOLO models **requires GPU acceleration**.
-   - In Colab menu, click:
-   - `Runtime → Change runtime type  `
-   - Set:
-       -   **Hardware Accelerator** → `GPU`
-   - Click **Save**
+## 3. Complete Technology Stack Matrix
 
-- **Verify GPU**
-   - Check with the following cell:
-     ```bash
-     `!nvidia-smi `
-     ```
-   > If GPU details appear, setup is correct.
+| Layer | Technology | Purpose & Description |
+| :--- | :--- | :--- |
+| **Frontend Framework** | React 18.3, TypeScript 5.8, Vite 5.4 | Single Page Application framework with strict typing and fast HMR bundler. |
+| **UI & Styling** | Tailwind CSS 3.4, Shadcn UI (Radix) | Accessible design primitives with custom dark mode glassmorphism theme. |
+| **Animations** | GSAP 3, Framer Motion 12, Lenis | Inertia smooth scrolling, scroll triggers, and dynamic target cursor. |
+| **Data Viz & State** | TanStack React Query v5, Recharts 2.15 | Asynchronous data fetching, caching, and responsive macro trend visualization. |
+| **Backend Framework** | Python 3.10+, FastAPI, Uvicorn | Asynchronous RESTful API server with high concurrency performance. |
+| **Database & ORM** | MySQL 8.0, SQLAlchemy, Pydantic | Relational database storage for users, meal logs, and nutritional density records. |
+| **AI / Machine Learning** | Ultralytics YOLOv8, PyTorch, OpenCV | Single-stage deep convolutional network for object detection and contour segmentation. |
+| **Auth & Security** | PyJWT, Passlib (Bcrypt) | Secure JSON Web Token authentication with bcrypt password hashing. |
+| **UI Standalone / Test** | Gradio UI (`app.py`, `app2.py`) | Interactive rapid prototyping web UI for local testing and research. |
 
-- **Mount Google drive**
+---
+
+## 4. Three Core Platform Pillars
+
+### 4.1 Pillar 1: Full-Stack Web Application (`Website/Food_caliper`)
+- **Landing Portal (`/`)**: Interactive hero showcase, bento grid features, technology brand loop, and smooth Lenis scrolling.
+- **Volumetric Scanner (`/analysis`)**: Drag-and-drop image uploader, live webcam capture, real-time plate diameter calibration slider ($15\text{ cm} - 35\text{ cm}$), visual bounding overlays, and instant CSV audit exports.
+- **Daily Dashboard (`/dashboard`)**: Progress rings tracking daily caloric targets, macro distribution charts, hydration water intake counter, and weekly intake history.
+- **Audit Reports (`/reports`)**: Searchable historical scan log with date filtering and detailed nutrient breakdowns.
+- **User Profile (`/profile`)**: Physical metrics configuration (Height, Weight, Age) for automatic BMR/TDEE target calculation.
+
+### 4.2 Pillar 2: High-Performance REST API Backend (`backend/`)
+- **FastAPI Web Application (`main.py`)**: Asynchronous endpoint handlers with CORS configuration.
+- **Relational Models (`app/models`)**: SQLAlchemy database models for Users, Meal Analyses, and Analysis Items.
+- **Pydantic Schemas (`app/schemas`)**: Request/response validation schemas for auth tokens, profile updates, and scan payloads.
+- **JWT Middleware**: Token generation, validation, and user session management.
+
+### 4.3 Pillar 3: AI Volumetric & Computer Vision Engine
+- **Inference Model (`best.pt`)**: YOLOv8 neural network trained on annotated food datasets.
+- **Spatial Calibration Matrix**: Translates image pixel dimensions to physical metric units ($cm$).
+- **3D Mesh Reconstruction**: Calculates physical volume ($cm^3$) based on geometric modeling (Ellipsoid, Cylinder, Prism).
+- **Nutritional Database**: Maps food items against `Indian_Food_Nutrition_Processed.csv` and MySQL tables for exact nutrient density calculations.
+
+---
+
+## 5. Computer Vision & Mathematical Core
+
+Transforming a 2D photograph into 3D volumetric estimates and mass ($grams$) requires a 4-step mathematical pipeline:
+
+```
+[ 2D Image (px) ] ──(YOLOv8)──> [ Contours & Boxes ] ──(Scale Matrix)──> [ Real Dimensions (cm) ]
+                                                                                  │
+                                                                       (Geometric Mesh)
+                                                                                  ▼
+[ Calorie/Macro Data ] ◄──(Nutrition DB)─── [ Mass (g) ] ◄──(Density ρ)─── [ Volume (cm³) ]
+```
+
+### 5.1 YOLOv8 Detection & Polygon Segmentation
+Input image $I \in \mathbb{R}^{H \times W \times 3}$ is evaluated in a single pass to produce object bounding coordinates and polygon boundary points:
+
+$$\text{Detection Output} = \{ (B_i, C_i, S_i, P_i) \}_{i=1}^{N}$$
+
+Where $B_i$ is the bounding box, $C_i$ is the predicted class, $S_i$ is the confidence score, and $P_i$ represents contour polygon vertices in pixel space.
+
+### 5.2 Real-World Scale Calibration Matrix
+Camera distance varies across photos. To establish physical scale, the system uses a known reference object—by default, the physical dinner plate diameter $D_{\text{plate (cm)}}$ (e.g., $25\text{ cm}$).
+
+1. **Pixel Diameter Calculation**:
+   $$D_{\text{plate (px)}} = \max(W_{\text{plate-bbox}}, H_{\text{plate-bbox}})$$
+
+2. **Pixel-to-Centimeter Scale Ratio ($S$)**:
+   $$S = \frac{D_{\text{plate (cm)}}}{D_{\text{plate (px)}}} \quad \left[\frac{\text{cm}}{\text{px}}\right]$$
+
+3. **Physical Area Conversion**:
+   Given contour area in pixels $A_{\text{px}}$ derived via Green's theorem on polygon contour vertices:
+   $$A_{\text{cm}^2} = A_{\text{px}} \times S^2$$
+
+### 5.3 3D Volumetric Mesh & Height Estimation
+Single-view RGB cameras lack direct depth channels. Height $H_{\text{cm}}$ is geometrically estimated based on aspect ratio and morphological classification of specific food types:
+
+- **Ellipsoidal / Dome-shaped Foods (e.g., Rice bowl, Curry, Salad)**:
+  $$V_{\text{cm}^3} = \frac{2}{3} \cdot A_{\text{cm}^2} \cdot H_{\text{est}}$$
+
+- **Planar / Flat Foods (e.g., Pizza, Pancake, Dosa, Roti)**:
+  $$V_{\text{cm}^3} = A_{\text{cm}^2} \cdot H_{\text{flat-thickness}}$$
+
+- **Cylindrical / Prismatic Foods (e.g., Cake slice, Sandwiches)**:
+  $$V_{\text{cm}^3} = A_{\text{cm}^2} \cdot H_{\text{height}} \cdot K_{\text{taper}}$$
+
+Where $K_{\text{taper}}$ is a shape factor compensation constant ($\approx 0.85$).
+
+### 5.4 Bulk Density & Mass Synthesis
+Once volume $V_{\text{cm}^3}$ ($mL$) is computed, mass $M_{\text{grams}}$ is derived using item-specific bulk density values ($\rho \text{ in g/cm}^3$):
+
+$$M_{\text{grams}} = V_{\text{cm}^3} \times \rho_{\text{food}}$$
+
+*Sample Bulk Densities ($\rho$):*
+- White Rice (cooked): $0.85 \text{ g/cm}^3$
+- Chicken Curry: $1.05 \text{ g/cm}^3$
+- Green Salad: $0.35 \text{ g/cm}^3$
+- Whole Wheat Roti: $0.65 \text{ g/cm}^3$
+
+Finally, macronutrient values are calculated against the nutritional database:
+
+$$\text{Nutrient}_{\text{total}} = \text{Nutrient}_{\text{per 100g}} \times \frac{M_{\text{grams}}}{100}$$
+
+---
+
+## 6. Repository Directory & Architecture Map
+
+```
+Food/
+├── backend/                           # FastAPI Python Backend Service
+│   ├── app/
+│   │   ├── models/                    # SQLAlchemy Database Models (User, Analysis, etc.)
+│   │   ├── schemas/                   # Pydantic Input/Output Schemas
+│   │   ├── routes/                    # API Endpoints (Auth, Analysis, User Stats)
+│   │   ├── utils/                     # JWT Authentication & Password Hashing
+│   │   └── database.py                # MySQL Connection Engine & Base Class
+│   ├── uploads/                       # Uploaded Image Files Storage
+│   ├── main.py                        # FastAPI Application Entry Point
+│   ├── migrate_db.py                  # Database Migration Utility
+│   ├── requirements.txt               # Backend Python Dependencies
+│   └── .env                           # Backend Environment Configuration
+│
+├── Website/Food_caliper/               # React 18 + Vite Production Web Application
+│   ├── src/
+│   │   ├── assets/                    # Image & Vector Branding Assets
+│   │   ├── components/                # Reusable UI, Dock, TargetCursor & Animations
+│   │   ├── contexts/                  # ThemeContext (Dark/Light mode)
+│   │   ├── hooks/                     # Custom React Hooks (use-mobile, use-toast)
+│   │   ├── pages/                     # App Routes (Index, Login, Analysis, Dashboard, Reports, Profile)
+│   │   ├── services/                  # Central Axios API Client (`apiClient.ts`)
+│   │   ├── App.tsx                    # Main App Routing & Providers Component
+│   │   └── main.tsx                   # React Entry Point
+│   ├── package.json                   # Frontend Dependencies & Scripts
+│   ├── tailwind.config.ts             # Design System & Token Configuration
+│   ├── vite.config.ts                 # Vite Bundler Settings & Aliases
+│   ├── IMPLEMENTATION_GUIDE.md        # Full Step-by-Step Setup Guide
+│   └── README.md                      # Frontend Dedicated Documentation
+│
+├── code/                              # Google Colab Training Notebooks
+│   └── PlateSense(1).ipynb            # YOLOv8 Training & Fine-Tuning Notebook
+│
+├── images1/                           # Training & Evaluation Screenshot Artifacts
+├── volumetric_food_analysis.py         # Core Computer Vision & Volumetric Math Engine
+├── food_calibration_data.py           # Food Density & Caloric Reference Database
+├── food_detection.py                  # Standalone YOLO Detection & Webcam Script
+├── app.py / app1.py / app2.py         # Standalone Gradio Interface Scripts
+├── best.pt                            # Trained YOLOv8 PyTorch Model Weights
+├── Indian_Food_Nutrition_Processed.csv # Processed Food Nutrition Dataset
+├── database_schema.sql                # Raw SQL Schema Script
+├── Dockerfile                         # Production Multi-Stage Container Dockerfile
+├── requirements.txt                   # Root Python Requirements
+└── README.md                          # Master Repository Documentation (This File)
+```
+
+---
+
+## 7. PlateSense Model Training, Datasets & Active Learning
+
+### 7.1 Model Objective & YOLOv8 Features
+The core machine learning objective is detecting, classifying, and segmenting food items present on a plate in real time. **YOLOv8 (Ultralytics)** was selected for the following advantages:
+- **Single-Stage Real-Time Speed**: Evaluates bounding coordinates and class probabilities in a single pass.
+- **High Accuracy**: Strong performance even with smaller custom datasets.
+- **Multi-Task Capability**: Native support for object detection, instance segmentation, and classification.
+- **Ease of Deployment**: Simple Python API via the `ultralytics` package.
+
+---
+
+### 7.2 Datasets & Annotation Tools
+
+Public datasets used for training and benchmarking include:
+- [DatasetNinja Food Recognition](https://datasetninja.com/food-recognition#download)
+- [Kaggle Food-11 Image Dataset](https://www.kaggle.com/datasets/trolukovich/food11-image-dataset)
+- [Kaggle UECFOOD256 Dataset](https://www.kaggle.com/datasets/rkuo2000/uecfood256)
+
+#### Annotation Pipeline:
+Each image in the dataset requires:
+- Precise bounding boxes surrounding each food item.
+- Class labels (e.g., Rice, Curry, Salad, Roti, Waffles).
+- Image annotations were created using **LabelImg** and **Roboflow**.
+
+---
+
+### 7.3 Google Colab GPU Setup & Drive Mounting
+
+Training YOLOv8 requires GPU acceleration. Follow these steps in Google Colab:
+
+1. Open [Google Colab](https://colab.research.google.com) and upload `code/PlateSense(1).ipynb`.
+2. Enable GPU: Navigate to `Runtime → Change runtime type` $\rightarrow$ set `Hardware Accelerator` to `GPU` $\rightarrow$ click **Save**.
+3. Verify GPU availability:
    ```bash
+   !nvidia-smi
+   ```
+4. Mount Google Drive to preserve dataset files, checkpoints, and model weights across sessions:
+   ```python
    from google.colab import drive
    drive.mount('/content/drive')
    ```
-   > Mounting Google Drive ensures data persistence in Google Colab. Files uploaded directly to the runtime are temporary and are deleted when the session resets, whereas Drive mounting allows datasets,          models, and outputs to be stored securely and reused across sessions.
-   
-   > Uploading large datasets to the cloud consumes significant storage and time; to avoid this, use limited or sampled data during experimentation and scale up only when necessary.
-
-- **Upload the dataset**
-   - Upload your dataset to Google Drive first
-   - In Colab, access it:
-     ```bash
-      dataset_path = '/content/drive/MyDrive/Data_1_
-      #add more paths like this
-     ```
-     > Define the correct path in the Platesense(1).ipynb file with your file name
-> After this process navigate to code/PlateSense(1).ipynb make the changes in the code and define the path properly and run cell by cell, to get better understanding
-
-> Note: The images should be present in the drive so that the code works only running the project `data.yaml` gives an error 
-## How model is Trained
-- **Install Dependencies**
-   ```bash
-   pip install ultralytics opencv-python matplotlib numpy pandas
+5. Specify your dataset directory path:
+   ```python
+   dataset_path = '/content/drive/MyDrive/Data_1_'
    ```
-- **Prepare the Dataset**
-   - Organize your dataset
-      ```bash
-      dataset/
-      ├── images/
-      │   ├── train/
-      │   └── val/
-      └── labels/
-       ├── train/
-       └── val/
-      ```
-> If you already have the folder structure like this, you can continue training the model.
 
-> For YOLO models, the data must follow a specific format — one folder for images and another for labels.
+---
 
-> If your dataset is not in this format, annotate the images using LabelImg or Roboflow.
-Start by labeling around 25 images per class, then export the dataset in YOLOv8 format.
+### 7.4 YOLOv8 Model Training & Preparation
 
-> Roboflow will automatically generate the correct folder structure and provide the data.yaml file with all the necessary details for training.
-
-   - update data.yaml
-        - file tells the YOLO model where your dataset is located and what classes it should detect. Without this file, YOLO won’t know:
-        - Where the training and validation images are stored
-        - How many object classes exist
-        - What the names of those classes are
-> data.yaml accurate ensures YOLOv8 correctly loads your data and trains on the right classes without errors.
-
-> update the file whenever change in the dataset path, add or remove classes, rename the folders
-
- - **Train the Model**
-   ```bash
-   from ultralytics import YOLO
-   model = YOLO("yolov8n.pt")  # or yolov8s.pt for better accuracy
-   model.train(data="data.yaml", epochs=50, imgsz=640)
-   ```
-> if this gives less accuracy try with increasing the epoches to 100 or 150 and some augmentation
-
- - **Test the model**
-   ```bash
-   results = model.predict(source="test_image.jpg", conf=0.5)
-   results.show()
-   ```
-<p align="center">
-  <img src="/images1/check_1.png" width="300" />
-</p>
-
- - Evaluation Metrics
-   - Mean Average Precision (mAP)
-   - Precision and Recall
-   - F1 Score
-   - Inference Time (Speed)
-   <img width="948" height="500" alt="Evaluation_metrics" src="https://github.com/user-attachments/assets/43da7c3a-2d09-4a07-aa23-ef61f86d8b0c" />
-
- - Saving the model
-   - After training, YOLO automatically saves the model weights in:
-    ```bash
-    runs/detect/train/weights/
-    ```
-    - best.pt → Best-performing model
-    - last.pt → Last trained checkpoint
-    ```bash
-    model.save("models/food_detection_best.pt")
-    model = save("models/food_detection_last.pt")
-    ```
- - Fine tune the model
-   ```bash
-   from ultralytics import YOLO
-   model = YOLO("runs/detect/train/weights/best.pt")  # Load your trained weights
-   model.train(data="dataset/data.yaml", epochs=20, imgsz=640)
-   ```
-> The model path is the best performing model with pretrained bounding box and labels use this as model and annotate with new/unlabeled images
-
-> If there are more images try annotating with small number of images with correct bounding boxes and labels and with the trained model fine-tune the new unlabeled images
-
-## Class summary/Distribution 
-  <img src="/images1/Class_summary.png" width="500" height="500" />
-
-## Active Learning 
-- Active Learning for Continuous Improvement
-- After training, review predictions on new food images.
-- Identify incorrect detections or missing items.
-- Re-label those images in Roboflow or LabelImg.
-- Add them back into the training dataset.
-- Fine-tune your model again using the previously saved best.pt weights.
-- This iterative process helps your model get smarter with every training round.
-
-## Image Testing with YOLO trained model
-<p align="center">
-  <img src="/images1/check_4.png" width="300" />
-  <img src="/images1/check_5.png" width="300" />
-</p>
-
-## Real-time detection 
-This project includes live food item detection using a trained YOLO model and your device’s webcam. The system identifies and highlights various food items in real time, displaying bounding boxes and labels directly on the video stream. It’s fast, interactive, and built for practical use in kitchen automation, food logging, or smart dining applications.
-
-## Key Features:
- - Instant Detection: Real-time object detection powered by YOLO.
- - Webcam Integration: Detect food items directly from a live camera feed.
- - Adjustable Confidence: Modify detection threshold on the fly (+ / - keys).
- - Capture Frames: Save screenshots of detected frames with a single key press (s).
- - Efficient Model: Lightweight, high-performance YOLO network for quick inference.
- - Simple Controls: q to quit, intuitive UI overlay with detection count and confidence level.
-
-## Sample image of live time detection
-<p align="center">
-  <img src="/images1/check_r1.jpg" width="500" />
-</p>
-
-> This section focuses on estimating the volume and weight of food items using the trained model (volumetric analysis).
-
-## Volumetric analysis
-Accurate estimation of food portion size is a critical problem in nutrition analysis, dietary monitoring, and healthcare applications. Platesense presents a computer vision–based system for automatic food detection, volume estimation, and weight calculation from a single image. Platesense integrates YOLOv8-based object detection, geometric volume estimation, and density-based weight computation, deployed through an interactive Gradio web interface.
-
-Platesense aims to:
-- Detect food items from an image
-- Estimate their physical volume (ml)
-- Compute approximate weight (grams)
-- Provide results in visual, JSON, and CSV formats
-
-## Workflow for Volumetric analysis
-- User uploads a food image
-- Food items are detected using a YOLOv8 model
-- Plate diameter is used as a real-world reference
-- Object area is converted into real-world dimensions
-- Volume is estimated using geometric approximation
-- Weight is calculated using predefined food density
-- Results are displayed and exported
-
-## Technologies used
-| Component             | Technology           |
-| --------------------- | -------------------- |
-| Programming Language  | Python               |
-| Object Detection      | Ultralytics YOLOv8   |
-| Image Processing      | OpenCV               |
-| UI Framework          | Gradio               |
-| Deep Learning         | PyTorch              |
-| Volume Estimation     | Geometric modeling   |
-| Deployment            | Local / Server-based |
-
-## Volumetric analysis file structure
+#### 1. Install Dependencies:
 ```bash
-├── app2.py
-├── volumetric_food_analysis.py
-├── Place your best.pt
-├── requirements.txt
+pip install ultralytics opencv-python matplotlib numpy pandas
 ```
-### File Descriptions
-- **app.py** – Main application with Gradio UI
-- **volumetric_food_analysis.py** – Core logic for detection, volume, and weight estimation
-- **best.pt** – Trained YOLOv8 food detection model
-- **requirements.txt** – Required Python dependencies
-> This code will be in extra features folder(volumetric analysis)
 
-## User Interface:
-Platesense offers an interactive user interface built with Gradio, which enables users to upload food images, specify the YOLO model path, adjust the plate diameter for real-world scaling, and view visualized detection results. In addition to real-time visual feedback, the interface supports downloadable outputs, enabling users to obtain structured results in JSON and CSV formats for further analysis and record-keeping.
+#### 2. Directory Structure (`data.yaml`):
+Organize dataset directories in YOLO format:
+```
+dataset/
+├── images/
+│   ├── train/
+│   └── val/
+└── labels/
+    ├── train/
+    └── val/
+```
 
-## Output Formats:
-The system generates multiple output formats to support visualization and analysis, including an annotated image displaying detected food items with bounding boxes, a textual summary reporting the total number of detected items along with the estimated total volume (ml) and total weight (g), and a CSV output providing tabular data for further analysis. The CSV file includes detailed attributes such as food name, estimated volume, weight, area, height, and confidence score for each detected item.
-### Json format
+Configure `data.yaml` to define dataset locations, class counts, and label names:
+```yaml
+path: /path/to/dataset
+train: images/train
+val: images/val
+
+names:
+  0: rice
+  1: curry
+  2: salad
+  3: roti
+  4: waffles
+```
+
+#### 3. Train the Model:
+```python
+from ultralytics import YOLO
+
+# Load base model (yolov8n.pt or yolov8s.pt)
+model = YOLO("yolov8n.pt")
+
+# Train on custom dataset
+model.train(data="data.yaml", epochs=50, imgsz=640)
+```
+*Tip: If accuracy needs improvement, increase training duration to 100-150 epochs and enable image augmentations.*
+
+#### 4. Run Model Prediction / Inference:
+```python
+results = model.predict(source="test_image.jpg", conf=0.5)
+results.show()
+```
+
+<p align="center">
+  <img src="images1/check_1.png" width="300" alt="YOLOv8 Detection Test" />
+</p>
+
+---
+
+### 7.5 Model Evaluation Metrics
+
+Model performance is evaluated using standard computer vision metrics:
+- **Mean Average Precision (mAP)**: Evaluates bounding box overlap and class correctness across thresholds.
+- **Precision & Recall**: Measures false positive vs. missed detection trade-offs.
+- **F1 Score**: Harmonic mean of Precision and Recall.
+- **Inference Speed**: Milliseconds per frame.
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/43da7c3a-2d09-4a07-aa23-ef61f86d8b0c" width="700" alt="Evaluation Metrics" />
+</p>
+
+---
+
+### 7.6 Model Weight Saving & Fine-Tuning
+
+After training completes, YOLOv8 automatically saves model weight checkpoints in `runs/detect/train/weights/`:
+- `best.pt`: Highest performing model checkpoint.
+- `last.pt`: Final epoch training state.
+
+Save and export the weights:
+```python
+model.save("models/food_detection_best.pt")
+```
+
+#### Fine-Tuning on New Unlabeled Images:
+```python
+from ultralytics import YOLO
+
+# Load previously trained best weights
+model = YOLO("runs/detect/train/weights/best.pt")
+
+# Continue training on updated dataset
+model.train(data="dataset/data.yaml", epochs=20, imgsz=640)
+```
+
+<p align="center">
+  <img src="images1/Class_summary.png" width="400" alt="Class Distribution Summary" />
+</p>
+
+---
+
+### 7.7 Active Learning Loop
+
+To continuously improve detection precision over time, implement an **Active Learning Loop**:
+
+```
+[ New Unseen Food Images ] ──> [ Model Prediction ] ──> [ Human Review ]
+                                                               │
+[ Model Fine-Tuning (best.pt) ] ◄── [ Add to Dataset ] ◄── [ Re-Label Errors ]
+```
+
+1. Run inference on newly collected food photographs.
+2. Review predictions to identify missing items or misclassifications.
+3. Re-label corrected bounding boxes in Roboflow or LabelImg.
+4. Merge new annotated samples back into the training split.
+5. Fine-tune using `best.pt` as the starting checkpoint.
+
+---
+
+## 8. Real-Time Webcam Detection & Standalone Gradio UI
+
+### 8.1 Live Webcam Detection & Keyboard Controls
+
+`food_detection.py` supports real-time food detection directly via your computer's webcam feed.
+
+<p align="center">
+  <img src="check_r1.jpg" width="450" alt="Real-time Live Webcam Detection" />
+</p>
+
+#### Interactive Controls:
+| Key | Action |
+| :---: | :--- |
+| `q` | Quit webcam live feed |
+| `s` | Save screenshot of current detected frame |
+| `+` / `-` | Increase or decrease detection confidence threshold dynamically |
+
+---
+
+### 8.2 Standalone Gradio Volumetric Analysis UI
+
+`app2.py` (or `app.py`) launches an interactive Gradio web application for quick local experimentation:
+
 ```bash
-"summary": {
-"total_items_detected": 1 ,
-"total_volume_ml": 638.99 ,
-"total_volume_liters": 0.639 ,
-"total_weight_grams": 543.15 ,
-"total_weight_kg": 0.543 ,
-"items_with_components": 0
-} ,
-"food_items": [
+python app2.py
+```
+*Access the interface at `http://localhost:7860`.*
+
+Features:
+- Upload food images and specify the custom `best.pt` model path.
+- Adjust **Plate Diameter (cm)** slider for scale calibration.
+- Download structured results in JSON and CSV formats.
+
+<p align="center">
+  <img src="images1/gardio_!.png" width="400" alt="Gradio Interface 1" />
+  <img src="images1/gardio_2.png" width="400" alt="Gradio Interface 2" />
+</p>
+
+---
+
+### 8.3 Output Formats & Sample JSON Schema
+
+The system produces structured outputs containing visual bounding overlays, summary totals, and detailed item attributes.
+
+#### Sample JSON Result Payload:
+```json
 {
-"item_id": 1 ,
-"name": "waffles" ,
-"confidence": 0.8909 ,
-"bounding_box": {
-} ,
-"volume": {
-"volume_ml": 638.99 ,
-"weight_grams": 543.15 ,
-"weight_kg": 0.543 ,
-"area_cm2": 316.2 ,
-"estimated_height_cm": 2.89 ,
-"density_g_per_ml": 0.85 ,
-"dimensions_cm": {
+  "summary": {
+    "total_items_detected": 1,
+    "total_volume_ml": 638.99,
+    "total_volume_liters": 0.639,
+    "total_weight_grams": 543.15,
+    "total_weight_kg": 0.543,
+    "items_with_components": 0
+  },
+  "food_items": [
+    {
+      "item_id": 1,
+      "name": "waffles",
+      "confidence": 0.8909,
+      "bounding_box": {
+        "x_min": 120,
+        "y_min": 85,
+        "x_max": 450,
+        "y_max": 390
+      },
+      "volume": {
+        "volume_ml": 638.99,
+        "weight_grams": 543.15,
+        "weight_kg": 0.543,
+        "area_cm2": 316.2,
+        "estimated_height_cm": 2.89,
+        "density_g_per_ml": 0.85
+      }
+    }
+  ]
 }
-} ,
-"components": null
-}
-]
 ```
-> This is sample json format of image detected
 
-## How to Run Volumetric analysis
-- **Clone the Repository**
-  ```bash
-  git clone https://github.com/your-username/PlateSense.git
-  cd PlateSense
-  ```
-  > go the extra_features/Volumetric_analysis
+---
 
- - **Activate venv**
+## 9. Complete Installation & Quick Start Guide
+
+### 9.1 Prerequisites
+Ensure the following tools are installed:
+- **Python**: v3.10 or higher
+- **Node.js**: v18.0.0 or higher (npm / bun)
+- **MySQL Server**: v8.0 or higher (or Workbench)
+
+---
+
+### 9.2 Step 1: MySQL Database Setup
+
+1. Log in to MySQL:
    ```bash
-   python -m venv .venv
-   venv/scripts/activate
+   mysql -u root -p
    ```
+2. Create database:
+   ```sql
+   CREATE DATABASE IF NOT EXISTS food_caliper_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   ```
+3. Database tables are automatically initialized by SQLAlchemy when starting the backend.
 
-- **Installation**
+---
+
+### 9.3 Step 2: FastAPI Backend Setup
+
+1. Navigate to the backend folder:
+   ```bash
+   cd backend
+   ```
+2. Create and activate Python virtual environment:
+   - **Windows**:
+     ```bash
+     python -m venv venv
+     venv\Scripts\activate
+     ```
+   - **macOS / Linux**:
+     ```bash
+     python3 -m venv venv
+     source venv/bin/activate
+     ```
+3. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
-   > Check whether YOLOv8 model (best.pt) is placed in the project directory.
-
-- **Running the application**
-   ```bash
-   python app.py
+4. Create `.env` file inside `backend/.env`:
+   ```env
+   DATABASE_URL=mysql+pymysql://root:your_password@localhost:3306/food_caliper_db
+   SECRET_KEY=super-secret-jwt-key-change-this-in-production-32chars
+   ALGORITHM=HS256
+   ACCESS_TOKEN_EXPIRE_MINUTES=1440
+   YOLO_MODEL_PATH=../best.pt
+   API_HOST=0.0.0.0
+   API_PORT=8000
+   FRONTEND_URL=http://localhost:5173
    ```
-   > The application launches at: http://0.0.0.0:7860
+5. Run the server:
+   ```bash
+   python main.py
+   ```
+   *API will run at `http://localhost:8000`. Interactive docs available at `http://localhost:8000/docs`.*
 
-## Sample Outputs 
+---
+
+### 9.4 Step 3: React Web Frontend Setup
+
+1. Open a new terminal and navigate to the frontend folder:
+   ```bash
+   cd Website/Food_caliper
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Create `.env.local` inside `Website/Food_caliper/.env.local`:
+   ```env
+   VITE_API_URL=http://localhost:8000
+   ```
+4. Start the Vite dev server:
+   ```bash
+   npm run dev
+   ```
+5. Open browser at:
+   ```
+   http://localhost:5173
+   ```
+
+---
+
+### 9.5 Step 4: Standalone Gradio / Volumetric Execution
+
+To run standalone volumetric analysis without the web server:
+```bash
+python app2.py
+```
+*Access Gradio interface at `http://localhost:7860`.*
+
+---
+
+## 10. REST API Endpoint Reference
+
+### Authentication Endpoints (`/api/v1/auth`)
+| Method | Endpoint | Purpose | Payload |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/v1/auth/register` | Register a new user | `{ username, email, password, full_name }` |
+| `POST` | `/api/v1/auth/login` | Login user & return JWT token | `{ email, password }` |
+| `GET` | `/api/v1/auth/profile/{id}` | Get user profile details | *None* |
+| `PUT` | `/api/v1/auth/profile/{id}` | Update body stats (Height, Weight, Age) | `{ height_cm, weight_kg, age }` |
+
+### Volumetric Analysis Endpoints (`/api/v1/analysis`)
+| Method | Endpoint | Purpose | Query / Form Data |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/v1/analysis/upload` | Upload image & run YOLO 3D analysis | `FormData: file`, `params: user_id` |
+| `GET` | `/api/v1/analysis/{id}` | Get details for specific analysis ID | `params: user_id` |
+| `GET` | `/api/v1/analysis/history/all` | Get paginated analysis history | `params: user_id, limit, offset` |
+| `DELETE` | `/api/v1/analysis/{id}` | Delete analysis record | `params: user_id` |
+
+### User Dashboard Endpoints (`/api/v1/user`)
+| Method | Endpoint | Purpose | Query Parameters |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/v1/user/dashboard` | Get daily summary & macro rings | `user_id` |
+| `GET` | `/api/v1/user/stats/weekly` | Get weekly calorie trends & food categories | `user_id` |
+| `GET` | `/api/v1/user/stats/monthly` | Get monthly historic macro data | `user_id` |
+
+---
+
+## 11. Production Deployment & Dockerization
+
+The root directory includes a production multi-stage `Dockerfile`:
+
+```bash
+# Build Docker image
+docker build -t platesense-app:latest .
+
+# Run container with environment file
+docker run -d \
+  -p 8000:8000 \
+  -p 5173:5173 \
+  --env-file backend/.env \
+  --name platesense-container \
+  platesense-app:latest
+```
+
+---
+
+## 12. Troubleshooting & FAQ
+
+### Q1: `YOLO model not found` error on backend.
+**Solution**: Verify that `best.pt` exists in the root directory and `YOLO_MODEL_PATH=../best.pt` in `backend/.env` points to the correct path.
+
+### Q2: How do I adjust calibration plate diameter?
+**Solution**: Move the **Plate Diameter** slider in the Web App (`/analysis`) or update `PLATE_DIAMETER_CM=25` in `backend/.env`.
+
+### Q3: `'_' allowed only in math mode` when reading README.
+**Solution**: All math equations in this document have been updated to clean KaTeX syntax (`$D_{\text{plate (cm)}}$`), avoiding unescaped LaTeX errors.
+
+### Q4: CORS error when connecting frontend to backend.
+**Solution**: Verify `FRONTEND_URL=http://localhost:5173` is correctly set in `backend/.env`.
+
+---
+
 <p align="center">
-  <img src="/images1/gardio_!.png" width="500" />
-  <img src="/images1/gardio_2.png" width="500" />
+  <b>PlateSense / Food Caliper</b> • AI Volumetric Food & Nutrition Platform
 </p>
-
-
-
-
