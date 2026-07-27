@@ -18,6 +18,9 @@
   <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind-3.4-38B2AC.svg?logo=tailwind-css" alt="Tailwind CSS"></a>
 </p>
 
+<img width="1847" height="946" alt="image" src="https://github.com/user-attachments/assets/13499c23-fc0d-45d7-b387-172bdc1f69bc" />
+
+
 ---
 
 
@@ -688,19 +691,6 @@ We welcome open-source contributions from developers, researchers, and computer 
 
 ---
 
-### 12.3 Quick Reference & Troubleshooting
-
-- **YOLO Model Weights**: Place `best.pt` in the root directory or set `YOLO_MODEL_PATH=../best.pt` in `backend/.env`.
-- **Scale Calibration**: Adjust plate diameter slider in the Web App (`/analysis`) or set `PLATE_DIAMETER_CM=25` in `backend/.env`.
-- **CORS Configuration**: Verify `FRONTEND_URL=http://localhost:5173` matches the Vite dev server origin in `backend/.env`.
-
----
-
-### 12.4 License & Community Terms
-
-This project is open-source software licensed under the **MIT License**. You are free to use, modify, distribute, and integrate it into academic research, personal projects, or commercial applications.
-
----
 
 <p align="center">
   <b>PlateSense / Food Caliper</b> • Open Source AI Volumetric Food & Nutrition Platform
