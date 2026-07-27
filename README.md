@@ -1,17 +1,25 @@
-# 🥗 PlateSense / Food Caliper - AI Volumetric Food & Nutrition Intelligence Platform
+<div align="center">
+  <picture>
+    <img alt="PlateSense / Food Caliper logo" src="Website/Food_caliper/public/logo.png" width="96">
+  </picture>
+  <br>
+  <h1>PlateSense / Food Caliper (<code>food-caliper</code>)</h1>
+  <p><b>AI-Powered 3D Volumetric Food Estimation & Personal Nutrition Intelligence Platform</b></p>
+</div>
 
-> **End-to-End Platform Documentation: From Deep Learning Model Training (YOLOv8) to 3D Volumetric Computer Vision and Full-Stack Production Web Application.**
-
-[![React](https://img.shields.io/badge/React-18.3-blue.svg?logo=react)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg?logo=typescript)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-5.4-purple.svg?logo=vite)](https://vitejs.dev/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green.svg?logo=fastapi)](https://fastapi.tiangolo.com/)
-[![YOLOv8](https://img.shields.io/badge/YOLOv8-Ultralytics-orange.svg?logo=python)](https://docs.ultralytics.com/)
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-EE4C2C.svg?logo=pytorch)](https://pytorch.org/)
-[![MySQL](https://img.shields.io/badge/MySQL-8.0+-blue.svg?logo=mysql)](https://www.mysql.com/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC.svg?logo=tailwind-css)](https://tailwindcss.com/)
+<p align="center">
+  <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-18.3-blue.svg?logo=react" alt="React"></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.8-blue.svg?logo=typescript" alt="TypeScript"></a>
+  <a href="https://vitejs.dev/"><img src="https://img.shields.io/badge/Vite-5.4-purple.svg?logo=vite" alt="Vite"></a>
+  <a href="https://fastapi.tiangolo.com/"><img src="https://img.shields.io/badge/FastAPI-0.100+-green.svg?logo=fastapi" alt="FastAPI"></a>
+  <a href="https://docs.ultralytics.com/"><img src="https://img.shields.io/badge/YOLOv8-Ultralytics-orange.svg?logo=python" alt="YOLOv8"></a>
+  <a href="https://pytorch.org/"><img src="https://img.shields.io/badge/PyTorch-2.0+-EE4C2C.svg?logo=pytorch" alt="PyTorch"></a>
+  <a href="https://www.mysql.com/"><img src="https://img.shields.io/badge/MySQL-8.0+-blue.svg?logo=mysql" alt="MySQL"></a>
+  <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind-3.4-38B2AC.svg?logo=tailwind-css" alt="Tailwind CSS"></a>
+</p>
 
 ---
+
 
 ## 📋 Table of Contents
 
