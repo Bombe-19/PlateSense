@@ -147,13 +147,13 @@ Where:
 - $P_i$: Contour polygon vertices mapping exact edge boundaries in pixel space.
 
 ### 5.2 Real-World Scale Calibration Matrix
-Camera distance varies across photos. To establish physical scale, the system uses a known reference object—by default, the physical dinner plate diameter $D_{\text{plate\_cm}}$ (e.g., $25\text{ cm}$).
+Camera distance varies across photos. To establish physical scale, the system uses a known reference object—by default, the physical dinner plate diameter $D_{\text{plate (cm)}}$ (e.g., $25\text{ cm}$).
 
 1. **Pixel Diameter Calculation**:
-   $$D_{\text{plate\_px}} = \max(W_{\text{plate\_bbox}}, H_{\text{plate\_bbox}})$$
+   $$D_{\text{plate (px)}} = \max(W_{\text{plate-bbox}}, H_{\text{plate-bbox}})$$
 
 2. **Pixel-to-Centimeter Scale Ratio ($S$)**:
-   $$S = \frac{D_{\text{plate\_cm}}}{D_{\text{plate\_px}}} \quad \left[\frac{\text{cm}}{\text{pixel}}\right]$$
+   $$S = \frac{D_{\text{plate (cm)}}}{D_{\text{plate (px)}}} \quad \left[\frac{\text{cm}}{\text{px}}\right]$$
 
 3. **Physical Area Conversion**:
    Given contour area in pixels $A_{\text{px}}$ derived via Green's theorem on polygon contour vertices:
@@ -163,13 +163,13 @@ Camera distance varies across photos. To establish physical scale, the system us
 Since single-view RGB cameras lack direct depth channels, height $H_{\text{cm}}$ is geometrically estimated based on aspect ratio and morphological classification of specific food types (e.g., planar foods like naan/dosa vs. spherical/ellipsoidal foods like dumplings/apples vs. piled foods like rice):
 
 - **Ellipsoidal / Dome-shaped Foods (e.g., Rice bowl, Curry, Salad)**:
-  $$V_{\text{cm}^3} = \frac{2}{3} \cdot A_{\text{cm}^2} \cdot H_{\text{est\_cm}}$$
+  $$V_{\text{cm}^3} = \frac{2}{3} \cdot A_{\text{cm}^2} \cdot H_{\text{est}}$$
 
 - **Planar / Flat Foods (e.g., Pizza, Pancake, Dosa, Roti)**:
-  $$V_{\text{cm}^3} = A_{\text{cm}^2} \cdot H_{\text{flat\_thickness\_cm}}$$
+  $$V_{\text{cm}^3} = A_{\text{cm}^2} \cdot H_{\text{flat-thickness}}$$
 
 - **Cylindrical / Prismatic Foods (e.g., Cake slice, Sandwiches)**:
-  $$V_{\text{cm}^3} = A_{\text{cm}^2} \cdot H_{\text{height\_cm}} \cdot K_{\text{taper}}$$
+  $$V_{\text{cm}^3} = A_{\text{cm}^2} \cdot H_{\text{height}} \cdot K_{\text{taper}}$$
 
 Where $K_{\text{taper}}$ is a shape factor compensation constant ($\approx 0.85$).
 
@@ -187,6 +187,7 @@ $$M_{\text{grams}} = V_{\text{cm}^3} \times \rho_{\text{food}}$$
 Finally, macronutrient values are calculated against the nutritional database (`Indian_Food_Nutrition_Processed.csv` / MySQL table):
 
 $$\text{Nutrient}_{\text{total}} = \text{Nutrient}_{\text{per 100g}} \times \frac{M_{\text{grams}}}{100}$$
+
 
 ---
 
