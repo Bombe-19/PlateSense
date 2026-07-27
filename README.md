@@ -48,7 +48,8 @@
   - [9.5 Step 4: Standalone Gradio / Volumetric Execution](#95-step-4-standalone-gradio--volumetric-execution)
 - [10. REST API Endpoint Reference](#10-rest-api-endpoint-reference)
 - [11. Production Deployment & Dockerization](#11-production-deployment--dockerization)
-- [12. Troubleshooting & FAQ](#12-troubleshooting--faq)
+- [12. Open Source, Cloning & Contribution Guide](#12-open-source-cloning--contribution-guide)
+
 
 ---
 
@@ -642,22 +643,58 @@ docker run -d \
 
 ---
 
-## 12. Troubleshooting & FAQ
+## 12. Open Source, Cloning & Contribution Guide
 
-### Q1: `YOLO model not found` error on backend.
-**Solution**: Verify that `best.pt` exists in the root directory and `YOLO_MODEL_PATH=../best.pt` in `backend/.env` points to the correct path.
+### 12.1 Cloning the Repository
 
-### Q2: How do I adjust calibration plate diameter?
-**Solution**: Move the **Plate Diameter** slider in the Web App (`/analysis`) or update `PLATE_DIAMETER_CM=25` in `backend/.env`.
+To set up PlateSense / Food Caliper locally or contribute to development, clone the repository:
 
-### Q3: `'_' allowed only in math mode` when reading README.
-**Solution**: All math equations in this document have been updated to clean KaTeX syntax (`$D_{\text{plate (cm)}}$`), avoiding unescaped LaTeX errors.
+```bash
+# Clone the repository
+git clone https://github.com/your-username/PlateSense.git
 
-### Q4: CORS error when connecting frontend to backend.
-**Solution**: Verify `FRONTEND_URL=http://localhost:5173` is correctly set in `backend/.env`.
+# Navigate into the project root directory
+cd PlateSense
+```
+
+---
+
+### 12.2 Open Source Contribution Guidelines
+
+We welcome open-source contributions from developers, researchers, and computer vision enthusiasts! Follow these steps to contribute:
+
+1. **Fork the Repository**: Click **Fork** at the top right of the GitHub repository.
+2. **Create a Feature Branch**:
+   ```bash
+   git checkout -b feature/AmazingFeature
+   ```
+3. **Commit your Changes**:
+   ```bash
+   git commit -m 'Add some AmazingFeature'
+   ```
+4. **Push to the Branch**:
+   ```bash
+   git push origin feature/AmazingFeature
+   ```
+5. **Open a Pull Request**: Submit a PR describing your feature, bug fix, or performance improvement.
+
+---
+
+### 12.3 Quick Reference & Troubleshooting
+
+- **YOLO Model Weights**: Place `best.pt` in the root directory or set `YOLO_MODEL_PATH=../best.pt` in `backend/.env`.
+- **Scale Calibration**: Adjust plate diameter slider in the Web App (`/analysis`) or set `PLATE_DIAMETER_CM=25` in `backend/.env`.
+- **CORS Configuration**: Verify `FRONTEND_URL=http://localhost:5173` matches the Vite dev server origin in `backend/.env`.
+
+---
+
+### 12.4 License & Community Terms
+
+This project is open-source software licensed under the **MIT License**. You are free to use, modify, distribute, and integrate it into academic research, personal projects, or commercial applications.
 
 ---
 
 <p align="center">
-  <b>PlateSense / Food Caliper</b> • AI Volumetric Food & Nutrition Platform
+  <b>PlateSense / Food Caliper</b> • Open Source AI Volumetric Food & Nutrition Platform
 </p>
+

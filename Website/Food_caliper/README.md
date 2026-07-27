@@ -39,7 +39,8 @@
   - [8.3 API Client Integration](#83-api-client-integration)
 - [9. REST API Endpoint Reference](#9-rest-api-endpoint-reference)
 - [10. Production Deployment & Dockerization](#10-production-deployment--dockerization)
-- [11. Troubleshooting & FAQ](#11-troubleshooting--faq)
+- [11. Open Source, Cloning & Contribution Guide](#11-open-source-cloning--contribution-guide)
+
 
 ---
 
@@ -456,42 +457,60 @@ console.log("Total Calories:", analysisResult.summary.total_calories);
 
 ---
 
-## 10. Production Deployment & Dockerization
+## 11. Open Source, Cloning & Contribution Guide
 
-To deploy Food Caliper to production cloud environments (AWS, GCP, DigitalOcean, or Azure), you can run the full stack via Docker containers.
+### 11.1 Cloning the Repository
 
-### Dockerfile Deployment
-
-A root `Dockerfile` is provided for containerizing the full application stack:
+To clone and run the Food Caliper web application locally:
 
 ```bash
-# Build Docker image
-docker build -t food-caliper:latest .
+# Clone the repository
+git clone https://github.com/your-username/PlateSense.git
 
-# Run container with environment file
-docker run -d \
-  -p 8000:8000 \
-  -p 5173:5173 \
-  --env-file backend/.env \
-  --name food-caliper-app \
-  food-caliper:latest
+# Navigate to the web application directory
+cd PlateSense/Website/Food_caliper
+
+# Install Node dependencies
+npm install
+
+# Start the Vite development server
+npm run dev
 ```
 
 ---
 
-> 11. Troubleshooting & FAQ
+### 11.2 Open Source Contribution Guidelines
 
-> ### Q1: The backend returns `YOLO model not found` during analysis.
-> **Solution**: Ensure that `best.pt` exists in the project root directory and that `YOLO_MODEL_PATH=../best.pt` in `backend/.env` points to the correct absolute or relative file location.
+Contributions to the Food Caliper web frontend, UI components, and API client layer are welcome!
 
-> ### Q2: How can I change the default plate diameter for calibration?
-> **Solution**: In the Scanner UI (`/analysis`), adjust the **Plate Diameter** slider. Alternatively, configure `PLATE_DIAMETER_CM=25` in `backend/.env`.
+1. **Fork the Repository**: Click **Fork** on GitHub.
+2. **Create a Feature Branch**:
+   ```bash
+   git checkout -b feature/AmazingFrontendFeature
+   ```
+3. **Commit your Changes**:
+   ```bash
+   git commit -m 'Add AmazingFrontendFeature'
+   ```
+4. **Push to the Branch**:
+   ```bash
+   git push origin feature/AmazingFrontendFeature
+   ```
+5. **Open a Pull Request**: Submit a PR outlining your UI/UX or architectural improvements.
 
-> ### Q3: Why does volume calculation show 0 for a custom food item?
-> **Solution**: Ensure the detected item name exists in `Indian_Food_Nutrition_Processed.csv` or the `food_nutrition_database` table so density values ($\rho$) can be resolved.
+---
 
-> ### Q4: CORS errors occur when calling the API from the frontend.
-> **Solution**: Ensure `FRONTEND_URL=http://localhost:5173` is set in `backend/.env` and matches the origin address where Vite is running.
+### 11.3 Quick Troubleshooting Reference
+
+- **Backend Connection Failure**: Ensure the FastAPI server is running at `http://localhost:8000` and `VITE_API_URL=http://localhost:8000` is set in `.env.local`.
+- **YOLO Weights Not Loaded**: Verify `best.pt` is placed in the project root directory.
+- **Plate Calibration**: Adjust the interactive **Plate Diameter** slider in `/analysis` to set real-world scaling ($cm$).
+
+---
+
+### 11.4 License & Open Source Terms
+
+This application is released under the **MIT License**. Free for academic research, community use, and commercial extension.
 
 ---
 
