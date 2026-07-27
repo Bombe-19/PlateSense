@@ -479,19 +479,19 @@ docker run -d \
 
 ---
 
-## 11. Troubleshooting & FAQ
+> 11. Troubleshooting & FAQ
 
-### Q1: The backend returns `YOLO model not found` during analysis.
-**Solution**: Ensure that `best.pt` exists in the project root directory and that `YOLO_MODEL_PATH=../best.pt` in `backend/.env` points to the correct absolute or relative file location.
+> ### Q1: The backend returns `YOLO model not found` during analysis.
+> **Solution**: Ensure that `best.pt` exists in the project root directory and that `YOLO_MODEL_PATH=../best.pt` in `backend/.env` points to the correct absolute or relative file location.
 
-### Q2: How can I change the default plate diameter for calibration?
-**Solution**: In the Scanner UI (`/analysis`), adjust the **Plate Diameter** slider. Alternatively, configure `PLATE_DIAMETER_CM=25` in `backend/.env`.
+> ### Q2: How can I change the default plate diameter for calibration?
+> **Solution**: In the Scanner UI (`/analysis`), adjust the **Plate Diameter** slider. Alternatively, configure `PLATE_DIAMETER_CM=25` in `backend/.env`.
 
-### Q3: Why does volume calculation show 0 for a custom food item?
-**Solution**: Ensure the detected item name exists in `Indian_Food_Nutrition_Processed.csv` or the `food_nutrition_database` table so density values ($\rho$) can be resolved.
+> ### Q3: Why does volume calculation show 0 for a custom food item?
+> **Solution**: Ensure the detected item name exists in `Indian_Food_Nutrition_Processed.csv` or the `food_nutrition_database` table so density values ($\rho$) can be resolved.
 
-### Q4: CORS errors occur when calling the API from the frontend.
-**Solution**: Ensure `FRONTEND_URL=http://localhost:5173` is set in `backend/.env` and matches the origin address where Vite is running.
+> ### Q4: CORS errors occur when calling the API from the frontend.
+> **Solution**: Ensure `FRONTEND_URL=http://localhost:5173` is set in `backend/.env` and matches the origin address where Vite is running.
 
 ---
 
