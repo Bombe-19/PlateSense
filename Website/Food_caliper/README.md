@@ -2,6 +2,9 @@
 
 > **A State-of-the-Art 3D Volumetric Food Estimation, Computer Vision Portion Analysis, and Personal Nutrition Web Application.**
 
+<img width="1847" height="946" alt="image" src="https://github.com/user-attachments/assets/d3054327-7f7c-40fd-94cf-c3d12c14960c" />
+
+
 [![React](https://img.shields.io/badge/React-18.3-blue.svg?logo=react)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg?logo=typescript)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-5.4-purple.svg?logo=vite)](https://vitejs.dev/)
