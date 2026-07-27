@@ -17,6 +17,9 @@
   <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind-3.4-38B2AC.svg?logo=tailwind-css" alt="Tailwind CSS"></a>
 </p>
 
+<img width="1847" height="946" alt="image" src="https://github.com/user-attachments/assets/f5579749-af36-4f93-a1ab-a0af13ec74e0" />
+
+
 ---
 
 
@@ -43,8 +46,7 @@
   - [8.2 Key UI Components & Animations](#82-key-ui-components--animations)
   - [8.3 API Client Integration](#83-api-client-integration)
 - [9. REST API Endpoint Reference](#9-rest-api-endpoint-reference)
-- [10. Production Deployment & Dockerization](#10-production-deployment--dockerization)
-- [11. Open Source, Cloning & Contribution Guide](#11-open-source-cloning--contribution-guide)
+- [10. Open Source, Cloning & Contribution Guide](#10-open-source-cloning--contribution-guide)
 
 
 ---
@@ -462,9 +464,9 @@ console.log("Total Calories:", analysisResult.summary.total_calories);
 
 ---
 
-## 11. Open Source, Cloning & Contribution Guide
+## 10. Open Source, Cloning & Contribution Guide
 
-### 11.1 Cloning the Repository
+### 10.1 Cloning the Repository
 
 To clone and run the Food Caliper web application locally:
 
@@ -484,7 +486,7 @@ npm run dev
 
 ---
 
-### 11.2 Open Source Contribution Guidelines
+### 10.2 Open Source Contribution Guidelines
 
 Contributions to the Food Caliper web frontend, UI components, and API client layer are welcome!
 
@@ -502,20 +504,6 @@ Contributions to the Food Caliper web frontend, UI components, and API client la
    git push origin feature/AmazingFrontendFeature
    ```
 5. **Open a Pull Request**: Submit a PR outlining your UI/UX or architectural improvements.
-
----
-
-### 11.3 Quick Troubleshooting Reference
-
-- **Backend Connection Failure**: Ensure the FastAPI server is running at `http://localhost:8000` and `VITE_API_URL=http://localhost:8000` is set in `.env.local`.
-- **YOLO Weights Not Loaded**: Verify `best.pt` is placed in the project root directory.
-- **Plate Calibration**: Adjust the interactive **Plate Diameter** slider in `/analysis` to set real-world scaling ($cm$).
-
----
-
-### 11.4 License & Open Source Terms
-
-This application is released under the **MIT License**. Free for academic research, community use, and commercial extension.
 
 ---
 
